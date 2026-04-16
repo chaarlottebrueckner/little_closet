@@ -1,3 +1,4 @@
+import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -244,7 +245,7 @@ class _WardrobePageState extends State<WardrobePage> {
   void _showFilterSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: LCColors.surface,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -395,88 +396,148 @@ class _FilterSheetState extends State<_FilterSheet> {
       expand: false,
       initialChildSize: 0.75,
       maxChildSize: 0.92,
-      builder: (context, scrollController) => Column(
-        children: [
-          // Handle + header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+      builder: (context, scrollController) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF0F7).withValues(alpha: 0.72),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border.all(
+                color: const Color(0xFFE8A0BF).withValues(alpha: 0.45),
+                width: 1.0,
+              ),
+            ),
             child: Column(
               children: [
+                const SizedBox(height: 14),
+                // Gradient handle
                 Container(
-                  width: 40,
-                  height: 4,
+                  width: 36,
+                  height: 3,
                   decoration: BoxDecoration(
-                    color: LCColors.chrome,
+                    gradient: LCColors.gradientPink,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Text('Filter',
-                        style: Theme.of(context).textTheme.headlineSmall),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: _reset,
-                      child: Text('Zurücksetzen',
-                          style: TextStyle(color: LCColors.primary)),
+                // Header
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 18, 16, 0),
+                  child: Row(
+                    children: [
+                      ShaderMask(
+                        shaderCallback: (bounds) => const LinearGradient(
+                          colors: [Color(0xFFD4789C), Color(0xFFE8A0BF)],
+                        ).createShader(bounds),
+                        child: Text(
+                          'FILTER',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(
+                                color: Colors.white,
+                                letterSpacing: 2.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                      ),
+                      const Spacer(),
+                      TextButton(
+                        onPressed: _reset,
+                        child: Text(
+                          'Zurücksetzen',
+                          style: TextStyle(
+                            color: LCColors.primary,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Shimmer divider
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0x00FFFFFF),
+                          const Color(0xFFE8A0BF).withValues(alpha: 0.6),
+                          const Color(0xFFD4789C).withValues(alpha: 0.4),
+                          const Color(0x00FFFFFF),
+                        ],
+                        stops: const [0.0, 0.3, 0.7, 1.0],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(height: 4),
-              ],
-            ),
-          ),
-          const Divider(height: 1),
-          // Scrollable filter sections
-          Expanded(
-            child: ListView(
-              controller: scrollController,
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              children: [
-                _buildSection('Kategorie', AppConstants.categories, _category,
-                    (v) => setState(() => _category = v)),
-                _buildSection('Saison', AppConstants.seasons, _season,
-                    (v) => setState(() => _season = v)),
-                _buildSection('Farbe', AppConstants.colorOptions, _color,
-                    (v) => setState(() => _color = v)),
-                _buildSection('Style', AppConstants.styleTags, _styleTag,
-                    (v) => setState(() => _styleTag = v)),
-                _buildSection('Wetter', AppConstants.weatherTags, _weather,
-                    (v) => setState(() => _weather = v)),
-              ],
-            ),
-          ),
-          // Apply button
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 32),
-            child: SizedBox(
-              width: double.infinity,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LCColors.gradientPink,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: TextButton(
-                  onPressed: _apply,
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                // Scrollable filter sections
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                    children: [
+                      _buildSection('Kategorie', AppConstants.categories,
+                          _category, (v) => setState(() => _category = v)),
+                      _buildSection('Saison', AppConstants.seasons, _season,
+                          (v) => setState(() => _season = v)),
+                      _buildSection('Farbe', AppConstants.colorOptions, _color,
+                          (v) => setState(() => _color = v)),
+                      _buildSection('Style', AppConstants.styleTags, _styleTag,
+                          (v) => setState(() => _styleTag = v)),
+                      _buildSection('Wetter', AppConstants.weatherTags,
+                          _weather, (v) => setState(() => _weather = v)),
+                    ],
                   ),
-                  child: const Text(
-                    'Anwenden',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
+                ),
+                // Apply button
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LCColors.gradientPink,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: LCColors.primary.withValues(alpha: 0.35),
+                            blurRadius: 20,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: TextButton(
+                        onPressed: _apply,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14)),
+                        ),
+                        child: const Text(
+                          'Anwenden',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -490,8 +551,28 @@ class _FilterSheetState extends State<_FilterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: Theme.of(context).textTheme.titleSmall),
-        const SizedBox(height: 10),
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 2,
+              decoration: BoxDecoration(
+                gradient: LCColors.gradientPink,
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title.toUpperCase(),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: LCColors.textMuted,
+                    letterSpacing: 1.8,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -500,32 +581,46 @@ class _FilterSheetState extends State<_FilterSheet> {
             return GestureDetector(
               onTap: () => onTap(isSelected ? null : opt),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? LCColors.primary.withValues(alpha: 0.12)
-                      : Colors.transparent,
+                      ? const Color(0xFFE8A0BF).withValues(alpha: 0.22)
+                      : Colors.white.withValues(alpha: 0.45),
                   border: Border.all(
                     color: isSelected
-                        ? LCColors.primary
-                        : const Color(0xFFEDE0E8),
+                        ? const Color(0xFFD4789C).withValues(alpha: 0.8)
+                        : const Color(0xFFE8A0BF).withValues(alpha: 0.4),
+                    width: isSelected ? 1.2 : 0.8,
                   ),
                   borderRadius: BorderRadius.circular(20),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: LCColors.primary.withValues(alpha: 0.18),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Text(
                   opt,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: isSelected ? LCColors.primary : LCColors.textMuted,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                        color:
+                            isSelected ? LCColors.primary : LCColors.textMuted,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
                       ),
                 ),
               ),
             );
           }).toList(),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 22),
       ],
     );
   }
