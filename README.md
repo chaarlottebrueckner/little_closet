@@ -1,7 +1,7 @@
 # 💗 little closet
 
-Ein futuristisches, y2k-inspiriertes Garderobe-Management-App für Android.  
-Studienprojekt — Flutter + Gemini AI + Isar DB.
+Ein Garderobe-Management-App für Android.  
+Studienprojekt — Flutter + Gemini AI + Drift DB.
 
 ---
 

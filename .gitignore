@@ -1,0 +1,15 @@
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+build/
+
+# Web spezifisch (da du Chrome-Logs hattest)
+.cache/
+.history/
+
+# OS spezifisch
+.DS_Store
+Thumbs.db
