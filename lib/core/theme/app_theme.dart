@@ -13,7 +13,7 @@ class LCColors {
   static const textDark = Color(0xFF1A1A1A);      // Almost black
   static const textMuted = Color(0xFF8A8A8A);     // Subtle text
   static const surface = Color(0xFFFFFFFF);       // Card surfaces
-  static const surfaceGlass = Color(0x99FFFFFF);  // Glassmorphism
+  static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);  // Glassmorphism
 
   // Gradients
   static const gradientPink = LinearGradient(
@@ -32,6 +32,33 @@ class LCColors {
     colors: [Color(0xFFFFFFFF), Color(0xFFF5F0F3)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
+  );
+}
+
+class LCGlass {
+  LCGlass._();
+
+  //maybe change here
+  // Blur strength
+  static const double blurSigma = 24.0;
+
+  //maybe change here
+  // Sheet background: warm white-pink tint, low alpha so blur shows through
+  static const Color sheetColor = Color.fromARGB(56, 255, 240, 247); // ~22% opacity
+
+  // Border: soft pink shimmer
+  static const Color borderColor = Color(0x73E8A0BF); // ~45% opacity
+  static const double borderWidth = 1.0;
+
+  // Shimmer divider gradient (fades to transparent white)
+  static const shimmerDivider = LinearGradient(
+    colors: [
+      Color(0x00FFFFFF),
+      Color(0x99E8A0BF),
+      Color(0x66D4789C),
+      Color(0x00FFFFFF),
+    ],
+    stops: [0.0, 0.3, 0.7, 1.0],
   );
 }
 

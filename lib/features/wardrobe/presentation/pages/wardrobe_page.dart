@@ -1,7 +1,7 @@
-import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/widgets/glass_sheet.dart';
 
 class WardrobePage extends StatefulWidget {
   const WardrobePage({super.key});
@@ -246,6 +246,7 @@ class _WardrobePageState extends State<WardrobePage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -396,21 +397,8 @@ class _FilterSheetState extends State<_FilterSheet> {
       expand: false,
       initialChildSize: 0.75,
       maxChildSize: 0.92,
-      builder: (context, scrollController) => ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFFFF0F7).withValues(alpha: 0.72),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(28)),
-              border: Border.all(
-                color: const Color(0xFFE8A0BF).withValues(alpha: 0.45),
-                width: 1.0,
-              ),
-            ),
-            child: Column(
+      builder: (context, scrollController) => GlassSheet(
+        child: Column(
               children: [
                 const SizedBox(height: 14),
                 // Gradient handle
@@ -464,16 +452,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Container(
                     height: 1,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0x00FFFFFF),
-                          const Color(0xFFE8A0BF).withValues(alpha: 0.6),
-                          const Color(0xFFD4789C).withValues(alpha: 0.4),
-                          const Color(0x00FFFFFF),
-                        ],
-                        stops: const [0.0, 0.3, 0.7, 1.0],
-                      ),
+                    decoration: const BoxDecoration(
+                      gradient: LCGlass.shimmerDivider,
                     ),
                   ),
                 ),
@@ -537,9 +517,7 @@ class _FilterSheetState extends State<_FilterSheet> {
               ],
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 
   Widget _buildSection(
