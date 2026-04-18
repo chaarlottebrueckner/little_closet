@@ -56,6 +56,38 @@ class ClothingRepository {
           ),
         );
   }
+
+  Future<void> updateClothingItem({
+    required String id,
+    required String imagePath,
+    required String category,
+    String? subcategory,
+    String? color,
+    List<String> seasons = const [],
+    List<String> styleTags = const [],
+    List<String> weatherTags = const [],
+  }) async {
+    await (_db.update(_db.clothingItems)..where((t) => t.id.equals(id))).write(
+      ClothingItemsCompanion(
+        imagePath: Value(imagePath),
+        category: Value(category),
+        subcategory: Value(subcategory),
+        color: Value(color),
+        seasons: Value(seasons),
+        styleTags: Value(styleTags),
+        weatherTags: Value(weatherTags),
+      ),
+    );
+  }
+
+  Future<void> deleteClothingItem(String id) async {
+    await (_db.delete(_db.clothingItems)..where((t) => t.id.equals(id))).go();
+  }
+
+  Stream<ClothingItem?> watchItemById(String id) {
+    return (_db.select(_db.clothingItems)..where((t) => t.id.equals(id)))
+        .watchSingleOrNull();
+  }
 }
 
 final clothingRepositoryProvider = Provider<ClothingRepository>((ref) {
@@ -64,4 +96,9 @@ final clothingRepositoryProvider = Provider<ClothingRepository>((ref) {
 
 final clothingItemsProvider = StreamProvider<List<ClothingItem>>((ref) {
   return ref.watch(clothingRepositoryProvider).watchAllItems();
+});
+
+final clothingItemByIdProvider =
+    StreamProvider.family<ClothingItem?, String>((ref, id) {
+  return ref.watch(clothingRepositoryProvider).watchItemById(id);
 });

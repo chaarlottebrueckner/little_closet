@@ -6,18 +6,23 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 
 class UploadPage extends ConsumerStatefulWidget {
-  final XFile image;
-  const UploadPage({super.key, required this.image});
+  final XFile? image;
+  final ClothingItem? editItem;
+
+  const UploadPage({super.key, this.image, this.editItem})
+      : assert(image != null || editItem != null,
+            'Either image or editItem must be provided');
 
   @override
   ConsumerState<UploadPage> createState() => _UploadPageState();
 }
 
 class _UploadPageState extends ConsumerState<UploadPage> {
-  late XFile _image;
+  XFile? _newImage;
   final _picker = ImagePicker();
   String? _category;
   String? _subcategory;
@@ -27,30 +32,60 @@ class _UploadPageState extends ConsumerState<UploadPage> {
   final Set<String> _weatherTags = {};
   bool _isSaving = false;
 
+  bool get _isEditing => widget.editItem != null;
+
   @override
   void initState() {
     super.initState();
-    _image = widget.image;
+    _newImage = widget.image;
+    final e = widget.editItem;
+    if (e != null) {
+      _category = e.category;
+      _subcategory = e.subcategory;
+      _color = e.color;
+      _seasons.addAll(e.seasons);
+      _styleTags.addAll(e.styleTags);
+      _weatherTags.addAll(e.weatherTags);
+    }
   }
 
   Future<void> _save() async {
     setState(() => _isSaving = true);
     try {
       final repo = ref.read(clothingRepositoryProvider);
-      final imagePath = await repo.saveImage(_image);
-      await repo.saveClothingItem(
-        imagePath: imagePath,
-        category: _category!,
-        subcategory: _subcategory,
-        color: _color,
-        seasons: _seasons.toList(),
-        styleTags: _styleTags.toList(),
-        weatherTags: _weatherTags.toList(),
-      );
+      final String imagePath;
+      if (_newImage != null) {
+        imagePath = await repo.saveImage(_newImage!);
+      } else {
+        imagePath = widget.editItem!.imagePath;
+      }
+
+      if (_isEditing) {
+        await repo.updateClothingItem(
+          id: widget.editItem!.id,
+          imagePath: imagePath,
+          category: _category!,
+          subcategory: _subcategory,
+          color: _color,
+          seasons: _seasons.toList(),
+          styleTags: _styleTags.toList(),
+          weatherTags: _weatherTags.toList(),
+        );
+      } else {
+        await repo.saveClothingItem(
+          imagePath: imagePath,
+          category: _category!,
+          subcategory: _subcategory,
+          color: _color,
+          seasons: _seasons.toList(),
+          styleTags: _styleTags.toList(),
+          weatherTags: _weatherTags.toList(),
+        );
+      }
       if (mounted) {
-        Navigator.pop(context);
+        Navigator.pop(context, _isEditing ? true : null);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gespeichert! 🎀')),
+          SnackBar(content: Text(_isEditing ? 'Gespeichert! ✨' : 'Gespeichert! 🎀')),
         );
       }
     } finally {
@@ -67,7 +102,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     );
     if (source == null) return;
     final picked = await _picker.pickImage(source: source, imageQuality: 85);
-    if (picked != null) setState(() => _image = picked);
+    if (picked != null) setState(() => _newImage = picked);
   }
 
   @override
@@ -112,8 +147,8 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                 fit: StackFit.expand,
                 children: [
                   kIsWeb
-                      ? Image.network(_image.path, fit: BoxFit.cover)
-                      : Image.file(File(_image.path), fit: BoxFit.cover),
+                      ? Image.network(_newImage?.path ?? widget.editItem!.imagePath, fit: BoxFit.cover)
+                      : Image.file(File(_newImage?.path ?? widget.editItem!.imagePath), fit: BoxFit.cover),
                   Positioned(
                     bottom: 0,
                     left: 0,

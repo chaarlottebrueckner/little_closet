@@ -8,6 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
+import 'clothing_detail_page.dart';
 import 'upload_page.dart';
 
 class WardrobePage extends ConsumerStatefulWidget {
@@ -18,25 +19,25 @@ class WardrobePage extends ConsumerStatefulWidget {
 }
 
 class _ActiveFilters {
-  String? category;
+  Set<String> categories = {};
   String? season;
   String? color;
   String? styleTag;
   String? weather;
 
   bool get hasAny =>
-      category != null ||
+      categories.isNotEmpty ||
       season != null ||
       color != null ||
       styleTag != null ||
       weather != null;
 
-  int get count => [category, season, color, styleTag, weather]
-      .where((v) => v != null)
-      .length;
+  int get count =>
+      categories.length +
+      [season, color, styleTag, weather].where((v) => v != null).length;
 
   void clear() {
-    category = null;
+    categories = {};
     season = null;
     color = null;
     styleTag = null;
@@ -219,8 +220,8 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
 
   Widget _buildActiveFilterChips() {
     final entries = <MapEntry<String, VoidCallback>>[
-      if (_filters.category != null)
-        MapEntry(_filters.category!, () => setState(() => _filters.category = null)),
+      for (final cat in _filters.categories)
+        MapEntry(cat, () => setState(() => _filters.categories.remove(cat))),
       if (_filters.season != null)
         MapEntry(_filters.season!, () => setState(() => _filters.season = null)),
       if (_filters.color != null)
@@ -261,7 +262,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
       builder: (context) => _FilterSheet(
         filters: _filters,
         onApply: (updated) => setState(() {
-          _filters.category = updated.category;
+          _filters.categories = updated.categories;
           _filters.season = updated.season;
           _filters.color = updated.color;
           _filters.styleTag = updated.styleTag;
@@ -288,7 +289,10 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
             childAspectRatio: 0.72,
           ),
           itemCount: filtered.length,
-          itemBuilder: (context, i) => _ClothingCard(item: filtered[i]),
+          itemBuilder: (context, i) => _ClothingCard(
+                item: filtered[i],
+                onTap: () => _openDetailPage(filtered[i]),
+              ),
         );
       },
     );
@@ -296,7 +300,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
 
   List<ClothingItem> _applyFilters(List<ClothingItem> items) {
     return items.where((item) {
-      if (_filters.category != null && item.category != _filters.category) {
+      if (_filters.categories.isNotEmpty && !_filters.categories.contains(item.category)) {
         return false;
       }
       if (_filters.color != null && item.color != _filters.color) return false;
@@ -400,6 +404,32 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
     );
   }
 
+  void _openDetailPage(ClothingItem item) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => ClothingDetailPage(
+        itemId: item.id,
+        onEdit: _openEditFromDetail,
+      ),
+    );
+  }
+
+  void _openEditFromDetail(ClothingItem item) async {
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => UploadPage(editItem: item),
+    );
+    if (saved == true && mounted) {
+      _openDetailPage(item);
+    }
+  }
+
   void _openUploadPage(XFile image) {
     if (!mounted) return;
     showModalBottomSheet(
@@ -414,11 +444,14 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
 
 class _ClothingCard extends StatelessWidget {
   final ClothingItem item;
-  const _ClothingCard({required this.item});
+  final VoidCallback? onTap;
+  const _ClothingCard({required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(20),
@@ -483,7 +516,7 @@ class _ClothingCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -498,7 +531,7 @@ class _FilterSheet extends StatefulWidget {
 }
 
 class _FilterSheetState extends State<_FilterSheet> {
-  late String? _category;
+  late Set<String> _categories;
   late String? _season;
   late String? _color;
   late String? _styleTag;
@@ -507,7 +540,7 @@ class _FilterSheetState extends State<_FilterSheet> {
   @override
   void initState() {
     super.initState();
-    _category = widget.filters.category;
+    _categories = Set.of(widget.filters.categories);
     _season = widget.filters.season;
     _color = widget.filters.color;
     _styleTag = widget.filters.styleTag;
@@ -516,7 +549,7 @@ class _FilterSheetState extends State<_FilterSheet> {
 
   void _apply() {
     final updated = _ActiveFilters()
-      ..category = _category
+      ..categories = _categories
       ..season = _season
       ..color = _color
       ..styleTag = _styleTag
@@ -526,7 +559,7 @@ class _FilterSheetState extends State<_FilterSheet> {
   }
 
   void _reset() => setState(() {
-        _category = null;
+        _categories = {};
         _season = null;
         _color = null;
         _styleTag = null;
@@ -606,8 +639,9 @@ class _FilterSheetState extends State<_FilterSheet> {
                     controller: scrollController,
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                     children: [
-                      _buildSection('Kategorie', AppConstants.categories,
-                          _category, (v) => setState(() => _category = v)),
+                      _buildMultiSection('Kategorie', AppConstants.categories,
+                          _categories,
+                          (v) => setState(() => _categories.contains(v) ? _categories.remove(v) : _categories.add(v))),
                       _buildSection('Saison', AppConstants.seasons, _season,
                           (v) => setState(() => _season = v)),
                       _buildSection('Farbe', AppConstants.colorOptions, _color,
@@ -734,6 +768,85 @@ class _FilterSheetState extends State<_FilterSheet> {
                         fontWeight: isSelected
                             ? FontWeight.w600
                             : FontWeight.w400,
+                      ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 22),
+      ],
+    );
+  }
+
+  Widget _buildMultiSection(
+    String title,
+    List<String> options,
+    Set<String> selected,
+    void Function(String) onTap,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 12,
+              height: 2,
+              decoration: BoxDecoration(
+                gradient: LCColors.gradientPink,
+                borderRadius: BorderRadius.circular(1),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title.toUpperCase(),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: LCColors.textMuted,
+                    letterSpacing: 1.8,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: options.map((opt) {
+            final isSelected = selected.contains(opt);
+            return GestureDetector(
+              onTap: () => onTap(opt),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
+                      : Colors.white.withValues(alpha: 0.65),
+                  border: Border.all(
+                    color: isSelected
+                        ? const Color(0xFFD4789C).withValues(alpha: 0.8)
+                        : const Color(0xFFE8A0BF).withValues(alpha: 0.4),
+                    width: isSelected ? 1.2 : 0.8,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isSelected
+                      ? [
+                          BoxShadow(
+                            color: LCColors.primary.withValues(alpha: 0.18),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: Text(
+                  opt,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: isSelected ? LCColors.primary : LCColors.textMuted,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
                       ),
                 ),
               ),
