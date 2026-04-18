@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import 'upload_page.dart';
 
 class WardrobePage extends StatefulWidget {
   const WardrobePage({super.key});
@@ -165,7 +167,7 @@ class _WardrobePageState extends State<WardrobePage> {
                   decoration: BoxDecoration(
                     color: _filters.hasAny
                         ? LCColors.primary.withValues(alpha: 0.12)
-                        : const Color(0xFFEDE0E8).withOpacity(0.5),
+                        : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
                       color: _filters.hasAny
@@ -336,11 +338,27 @@ class _WardrobePageState extends State<WardrobePage> {
   void _showAddClothingOptions() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: LCColors.surface,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
-      builder: (context) => _AddClothingSheet(),
+      builder: (context) => GlassSheet(
+        child: _AddClothingSheet(
+          onImagePicked: _openUploadPage,
+        ),
+      ),
+    );
+  }
+
+  void _openUploadPage(XFile image) {
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => UploadPage(image: image),
     );
   }
 }
@@ -565,8 +583,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? const Color(0xFFE8A0BF).withValues(alpha: 0.22)
-                      : Colors.white.withValues(alpha: 0.45),
+                      ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
+                      : Colors.white.withValues(alpha: 0.65),
                   border: Border.all(
                     color: isSelected
                         ? const Color(0xFFD4789C).withValues(alpha: 0.8)
@@ -604,7 +622,24 @@ class _FilterSheetState extends State<_FilterSheet> {
   }
 }
 
-class _AddClothingSheet extends StatelessWidget {
+class _AddClothingSheet extends StatefulWidget {
+  final void Function(XFile) onImagePicked;
+
+  const _AddClothingSheet({required this.onImagePicked});
+
+  @override
+  State<_AddClothingSheet> createState() => _AddClothingSheetState();
+}
+
+class _AddClothingSheetState extends State<_AddClothingSheet> {
+  final _picker = ImagePicker();
+
+  Future<void> _pick(ImageSource source) async {
+    Navigator.pop(context);
+    final file = await _picker.pickImage(source: source, imageQuality: 85);
+    if (file != null) widget.onImagePicked(file);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -613,10 +648,10 @@ class _AddClothingSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
-            height: 4,
+            width: 36,
+            height: 3,
             decoration: BoxDecoration(
-              color: LCColors.chrome,
+              gradient: LCColors.gradientPink,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -637,20 +672,14 @@ class _AddClothingSheet extends StatelessWidget {
             icon: Icons.camera_alt_outlined,
             title: 'Kamera',
             subtitle: 'Jetzt ein Foto aufnehmen',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Kamera öffnen (Schritt 2)
-            },
+            onTap: () => _pick(ImageSource.camera),
           ),
           const SizedBox(height: 12),
           _SheetOption(
             icon: Icons.photo_library_outlined,
             title: 'Galerie',
             subtitle: 'Aus deinen Fotos auswählen',
-            onTap: () {
-              Navigator.pop(context);
-              // TODO: Galerie öffnen (Schritt 2)
-            },
+            onTap: () => _pick(ImageSource.gallery),
           ),
           const SizedBox(height: 16),
         ],
@@ -674,13 +703,18 @@ class _SheetOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFEDE0E8)),
+          color: Colors.white.withValues(alpha: 0.65),
+          border: Border.all(
+            color: const Color(0xFFE8A0BF).withValues(alpha: 0.4),
+            width: 0.8,
+          ),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -689,7 +723,7 @@ class _SheetOption extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: LCColors.primary.withOpacity(0.1),
+                color: LCColors.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: LCColors.primary, size: 22),
