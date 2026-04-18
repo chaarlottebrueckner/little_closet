@@ -15,10 +15,10 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    WardrobePage(),
-    OutfitsPage(),
-    CollectionsPage(),
+  final List<Widget> _pages = [
+    const WardrobePage(),
+    const OutfitsPage(),
+    const CollectionsPage(),
   ];
 
   @override

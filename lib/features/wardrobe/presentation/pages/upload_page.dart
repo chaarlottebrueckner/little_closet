@@ -1,20 +1,22 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../data/repositories/clothing_repository.dart';
 
-class UploadPage extends StatefulWidget {
+class UploadPage extends ConsumerStatefulWidget {
   final XFile image;
   const UploadPage({super.key, required this.image});
 
   @override
-  State<UploadPage> createState() => _UploadPageState();
+  ConsumerState<UploadPage> createState() => _UploadPageState();
 }
 
-class _UploadPageState extends State<UploadPage> {
+class _UploadPageState extends ConsumerState<UploadPage> {
   late XFile _image;
   final _picker = ImagePicker();
   String? _category;
@@ -22,11 +24,38 @@ class _UploadPageState extends State<UploadPage> {
   String? _color;
   final Set<String> _seasons = {};
   final Set<String> _styleTags = {};
+  final Set<String> _weatherTags = {};
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
     _image = widget.image;
+  }
+
+  Future<void> _save() async {
+    setState(() => _isSaving = true);
+    try {
+      final repo = ref.read(clothingRepositoryProvider);
+      final imagePath = await repo.saveImage(_image);
+      await repo.saveClothingItem(
+        imagePath: imagePath,
+        category: _category!,
+        subcategory: _subcategory,
+        color: _color,
+        seasons: _seasons.toList(),
+        styleTags: _styleTags.toList(),
+        weatherTags: _weatherTags.toList(),
+      );
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gespeichert! 🎀')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   Future<void> _replaceImage() async {
@@ -211,6 +240,18 @@ class _UploadPageState extends State<UploadPage> {
             }),
           ),
           const SizedBox(height: 24),
+          _buildSectionHeader('WETTER'),
+          const SizedBox(height: 12),
+          _buildMultiSelectChips(
+            options: AppConstants.weatherTags,
+            selected: _weatherTags,
+            onTap: (v) => setState(() {
+              _weatherTags.contains(v)
+                  ? _weatherTags.remove(v)
+                  : _weatherTags.add(v);
+            }),
+          ),
+          const SizedBox(height: 24),
           _buildSectionHeader('STYLE'),
           const SizedBox(height: 12),
           _buildMultiSelectChips(
@@ -367,22 +408,31 @@ class _UploadPageState extends State<UploadPage> {
             child: SizedBox(
               width: double.infinity,
               child: TextButton(
-                onPressed: canSave ? () {} : null,
+                onPressed: canSave && !_isSaving ? _save : null,
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  'Speichern',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text(
+                        'Speichern',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
               ),
             ),
           ),

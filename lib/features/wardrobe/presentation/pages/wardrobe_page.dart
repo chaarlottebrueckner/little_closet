@@ -1,15 +1,20 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../data/database/app_database.dart';
+import '../../../../data/repositories/clothing_repository.dart';
 import 'upload_page.dart';
 
-class WardrobePage extends StatefulWidget {
+class WardrobePage extends ConsumerStatefulWidget {
   const WardrobePage({super.key});
 
   @override
-  State<WardrobePage> createState() => _WardrobePageState();
+  ConsumerState<WardrobePage> createState() => _WardrobePageState();
 }
 
 class _ActiveFilters {
@@ -39,7 +44,7 @@ class _ActiveFilters {
   }
 }
 
-class _WardrobePageState extends State<WardrobePage> {
+class _WardrobePageState extends ConsumerState<WardrobePage> {
   late final _ActiveFilters _filters;
 
   @override
@@ -267,7 +272,51 @@ class _WardrobePageState extends State<WardrobePage> {
   }
 
   Widget _buildContent() {
-    // Placeholder — wird in späteren Schritten mit echten Daten gefüllt
+    final itemsAsync = ref.watch(clothingItemsProvider);
+    return itemsAsync.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, _) => Center(child: Text('Fehler: $e')),
+      data: (items) {
+        final filtered = _applyFilters(items);
+        if (filtered.isEmpty) return _buildEmptyState();
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 0.72,
+          ),
+          itemCount: filtered.length,
+          itemBuilder: (context, i) => _ClothingCard(item: filtered[i]),
+        );
+      },
+    );
+  }
+
+  List<ClothingItem> _applyFilters(List<ClothingItem> items) {
+    return items.where((item) {
+      if (_filters.category != null && item.category != _filters.category) {
+        return false;
+      }
+      if (_filters.color != null && item.color != _filters.color) return false;
+      if (_filters.season != null &&
+          !item.seasons.contains(_filters.season)) {
+        return false;
+      }
+      if (_filters.styleTag != null &&
+          !item.styleTags.contains(_filters.styleTag)) {
+        return false;
+      }
+      if (_filters.weather != null &&
+          !item.weatherTags.contains(_filters.weather)) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  Widget _buildEmptyState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -359,6 +408,81 @@ class _WardrobePageState extends State<WardrobePage> {
       barrierColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) => UploadPage(image: image),
+    );
+  }
+}
+
+class _ClothingCard extends StatelessWidget {
+  final ClothingItem item;
+  const _ClothingCard({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.85),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFFE8A0BF).withValues(alpha: 0.3),
+          width: 0.8,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFD4789C).withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: ClipRRect(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+              child: Image.file(
+                File(item.imagePath),
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFFF5EEF2),
+                  child: const Icon(Icons.checkroom_outlined,
+                      color: Color(0xFFD4789C), size: 36),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.subcategory ?? item.category,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (item.color != null) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    item.color!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: LCColors.textMuted,
+                          fontSize: 11,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
