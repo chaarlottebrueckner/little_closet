@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -7,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/gemini_service.dart';
+import '../../../../core/services/remove_bg_service.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
@@ -34,6 +36,8 @@ class _UploadPageState extends ConsumerState<UploadPage> {
   final Set<String> _weatherTags = {};
   bool _isSaving = false;
   bool _isAiLoading = false;
+  String? _loadingStatus;
+  Uint8List? _processedImageBytes;
   final Set<String> _aiFilledFields = {};
   final Set<String> _userTouchedFields = {};
 
@@ -52,15 +56,40 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       _styleTags.addAll(e.styleTags);
       _weatherTags.addAll(e.weatherTags);
     } else if (widget.image != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _runAiClassification());
+      WidgetsBinding.instance.addPostFrameCallback((_) => _processImage(widget.image!));
     }
   }
 
-  Future<void> _runAiClassification() async {
+  Future<void> _processImage(XFile imageFile) async {
     if (!mounted) return;
-    setState(() => _isAiLoading = true);
-    final service = ref.read(geminiServiceProvider);
-    final result = await service.classifyClothing(widget.image!);
+
+    final sourceBytes = await imageFile.readAsBytes();
+    Uint8List imageBytes = sourceBytes;
+
+    setState(() => _loadingStatus = 'Hintergrund wird entfernt...');
+    final removeBgService = ref.read(removeBgServiceProvider);
+    final processedBytes = await removeBgService.removeBackground(sourceBytes);
+
+    if (!mounted) return;
+
+    if (processedBytes != null) {
+      imageBytes = processedBytes;
+      setState(() => _processedImageBytes = processedBytes);
+    } else {
+      _showRemoveBgFailureSnackbar();
+    }
+
+    setState(() {
+      _loadingStatus = null;
+      _isAiLoading = true;
+    });
+
+    final geminiService = ref.read(geminiServiceProvider);
+    final result = await geminiService.classifyClothingFromBytes(
+      imageBytes,
+      mimeType: processedBytes != null ? 'image/png' : 'image/jpeg',
+    );
+
     if (!mounted) return;
     if (result != null && result.hasAnyValue) {
       setState(() {
@@ -94,6 +123,18 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     if (mounted) setState(() => _isAiLoading = false);
   }
 
+  void _showRemoveBgFailureSnackbar() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Hintergrund konnte nicht entfernt werden.'),
+        backgroundColor: LCColors.primary.withValues(alpha: 0.9),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+
   void _markUserTouched(String field) {
     _userTouchedFields.add(field);
     _aiFilledFields.remove(field);
@@ -105,7 +146,9 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       final repo = ref.read(clothingRepositoryProvider);
       final String imagePath;
       if (_newImage != null) {
-        imagePath = await repo.saveImage(_newImage!);
+        imagePath = _processedImageBytes != null
+            ? await repo.saveImageBytes(_processedImageBytes!)
+            : await repo.saveImage(_newImage!);
       } else {
         imagePath = widget.editItem!.imagePath;
       }
@@ -152,7 +195,13 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     );
     if (source == null) return;
     final picked = await _picker.pickImage(source: source, imageQuality: 85);
-    if (picked != null) setState(() => _newImage = picked);
+    if (picked != null) {
+      setState(() {
+        _newImage = picked;
+        _processedImageBytes = null;
+      });
+      _processImage(picked);
+    }
   }
 
   @override
@@ -196,9 +245,11 @@ class _UploadPageState extends ConsumerState<UploadPage> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  kIsWeb
-                      ? Image.network(_newImage?.path ?? widget.editItem!.imagePath, fit: BoxFit.cover)
-                      : Image.file(File(_newImage?.path ?? widget.editItem!.imagePath), fit: BoxFit.cover),
+                  _processedImageBytes != null
+                      ? Image.memory(_processedImageBytes!, fit: BoxFit.cover)
+                      : kIsWeb
+                          ? Image.network(_newImage?.path ?? widget.editItem!.imagePath, fit: BoxFit.cover)
+                          : Image.file(File(_newImage?.path ?? widget.editItem!.imagePath), fit: BoxFit.cover),
                   Positioned(
                     bottom: 0,
                     left: 0,
@@ -214,6 +265,37 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                       ),
                     ),
                   ),
+                  if (_loadingStatus != null)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              _loadingStatus!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),

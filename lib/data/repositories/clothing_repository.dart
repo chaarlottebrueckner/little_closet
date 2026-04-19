@@ -25,6 +25,17 @@ class ClothingRepository {
     return destPath;
   }
 
+  Future<String> saveImageBytes(Uint8List bytes, {String extension = 'png'}) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final imagesDir = Directory('${dir.path}/little_closet_images');
+    if (!await imagesDir.exists()) {
+      await imagesDir.create(recursive: true);
+    }
+    final destPath = '${imagesDir.path}/${_uuid.v4()}.$extension';
+    await File(destPath).writeAsBytes(bytes);
+    return destPath;
+  }
+
   Stream<List<ClothingItem>> watchAllItems() {
     return (_db.select(_db.clothingItems)
           ..orderBy([

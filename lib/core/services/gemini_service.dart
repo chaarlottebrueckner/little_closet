@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -52,11 +53,24 @@ Respond with this exact JSON structure:
 ''';
 
   Future<ClothingClassification?> classifyClothing(XFile imageFile) async {
+    final bytes = await imageFile.readAsBytes();
+    return _classifyFromBytes(bytes, 'image/jpeg');
+  }
+
+  Future<ClothingClassification?> classifyClothingFromBytes(
+    Uint8List bytes, {
+    String mimeType = 'image/png',
+  }) =>
+      _classifyFromBytes(bytes, mimeType);
+
+  Future<ClothingClassification?> _classifyFromBytes(
+    Uint8List bytes,
+    String mimeType,
+  ) async {
     try {
       final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
       if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY_HERE') return null;
 
-      final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
 
       final response = await _dio.post(
@@ -68,7 +82,7 @@ Respond with this exact JSON structure:
               'parts': [
                 {
                   'inline_data': {
-                    'mime_type': 'image/jpeg',
+                    'mime_type': mimeType,
                     'data': base64Image,
                   },
                 },
@@ -93,7 +107,6 @@ Respond with this exact JSON structure:
       final json = jsonDecode(text) as Map<String, dynamic>;
       final classification = ClothingClassification.fromJson(json);
 
-      // Derive weather tags from category/subcategory via rule-based logic
       final weatherTags = _deriveWeatherTags(classification.category, classification.subcategory);
 
       return ClothingClassification(
