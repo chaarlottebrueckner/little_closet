@@ -6,7 +6,8 @@ class ClothingItems extends Table {
   TextColumn get imagePath => text()();
   TextColumn get category => text()();
   TextColumn get subcategory => text().nullable()();
-  TextColumn get color => text().nullable()();
+  TextColumn get colors =>
+      text().named('color').map(const StringListConverter()).withDefault(const Constant('[]'))();
   TextColumn get seasons =>
       text().map(const StringListConverter()).withDefault(const Constant('[]'))();
   TextColumn get styleTags =>

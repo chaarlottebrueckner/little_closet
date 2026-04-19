@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class AppConstants {
   AppConstants._();
 
@@ -44,6 +46,26 @@ class AppConstants {
     'Blau', 'Lila', 'Türkis', 'Gold', 'Silber',
     'Gemustert', 'Mehrfarbig',
   ];
+
+  static const Map<String, Color> colorMap = {
+    'Weiß':       Color(0xFFFFFFFF),
+    'Schwarz':    Color(0xFF1A1A1A),
+    'Grau':       Color(0xFF8A8A8A),
+    'Beige':      Color(0xFFF2E9E4),
+    'Braun':      Color(0xFF6D5959),
+    'Rosa':       Color(0xFFD4789C),
+    'Rot':        Color(0xFFA64452),
+    'Orange':     Color(0xFFE29578),
+    'Gelb':       Color(0xFFE9C46A),
+    'Grün':       Color(0xFF84A59D),
+    'Blau':       Color(0xFF95B8D1),
+    'Lila':       Color(0xFF9B4F72),
+    'Türkis':     Color(0xFF83C5BE),
+    'Gold':       Color(0xFFD4AF37),
+    'Silber':     Color(0xFFC0C0C0),
+    'Gemustert':  Color(0xFFEDE0E8),
+    'Mehrfarbig': Color(0xFFE8A0BF),
+  };
 
   // Seasons
   static const List<String> seasons = [

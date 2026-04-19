@@ -24,7 +24,21 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (migrator, from, to) async {
+      if (from == 1) {
+        await customStatement(
+          "UPDATE clothing_items SET color = "
+          "CASE WHEN color IS NULL THEN '[]' "
+          "WHEN color LIKE '[%' THEN color "
+          "ELSE json_array(color) END",
+        );
+      }
+    },
+  );
 }
 
 QueryExecutor _openConnection() {

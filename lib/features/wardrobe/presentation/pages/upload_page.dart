@@ -31,7 +31,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
   final _picker = ImagePicker();
   String? _category;
   String? _subcategory;
-  String? _color;
+  final Set<String> _colors = {};
   final Set<String> _seasons = {};
   final Set<String> _styleTags = {};
   final Set<String> _weatherTags = {};
@@ -52,7 +52,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     if (e != null) {
       _category = e.category;
       _subcategory = e.subcategory;
-      _color = e.color;
+      _colors.addAll(e.colors);
       _seasons.addAll(e.seasons);
       _styleTags.addAll(e.styleTags);
       _weatherTags.addAll(e.weatherTags);
@@ -104,8 +104,8 @@ class _UploadPageState extends ConsumerState<UploadPage> {
           _subcategory = result.subcategory;
           _aiFilledFields.add('subcategory');
         }
-        if (result.color != null && !_userTouchedFields.contains('color')) {
-          _color = result.color;
+        if (result.colors.isNotEmpty && !_userTouchedFields.contains('color')) {
+          _colors..clear()..addAll(result.colors);
           _aiFilledFields.add('color');
         }
         if (result.seasons.isNotEmpty && !_userTouchedFields.contains('seasons')) {
@@ -168,7 +168,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
           imagePath: imagePath,
           category: _category!,
           subcategory: _subcategory,
-          color: _color,
+          colors: _colors.toList(),
           seasons: _seasons.toList(),
           styleTags: _styleTags.toList(),
           weatherTags: _weatherTags.toList(),
@@ -178,7 +178,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
           imagePath: imagePath,
           category: _category!,
           subcategory: _subcategory,
-          color: _color,
+          colors: _colors.toList(),
           seasons: _seasons.toList(),
           styleTags: _styleTags.toList(),
           weatherTags: _weatherTags.toList(),
@@ -410,12 +410,12 @@ class _UploadPageState extends ConsumerState<UploadPage> {
               isAiField: _aiFilledFields.contains('color'),
               isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
-          _buildSingleSelectChips(
+          _buildMultiSelectChips(
             options: AppConstants.colorOptions,
-            selected: _color,
+            selected: _colors,
             onTap: (v) => setState(() {
               _markUserTouched('color');
-              _color = v == _color ? null : v;
+              _colors.contains(v) ? _colors.remove(v) : _colors.add(v);
             }),
           ),
           const SizedBox(height: 24),

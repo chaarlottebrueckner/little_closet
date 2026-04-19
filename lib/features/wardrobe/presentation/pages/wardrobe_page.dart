@@ -305,7 +305,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
       if (_filters.categories.isNotEmpty && !_filters.categories.contains(item.category)) {
         return false;
       }
-      if (_filters.color != null && item.color != _filters.color) return false;
+      if (_filters.color != null && !item.colors.contains(_filters.color)) return false;
       if (_filters.season != null &&
           !item.seasons.contains(_filters.season)) {
         return false;
@@ -470,7 +470,10 @@ class _ClothingCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
+        color: (item.colors.isNotEmpty
+            ? AppConstants.colorMap[item.colors.first] ?? Colors.white
+            : Colors.white
+          ).withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: const Color(0xFFE8A0BF).withValues(alpha: 0.3),
@@ -516,10 +519,10 @@ class _ClothingCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (item.color != null) ...[
+                if (item.colors.isNotEmpty) ...[
                   const SizedBox(height: 3),
                   Text(
-                    item.color!,
+                    item.colors.first,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: LCColors.textMuted,
                           fontSize: 11,

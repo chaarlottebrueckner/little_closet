@@ -32,11 +32,15 @@ For Unterwäsche: BH, Unterhose, Socken, Strumpfhose
 For Sport: Sporttop, Sporthose, Sportjacke, Sport-BH
 For Sonstiges: Sonstiges
 
-Color (pick exactly one, or null):
+Colors (return a JSON array):
 Weiß, Schwarz, Grau, Beige, Braun, Rosa, Rot, Orange, Gelb, Grün, Blau, Lila, Türkis, Gold, Silber, Gemustert, Mehrfarbig
-Rules: Use "Gemustert" for any visible pattern (stripes, dots, floral, etc.).
-Use "Mehrfarbig" if there are 3+ distinct colors with no dominant one.
-Otherwise pick the single most dominant color.
+Rules:
+- Almost always return exactly ONE color — the single most dominant color.
+- Use "Gemustert" for any visible pattern (stripes, dots, floral, plaid, etc.).
+- Use "Mehrfarbig" ONLY if 3+ colors are equally dominant with no clear winner.
+- Add a SECOND color only when the garment is clearly split into two large, equally visible color blocks (e.g., a jacket that is literally half black, half white). A logo, print, stitching, buttons, or trim does NOT qualify.
+- When in doubt, return only one color. Less is more.
+- Never return an empty array if any color is visible.
 
 Seasons (conservative — only if highly confident from clear visual cues, else empty array):
 Frühling, Sommer, Herbst, Winter, Ganzjährig
@@ -49,7 +53,7 @@ Never guess. Less is more.
 DO NOT include weatherTags — omit that field entirely.
 
 Respond with this exact JSON structure:
-{"category":"...","subcategory":"...","color":"...","seasons":[...],"styleTags":[...]}
+{"category":"...","subcategory":"...","colors":[...],"seasons":[...],"styleTags":[...]}
 ''';
 
   Future<ClothingClassification?> classifyClothing(XFile imageFile) async {
@@ -112,7 +116,7 @@ Respond with this exact JSON structure:
       return ClothingClassification(
         category: classification.category,
         subcategory: classification.subcategory,
-        color: classification.color,
+        colors: classification.colors,
         seasons: classification.seasons,
         styleTags: classification.styleTags,
         weatherTags: weatherTags,

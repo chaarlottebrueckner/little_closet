@@ -129,7 +129,7 @@ class ClothingDetailPage extends ConsumerWidget {
         _InfoRow(label: 'KATEGORIE', value: item.category),
         if (item.subcategory != null)
           _InfoRow(label: 'UNTERKATEGORIE', value: item.subcategory!),
-        if (item.color != null) _InfoRow(label: 'FARBE', value: item.color!),
+        if (item.colors.isNotEmpty) _ChipRow(label: 'FARBE', values: item.colors),
         if (item.seasons.isNotEmpty)
           _ChipRow(label: 'SAISON', values: item.seasons),
         if (item.weatherTags.isNotEmpty)

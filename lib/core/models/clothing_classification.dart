@@ -3,7 +3,7 @@ import '../constants/app_constants.dart';
 class ClothingClassification {
   final String? category;
   final String? subcategory;
-  final String? color;
+  final List<String> colors;
   final List<String> seasons;
   final List<String> styleTags;
   final List<String> weatherTags;
@@ -11,7 +11,7 @@ class ClothingClassification {
   const ClothingClassification({
     this.category,
     this.subcategory,
-    this.color,
+    this.colors = const [],
     this.seasons = const [],
     this.styleTags = const [],
     this.weatherTags = const [],
@@ -20,7 +20,7 @@ class ClothingClassification {
   bool get hasAnyValue =>
       category != null ||
       subcategory != null ||
-      color != null ||
+      colors.isNotEmpty ||
       seasons.isNotEmpty ||
       styleTags.isNotEmpty ||
       weatherTags.isNotEmpty;
@@ -33,8 +33,16 @@ class ClothingClassification {
     final validSubcats = category != null ? (AppConstants.subcategories[category] ?? []) : <String>[];
     final subcategory = validSubcats.contains(rawSubcategory) ? rawSubcategory : null;
 
-    final rawColor = json['color'] as String?;
-    final color = AppConstants.colorOptions.contains(rawColor) ? rawColor : null;
+    final rawColors = json['colors'] ?? json['color'];
+    List<String> colors;
+    if (rawColors is List) {
+      colors = rawColors.whereType<String>()
+          .where(AppConstants.colorOptions.contains).toList();
+    } else if (rawColors is String && AppConstants.colorOptions.contains(rawColors)) {
+      colors = [rawColors];
+    } else {
+      colors = [];
+    }
 
     List<String> validateList(dynamic raw, List<String> validValues) {
       if (raw is! List) return [];
@@ -44,7 +52,7 @@ class ClothingClassification {
     return ClothingClassification(
       category: category,
       subcategory: subcategory,
-      color: color,
+      colors: colors,
       seasons: validateList(json['seasons'], AppConstants.seasons),
       styleTags: validateList(json['styleTags'], AppConstants.styleTags),
       weatherTags: validateList(json['weatherTags'], AppConstants.weatherTags),
