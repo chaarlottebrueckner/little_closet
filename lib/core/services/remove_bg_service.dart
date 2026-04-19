@@ -18,6 +18,7 @@ class RemoveBgService {
         data: FormData.fromMap({
           'image_file': MultipartFile.fromBytes(imageBytes, filename: 'image.jpg'),
           'size': 'auto',
+          'type': 'product',
         }),
         options: Options(
           headers: {'X-Api-Key': apiKey},

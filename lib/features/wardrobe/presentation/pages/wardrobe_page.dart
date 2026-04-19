@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/photo_tips_dialog.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import 'clothing_detail_page.dart';
@@ -388,7 +390,22 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
     );
   }
 
-  void _showAddClothingOptions() {
+  Future<void> _checkAndShowPhotoTips() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool('photo_tips_shown') ?? false;
+    if (!shown && mounted) {
+      await showDialog(
+        context: context,
+        barrierColor: Colors.black26,
+        builder: (_) => const PhotoTipsDialog(),
+      );
+      await prefs.setBool('photo_tips_shown', true);
+    }
+  }
+
+  void _showAddClothingOptions() async {
+    await _checkAndShowPhotoTips();
+    if (!mounted) return;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -476,7 +493,7 @@ class _ClothingCard extends StatelessWidget {
                   const BorderRadius.vertical(top: Radius.circular(20)),
               child: Image.file(
                 File(item.imagePath),
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Container(
                   color: const Color(0xFFF5EEF2),
                   child: const Icon(Icons.checkroom_outlined,

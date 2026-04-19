@@ -81,7 +81,7 @@ class ClothingDetailPage extends ConsumerWidget {
               width: double.infinity,
               child: Image.file(
                 File(item.imagePath),
-                fit: BoxFit.cover,
+                fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) => Container(
                   color: const Color(0xFFF5EEF2),
                   child: const Icon(Icons.checkroom_outlined,

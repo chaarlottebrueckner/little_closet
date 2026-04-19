@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -73,8 +74,9 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     if (!mounted) return;
 
     if (processedBytes != null) {
-      imageBytes = processedBytes;
-      setState(() => _processedImageBytes = processedBytes);
+      final trimmed = _trimTransparent(processedBytes);
+      imageBytes = trimmed;
+      setState(() => _processedImageBytes = trimmed);
     } else {
       _showRemoveBgFailureSnackbar();
     }
@@ -121,6 +123,13 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       });
     }
     if (mounted) setState(() => _isAiLoading = false);
+  }
+
+  Uint8List _trimTransparent(Uint8List pngBytes) {
+    final decoded = img.decodePng(pngBytes);
+    if (decoded == null) return pngBytes;
+    final trimmed = img.trim(decoded, mode: img.TrimMode.transparent);
+    return Uint8List.fromList(img.encodePng(trimmed));
   }
 
   void _showRemoveBgFailureSnackbar() {
@@ -246,10 +255,10 @@ class _UploadPageState extends ConsumerState<UploadPage> {
                 fit: StackFit.expand,
                 children: [
                   _processedImageBytes != null
-                      ? Image.memory(_processedImageBytes!, fit: BoxFit.cover)
+                      ? Image.memory(_processedImageBytes!, fit: BoxFit.contain)
                       : kIsWeb
-                          ? Image.network(_newImage?.path ?? widget.editItem!.imagePath, fit: BoxFit.cover)
-                          : Image.file(File(_newImage?.path ?? widget.editItem!.imagePath), fit: BoxFit.cover),
+                          ? Image.network(_newImage?.path ?? widget.editItem!.imagePath, fit: BoxFit.contain)
+                          : Image.file(File(_newImage?.path ?? widget.editItem!.imagePath), fit: BoxFit.contain),
                   Positioned(
                     bottom: 0,
                     left: 0,
