@@ -4,9 +4,7 @@ class AppConstants {
   static const String appName = 'little closet';
 
   // Gemini API
-  // TODO: Move to .env or flutter_dotenv before production
-  static const String geminiApiKey = 'YOUR_GEMINI_API_KEY_HERE';
-  static const String geminiModel = 'gemini-1.5-flash';
+  static const String geminiModel = 'gemini-2.5-flash';
 
   // Image Storage
   static const String imagesDirName = 'little_closet_images';

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/services/gemini_service.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
@@ -31,6 +33,9 @@ class _UploadPageState extends ConsumerState<UploadPage> {
   final Set<String> _styleTags = {};
   final Set<String> _weatherTags = {};
   bool _isSaving = false;
+  bool _isAiLoading = false;
+  final Set<String> _aiFilledFields = {};
+  final Set<String> _userTouchedFields = {};
 
   bool get _isEditing => widget.editItem != null;
 
@@ -46,7 +51,52 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       _seasons.addAll(e.seasons);
       _styleTags.addAll(e.styleTags);
       _weatherTags.addAll(e.weatherTags);
+    } else if (widget.image != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _runAiClassification());
     }
+  }
+
+  Future<void> _runAiClassification() async {
+    if (!mounted) return;
+    setState(() => _isAiLoading = true);
+    final service = ref.read(geminiServiceProvider);
+    final result = await service.classifyClothing(widget.image!);
+    if (!mounted) return;
+    if (result != null && result.hasAnyValue) {
+      setState(() {
+        if (result.category != null && !_userTouchedFields.contains('category')) {
+          _category = result.category;
+          _subcategory = null;
+          _aiFilledFields.add('category');
+        }
+        if (result.subcategory != null && !_userTouchedFields.contains('subcategory')) {
+          _subcategory = result.subcategory;
+          _aiFilledFields.add('subcategory');
+        }
+        if (result.color != null && !_userTouchedFields.contains('color')) {
+          _color = result.color;
+          _aiFilledFields.add('color');
+        }
+        if (result.seasons.isNotEmpty && !_userTouchedFields.contains('seasons')) {
+          _seasons..clear()..addAll(result.seasons);
+          _aiFilledFields.add('seasons');
+        }
+        if (result.styleTags.isNotEmpty && !_userTouchedFields.contains('styleTags')) {
+          _styleTags..clear()..addAll(result.styleTags);
+          _aiFilledFields.add('styleTags');
+        }
+        if (result.weatherTags.isNotEmpty && !_userTouchedFields.contains('weatherTags')) {
+          _weatherTags..clear()..addAll(result.weatherTags);
+          _aiFilledFields.add('weatherTags');
+        }
+      });
+    }
+    if (mounted) setState(() => _isAiLoading = false);
+  }
+
+  void _markUserTouched(String field) {
+    _userTouchedFields.add(field);
+    _aiFilledFields.remove(field);
   }
 
   Future<void> _save() async {
@@ -234,65 +284,85 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('KATEGORIE', isRequired: true),
+          _buildSectionHeader('KATEGORIE',
+              isRequired: true,
+              isAiField: _aiFilledFields.contains('category'),
+              isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
           _buildSingleSelectChips(
             options: AppConstants.categories,
             selected: _category,
             onTap: (v) => setState(() {
+              _markUserTouched('category');
+              _markUserTouched('subcategory');
               _category = v == _category ? null : v;
               _subcategory = null;
             }),
           ),
           if (_category != null) ...[
             const SizedBox(height: 24),
-            _buildSectionHeader('UNTERKATEGORIE'),
+            _buildSectionHeader('UNTERKATEGORIE',
+                isAiField: _aiFilledFields.contains('subcategory'),
+                isAiLoading: _isAiLoading),
             const SizedBox(height: 12),
             _buildSingleSelectChips(
               options: AppConstants.subcategories[_category!] ?? [],
               selected: _subcategory,
-              onTap: (v) => setState(
-                () => _subcategory = v == _subcategory ? null : v,
-              ),
+              onTap: (v) => setState(() {
+                _markUserTouched('subcategory');
+                _subcategory = v == _subcategory ? null : v;
+              }),
             ),
           ],
           const SizedBox(height: 24),
-          _buildSectionHeader('FARBE'),
+          _buildSectionHeader('FARBE',
+              isAiField: _aiFilledFields.contains('color'),
+              isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
           _buildSingleSelectChips(
             options: AppConstants.colorOptions,
             selected: _color,
-            onTap: (v) => setState(() => _color = v == _color ? null : v),
+            onTap: (v) => setState(() {
+              _markUserTouched('color');
+              _color = v == _color ? null : v;
+            }),
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('SAISON'),
+          _buildSectionHeader('SAISON',
+              isAiField: _aiFilledFields.contains('seasons'),
+              isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
           _buildMultiSelectChips(
             options: AppConstants.seasons,
             selected: _seasons,
             onTap: (v) => setState(() {
+              _markUserTouched('seasons');
               _seasons.contains(v) ? _seasons.remove(v) : _seasons.add(v);
             }),
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('WETTER'),
+          _buildSectionHeader('WETTER',
+              isAiField: _aiFilledFields.contains('weatherTags'),
+              isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
           _buildMultiSelectChips(
             options: AppConstants.weatherTags,
             selected: _weatherTags,
             onTap: (v) => setState(() {
-              _weatherTags.contains(v)
-                  ? _weatherTags.remove(v)
-                  : _weatherTags.add(v);
+              _markUserTouched('weatherTags');
+              _weatherTags.contains(v) ? _weatherTags.remove(v) : _weatherTags.add(v);
             }),
           ),
           const SizedBox(height: 24),
-          _buildSectionHeader('STYLE'),
+          _buildSectionHeader('STYLE',
+              isAiField: _aiFilledFields.contains('styleTags'),
+              isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
           _buildMultiSelectChips(
             options: AppConstants.styleTags,
             selected: _styleTags,
             onTap: (v) => setState(() {
+              _markUserTouched('styleTags');
               _styleTags.contains(v) ? _styleTags.remove(v) : _styleTags.add(v);
             }),
           ),
@@ -302,7 +372,12 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     );
   }
 
-  Widget _buildSectionHeader(String title, {bool isRequired = false}) {
+  Widget _buildSectionHeader(
+    String title, {
+    bool isRequired = false,
+    bool isAiField = false,
+    bool isAiLoading = false,
+  }) {
     return Row(
       children: [
         Container(
@@ -333,6 +408,22 @@ class _UploadPageState extends ConsumerState<UploadPage> {
               height: 1.1,
             ),
           ),
+        ],
+        if (isAiLoading) ...[
+          const SizedBox(width: 8),
+          SizedBox(
+            width: 10,
+            height: 10,
+            child: CircularProgressIndicator(
+              strokeWidth: 1.5,
+              color: LCColors.primary.withValues(alpha: 0.5),
+            ),
+          ),
+        ] else if (isAiField) ...[
+          const SizedBox(width: 6),
+          const Text('✨', style: TextStyle(fontSize: 11))
+              .animate(onPlay: (c) => c.repeat())
+              .shimmer(duration: 2400.ms, color: LCColors.accent),
         ],
       ],
     );
