@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,6 +50,8 @@ class _ActiveFilters {
 
 class _WardrobePageState extends ConsumerState<WardrobePage> {
   late final _ActiveFilters _filters;
+  bool _isSelectionMode = false;
+  final Set<String> _selectedIds = {};
 
   @override
   void initState() {
@@ -56,60 +59,92 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
     _filters = _ActiveFilters();
   }
 
+  void _enterSelectionMode(String firstId) {
+    setState(() {
+      _isSelectionMode = true;
+      _selectedIds..clear()..add(firstId);
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+        if (_selectedIds.isEmpty) _isSelectionMode = false;
+      } else {
+        _selectedIds.add(id);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background: subtle linear gradient from top
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFFFFF0F7), // very light pink at top
-                  Color(0xFFFAFAFA), // near-white in middle/bottom
-                ],
-                stops: [0.0, 0.45],
-              ),
-            ),
-          ),
-          // Background: radial pink glow blob at bottom
-          Positioned(
-            bottom: -210,
-            left: -150,
-            right: -150,
-            child: Container(
-              height: 700,
+    return PopScope(
+      canPop: !_isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _isSelectionMode) _exitSelectionMode();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            // Background: subtle linear gradient from top
+            Container(
               decoration: const BoxDecoration(
-                gradient: RadialGradient(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                   colors: [
-                    Color(0x88F4A7C3), // warm pink, visible center
-                    Color.fromARGB(44, 246, 109, 159), // mid fade
-                    Color.fromARGB(0, 255, 255, 255),
+                    Color(0xFFFFF0F7), // very light pink at top
+                    Color(0xFFFAFAFA), // near-white in middle/bottom
                   ],
-                  stops: [0.0, 0.45, 1.0],
-                  radius: 0.5,
+                  stops: [0.0, 0.45],
                 ),
               ),
             ),
-          ),
-          // Content
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                if (_filters.hasAny) _buildActiveFilterChips(),
-                Expanded(child: _buildContent()),
-              ],
+            // Background: radial pink glow blob at bottom
+            Positioned(
+              bottom: -210,
+              left: -150,
+              right: -150,
+              child: Container(
+                height: 700,
+                decoration: const BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x88F4A7C3), // warm pink, visible center
+                      Color.fromARGB(44, 246, 109, 159), // mid fade
+                      Color.fromARGB(0, 255, 255, 255),
+                    ],
+                    stops: [0.0, 0.45, 1.0],
+                    radius: 0.5,
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
+            // Content
+            SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  if (_filters.hasAny && !_isSelectionMode) _buildActiveFilterChips(),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
+            ),
+            if (_isSelectionMode) _buildSelectionBar(),
+          ],
+        ),
+        floatingActionButton: _isSelectionMode ? null : _buildFAB(),
       ),
-      floatingActionButton: _buildFAB(),
     );
   }
 
@@ -283,7 +318,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
         final filtered = _applyFilters(items);
         if (filtered.isEmpty) return _buildEmptyState();
         return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+          padding: EdgeInsets.fromLTRB(16, 12, 16, _isSelectionMode ? 140 : 100),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
@@ -291,10 +326,20 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
             childAspectRatio: 0.72,
           ),
           itemCount: filtered.length,
-          itemBuilder: (context, i) => _ClothingCard(
-                item: filtered[i],
-                onTap: () => _openDetailPage(filtered[i]),
-              ),
+          itemBuilder: (context, i) {
+            final item = filtered[i];
+            return _ClothingCard(
+              item: item,
+              isSelectionMode: _isSelectionMode,
+              isSelected: _selectedIds.contains(item.id),
+              onTap: _isSelectionMode
+                  ? () => _toggleSelection(item.id)
+                  : () => _openDetailPage(item),
+              onLongPress: _isSelectionMode
+                  ? null
+                  : () => _enterSelectionMode(item.id),
+            );
+          },
         );
       },
     );
@@ -447,6 +492,226 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
     }
   }
 
+  Widget _buildSelectionBar() {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: BoxDecoration(
+                  color: LCGlass.sheetColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: LCGlass.borderColor,
+                    width: LCGlass.borderWidth,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD4789C).withValues(alpha: 0.18),
+                      blurRadius: 20,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${_selectedIds.length} ausgewählt',
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  color: LCColors.textDark,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: _exitSelectionMode,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        side: BorderSide(
+                          color: LCColors.primary.withValues(alpha: 0.5),
+                          width: 1.2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text(
+                        'Abbrechen',
+                        style: TextStyle(
+                          color: LCColors.primary,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: _selectedIds.isEmpty
+                            ? null
+                            : LCColors.gradientPink,
+                        color: _selectedIds.isEmpty
+                            ? const Color(0xFFE8A0BF).withValues(alpha: 0.25)
+                            : null,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: _selectedIds.isEmpty
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color:
+                                      LCColors.primary.withValues(alpha: 0.30),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                      ),
+                      child: TextButton.icon(
+                        onPressed: _selectedIds.isEmpty
+                            ? null
+                            : _confirmBatchDelete,
+                        icon: const Icon(Icons.delete_outline_rounded,
+                            size: 17, color: Colors.white),
+                        label: const Text(
+                          'Löschen',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmBatchDelete() {
+    final count = _selectedIds.length;
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.35),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+            child: Container(
+              decoration: BoxDecoration(
+                color: LCGlass.sheetColor,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                    color: LCGlass.borderColor, width: LCGlass.borderWidth),
+              ),
+              padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFD4789C).withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.delete_outline_rounded,
+                        color: LCColors.primary, size: 26),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('$count ${count == 1 ? 'Teil' : 'Teile'} löschen?',
+                      style: Theme.of(ctx).textTheme.headlineSmall),
+                  const SizedBox(height: 8),
+                  Text(
+                    count == 1
+                        ? 'Dieses Teil wirklich aus der Garderobe entfernen?'
+                        : 'Diese $count Teile wirklich aus der Garderobe entfernen?',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
+                          color: LCColors.textMuted,
+                        ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            side: BorderSide(
+                                color: LCColors.primary.withValues(alpha: 0.4)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ),
+                          child: const Text('Abbrechen',
+                              style: TextStyle(color: LCColors.primary)),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LCColors.gradientPink,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: TextButton(
+                            onPressed: () async {
+                              final idsToDelete =
+                                  List<String>.from(_selectedIds);
+                              Navigator.pop(ctx);
+                              await ref
+                                  .read(clothingRepositoryProvider)
+                                  .deleteMultipleClothingItems(idsToDelete);
+                              if (mounted) _exitSelectionMode();
+                            },
+                            style: TextButton.styleFrom(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Löschen',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   void _openUploadPage(XFile image) {
     if (!mounted) return;
     showModalBottomSheet(
@@ -462,81 +727,138 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
 class _ClothingCard extends StatelessWidget {
   final ClothingItem item;
   final VoidCallback? onTap;
-  const _ClothingCard({required this.item, this.onTap});
+  final VoidCallback? onLongPress;
+  final bool isSelectionMode;
+  final bool isSelected;
+
+  const _ClothingCard({
+    required this.item,
+    this.onTap,
+    this.onLongPress,
+    this.isSelectionMode = false,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-      decoration: BoxDecoration(
-        color: (item.colors.isNotEmpty
-            ? AppConstants.colorMap[item.colors.first] ?? Colors.white
-            : Colors.white
-          ).withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFFE8A0BF).withValues(alpha: 0.3),
-          width: 0.8,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFD4789C).withValues(alpha: 0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+      onLongPress: onLongPress,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
+              : (item.colors.isNotEmpty
+                      ? AppConstants.colorMap[item.colors.first] ?? Colors.white
+                      : Colors.white)
+                  .withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFD4789C).withValues(alpha: 0.85)
+                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
+            width: isSelected ? 2.0 : 0.8,
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
-              child: Image.file(
-                File(item.imagePath),
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFF5EEF2),
-                  child: const Icon(Icons.checkroom_outlined,
-                      color: Color(0xFFD4789C), size: 36),
-                ),
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: isSelected
+                  ? const Color(0xFFD4789C).withValues(alpha: 0.22)
+                  : const Color(0xFFD4789C).withValues(alpha: 0.08),
+              blurRadius: isSelected ? 18 : 12,
+              offset: const Offset(0, 4),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          ],
+        ),
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  item.subcategory ?? item.category,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    child: Image.file(
+                      File(item.imagePath),
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: const Color(0xFFF5EEF2),
+                        child: const Icon(Icons.checkroom_outlined,
+                            color: Color(0xFFD4789C), size: 36),
                       ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (item.colors.isNotEmpty) ...[
-                  const SizedBox(height: 3),
-                  Text(
-                    item.colors.first,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: LCColors.textMuted,
-                          fontSize: 11,
-                        ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.subcategory ?? item.category,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      if (item.colors.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          item.colors.first,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: LCColors.textMuted,
+                                fontSize: 11,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
               ],
             ),
-          ),
-        ],
+            if (isSelectionMode)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? LCColors.primary
+                        : Colors.white.withValues(alpha: 0.85),
+                    border: Border.all(
+                      color: isSelected
+                          ? LCColors.primary
+                          : const Color(0xFFD4789C).withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: isSelected
+                      ? const Icon(Icons.check_rounded,
+                          size: 15, color: Colors.white)
+                      : null,
+                ),
+              ),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 

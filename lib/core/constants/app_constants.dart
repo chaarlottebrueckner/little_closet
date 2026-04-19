@@ -27,13 +27,13 @@ class AppConstants {
 
   // Subcategories per category
   static const Map<String, List<String>> subcategories = {
-    'Oberteil': ['T-Shirt', 'Top', 'Bluse', 'Hemd', 'Pullover', 'Sweatshirt', 'Crop Top'],
-    'Hose': ['Jeans', 'Chino', 'Jogger', 'Shorts', 'Leggings', 'Anzughose'],
-    'Rock': ['Mini', 'Midi', 'Maxi', 'Plissee', 'Bleistift'],
-    'Kleid': ['Mini', 'Midi', 'Maxi', 'Hemdkleid', 'Abendkleid'],
-    'Jacke / Mantel': ['Blazer', 'Jeansjacke', 'Trenchcoat', 'Puffer', 'Lederjacke', 'Strickjacke'],
-    'Schuhe': ['Sneaker', 'Pumps', 'Boots', 'Sandalen', 'Loafer', 'Ballerinas'],
-    'Accessoire': ['Tasche', 'Gürtel', 'Schal', 'Hut', 'Schmuck', 'Sonnenbrille'],
+    'Oberteil': ['T-Shirt', 'Top', 'Bluse', 'Hemd', 'Pullover', 'Sweatshirt', 'Crop Top', 'Pullunder', 'Weste'],
+    'Hose': ['Jeans', 'Chino', 'Jogger', 'Shorts', 'Joggingshorts', 'Culotte', 'Leggings', 'Anzughose'],
+    'Rock': ['Minirock', 'Midirock', 'Maxirock', 'Plissee', 'Faltenrock', 'Bleistift', 'A-Linie', 'Jeansrock'],
+    'Ganzkörper': ['Minikleid', 'Midikleid', 'Maxikleid', 'Hemdkleid', 'Sommerkleid', 'Strickkleid', 'Abendkleid', 'Cocktailkleid', 'Jeanskleid', 'Jumpsuit', 'Overall'],
+    'Jacke / Mantel': ['Blazer', 'Jeansjacke', 'Trenchcoat', 'Puffer', 'Lederjacke', 'Strickjacke', 'Cardigan', 'Windjacke', 'Daunenmantel', 'Wollmantel', 'Regenjacke', 'Mantel' ],
+    'Schuhe': ['Sneaker', 'Pumps', 'Boots', 'Sandalen', 'Loafer', 'Ballerinas', 'Stiefel', 'Espadrilles', 'Mokassins', 'Slipper'],
+    'Accessoire': ['Tasche', 'Gürtel', 'Schal', 'Hut', 'Schmuck', 'Sonnenbrille', 'Uhr', 'Handschuhe', 'Mütze', 'Kopftuch', 'Haarband'],
     'Unterwäsche': ['BH', 'Unterhose', 'Socken', 'Strumpfhose'],
     'Sport': ['Sporttop', 'Sporthose', 'Sportjacke', 'Sport-BH'],
     'Sonstiges': ['Sonstiges'],

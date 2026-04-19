@@ -95,6 +95,11 @@ class ClothingRepository {
     await (_db.delete(_db.clothingItems)..where((t) => t.id.equals(id))).go();
   }
 
+  Future<void> deleteMultipleClothingItems(List<String> ids) async {
+    if (ids.isEmpty) return;
+    await (_db.delete(_db.clothingItems)..where((t) => t.id.isIn(ids))).go();
+  }
+
   Stream<ClothingItem?> watchItemById(String id) {
     return (_db.select(_db.clothingItems)..where((t) => t.id.equals(id)))
         .watchSingleOrNull();
