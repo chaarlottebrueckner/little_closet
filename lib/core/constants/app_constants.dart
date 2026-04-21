@@ -76,7 +76,7 @@ class AppConstants {
   static const List<String> styleTags = [
     'Casual', 'Chic', 'Business', 'Sport', 'Party',
     'Romantic', 'Edgy', 'Minimalist', 'Boho', 'Y2K',
-    'Streetwear', 'Preppy', 'Grunge',
+    'Streetwear', 'Preppy', 'Grunge', 'Vintage', 'Elegant',
   ];
 
   // Weather tags

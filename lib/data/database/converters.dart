@@ -1,3 +1,6 @@
+//type converters for the Drift database
+//so we can store complex data types like lists as strings in the database.
+
 import 'dart:convert';
 import 'package:drift/drift.dart';
 

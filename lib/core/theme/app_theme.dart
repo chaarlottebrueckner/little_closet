@@ -6,14 +6,14 @@ class LCColors {
 
   // Core Palette
   static const background = Color(0xFFFAFAFA);
-  static const primary = Color(0xFFD4789C);     // Cool Mauve-Rosa
-  static const accent = Color(0xFFE8A0BF);       // Lighter highlight
-  static const deep = Color(0xFF9B4F72);          // Dark contrast
-  static const chrome = Color(0xFFC0C0C0);        // Silver / metallic
-  static const textDark = Color(0xFF1A1A1A);      // Almost black
-  static const textMuted = Color(0xFF8A8A8A);     // Subtle text
-  static const surface = Color(0xFFFFFFFF);       // Card surfaces
-  static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);  // Glassmorphism
+  static const primary = Color(0xFFD4789C);     
+  static const accent = Color(0xFFE8A0BF);       
+  static const deep = Color(0xFF9B4F72);          
+  static const chrome = Color(0xFFC0C0C0);       
+  static const textDark = Color(0xFF1A1A1A);     
+  static const textMuted = Color(0xFF8A8A8A);     
+  static const surface = Color(0xFFFFFFFF);       
+  static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);  
 
   // Gradients
   static const gradientPink = LinearGradient(
@@ -40,10 +40,10 @@ class LCGlass {
 
   //maybe change here
   // Blur strength
-  static const double blurSigma = 24.0;
+  static const double blurSigma =50.0;
 
   // Sheet background: warm white-pink tint
-  static const Color sheetColor = Color.fromARGB(117, 255, 246, 250); // ~35% opacity
+  static const Color sheetColor = Color.fromARGB(69, 255, 246, 250); // and change here
 
   // Border: soft pink shimmer
   static const Color borderColor = Color(0x73E8A0BF); // ~45% opacity

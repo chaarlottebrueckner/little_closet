@@ -751,7 +751,7 @@ class _ClothingCard extends StatelessWidget {
           color: isSelected
               ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
               : (item.colors.isNotEmpty
-                      ? AppConstants.colorMap[item.colors.first] ?? Colors.white
+                      ? AppConstants.colorMap[item.colors.length > 1 ? (item.colors.firstWhere((c) => c != 'Gemustert', orElse: () => item.colors.first)) : item.colors.first] ?? Colors.white
                       : Colors.white)
                   .withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),

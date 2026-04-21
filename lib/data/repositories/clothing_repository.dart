@@ -1,3 +1,9 @@
+//ui doesn't ask database directly, it goes through this repository layer 
+//which abstracts away the database details and provides a clean API for 
+//the rest of the app to interact with clothing items. This way, if we want to change 
+//our database implementation in the future, we only need to update this repository without
+// affecting the rest of the codebase.
+
 import 'dart:io';
 
 import 'package:drift/drift.dart';

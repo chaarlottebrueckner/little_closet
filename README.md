@@ -87,7 +87,7 @@ lib/
 - [ ] Gemini API aufrufen → Kategorie, Farbe, Style vorschlagen
 - [ ] KI-Ergebnis anzeigen und bearbeitbar machen
 
-### 🔜 Phase 2 — Isar Datenbank
+### 🔜 Phase 2 — Drift Datenbank
 - [ ] ClothingItem-Modell erstellen
 - [ ] Isar einrichten und initialisieren
 - [ ] Kleidungsstück speichern

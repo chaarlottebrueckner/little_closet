@@ -60,7 +60,7 @@ class PhotoTipsDialog extends StatelessWidget {
                 const SizedBox(height: 12),
                 const _TipRow(icon: Icons.crop_free, text: 'Cleaner, heller Hintergrund'),
                 const SizedBox(height: 12),
-                const _TipRow(icon: Icons.straighten, text: 'Glatt auslegen'),
+                const _TipRow(icon: Icons.straighten, text: 'Glatt auslegen oder aufhängen'),
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
