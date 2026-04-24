@@ -40,10 +40,10 @@ class LCGlass {
 
   //maybe change here
   // Blur strength
-  static const double blurSigma =50.0;
+  static const double blurSigma =45.0;
 
   // Sheet background: warm white-pink tint
-  static const Color sheetColor = Color.fromARGB(69, 255, 246, 250); // and change here
+  static const Color sheetColor = Color.fromARGB(153, 255, 246, 250); // and change here
 
   // Border: soft pink shimmer
   static const Color borderColor = Color(0x73E8A0BF); // ~45% opacity

@@ -4,8 +4,11 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_chip.dart';
+import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 
@@ -321,26 +324,9 @@ class _InfoRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(label),
+          LCSectionLabel(label),
           const SizedBox(height: 8),
-          Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFE8A0BF).withValues(alpha: 0.20),
-              border: Border.all(
-                  color: const Color(0xFFD4789C).withValues(alpha: 0.5),
-                  width: 1.0),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              value,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: LCColors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-          ),
+          LCChip(label: value, isSelected: true),
         ],
       ),
     );
@@ -360,64 +346,17 @@ class _ChipRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SectionLabel(label),
+          LCSectionLabel(label),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: values.map((v) {
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFE8A0BF).withValues(alpha: 0.20),
-                  border: Border.all(
-                      color: const Color(0xFFD4789C).withValues(alpha: 0.5),
-                      width: 1.0),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  v,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: LCColors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              );
-            }).toList(),
+            children: values
+                .map((v) => LCChip(label: v, isSelected: true))
+                .toList(),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String text;
-  const _SectionLabel(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 12,
-          height: 2,
-          decoration: BoxDecoration(
-            gradient: LCColors.gradientPink,
-            borderRadius: BorderRadius.circular(1),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: LCColors.textMuted,
-                letterSpacing: 1.8,
-                fontWeight: FontWeight.w600,
-              ),
-        ),
-      ],
     );
   }
 }
