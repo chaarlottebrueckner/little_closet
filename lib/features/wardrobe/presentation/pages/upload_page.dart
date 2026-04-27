@@ -231,6 +231,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.93,
+      minChildSize: 0.55,
       maxChildSize: 0.97,
       builder: (context, scrollController) => GlassSheet(
         child: Column(

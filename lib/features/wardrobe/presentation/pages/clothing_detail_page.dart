@@ -29,6 +29,7 @@ class ClothingDetailPage extends ConsumerWidget {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.90,
+      minChildSize: 0.55,
       maxChildSize: 0.97,
       builder: (context, scrollController) => GlassSheet(
         child: itemAsync.when(

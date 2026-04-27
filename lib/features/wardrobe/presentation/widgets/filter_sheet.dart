@@ -56,6 +56,7 @@ class _FilterSheetState extends State<FilterSheet> {
     return DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.75,
+      minChildSize: 0.40,
       maxChildSize: 0.92,
       builder: (context, scrollController) => GlassSheet(
         child: Column(

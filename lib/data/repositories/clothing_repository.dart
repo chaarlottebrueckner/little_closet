@@ -97,13 +97,31 @@ class ClothingRepository {
     );
   }
 
+  Future<void> _deleteImageFile(String? imagePath) async {
+    if (imagePath == null) return;
+    final file = File(imagePath);
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+
   Future<void> deleteClothingItem(String id) async {
+    final item = await (_db.select(_db.clothingItems)
+          ..where((t) => t.id.equals(id)))
+        .getSingleOrNull();
     await (_db.delete(_db.clothingItems)..where((t) => t.id.equals(id))).go();
+    await _deleteImageFile(item?.imagePath);
   }
 
   Future<void> deleteMultipleClothingItems(List<String> ids) async {
     if (ids.isEmpty) return;
+    final items = await (_db.select(_db.clothingItems)
+          ..where((t) => t.id.isIn(ids)))
+        .get();
     await (_db.delete(_db.clothingItems)..where((t) => t.id.isIn(ids))).go();
+    for (final item in items) {
+      await _deleteImageFile(item.imagePath);
+    }
   }
 
   Stream<ClothingItem?> watchItemById(String id) {
