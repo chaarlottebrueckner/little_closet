@@ -16,7 +16,7 @@ class AppConstants {
     'Oberteil',
     'Hose',
     'Rock',
-    'Kleid',
+    'Ganzkörper',
     'Jacke / Mantel',
     'Schuhe',
     'Accessoire',

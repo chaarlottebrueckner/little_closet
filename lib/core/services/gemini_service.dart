@@ -18,13 +18,13 @@ Analyze the clothing item in this image and respond ONLY with a valid JSON objec
 Use ONLY the exact values listed below. If unsure about a field, omit it (null or empty array).
 
 Category (pick exactly one, or null):
-Oberteil, Hose, Rock, Kleid, Jacke / Mantel, Schuhe, Accessoire, Unterwäsche, Sport, Sonstiges
+Oberteil, Hose, Rock, Ganzkörper, Jacke / Mantel, Schuhe, Accessoire, Unterwäsche, Sport, Sonstiges
 
 Subcategory (pick exactly one matching the category, or null):
 For Oberteil: T-Shirt, Top, Bluse, Hemd, Pullover, Sweatshirt, Crop Top
 For Hose: Jeans, Chino, Jogger, Shorts, Leggings, Anzughose
 For Rock: Mini, Midi, Maxi, Plissee, Bleistift
-For Kleid: Mini, Midi, Maxi, Hemdkleid, Abendkleid
+For Ganzkörper: Minikleid, Midikleid, Maxikleid, Hemdkleid, Sommerkleid, Strickkleid, Abendkleid, Cocktailkleid, Jeanskleid, Jumpsuit, Overall
 For Jacke / Mantel: Blazer, Jeansjacke, Trenchcoat, Puffer, Lederjacke, Strickjacke
 For Schuhe: Sneaker, Pumps, Boots, Sandalen, Loafer, Ballerinas
 For Accessoire: Tasche, Gürtel, Schal, Hut, Schmuck, Sonnenbrille
