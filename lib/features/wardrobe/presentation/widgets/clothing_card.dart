@@ -144,8 +144,8 @@ class ClothingCard extends StatelessWidget {
     );
   }
 
-  
-Color _resolveCardColor() {
+
+  Color _resolveCardColor() {
     if (item.colors.isEmpty){
       return Colors.white;
     }

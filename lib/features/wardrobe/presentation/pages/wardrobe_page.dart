@@ -298,14 +298,21 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   }
 
   void _openDetailPage(ClothingItem item) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (_) => ClothingDetailPage(
-        itemId: item.id,
-        onEdit: _openEditFromDetail,
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => ClothingDetailPage(
+          itemId: item.id,
+          onEdit: _openEditFromDetail,
+        ),
+        transitionsBuilder: (_, animation, __, child) => SlideTransition(
+          position: Tween(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+          child: child,
+        ),
+        transitionDuration: const Duration(milliseconds: 350),
       ),
     );
   }

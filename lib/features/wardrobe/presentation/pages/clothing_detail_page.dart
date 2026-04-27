@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../core/widgets/lc_chip.dart';
@@ -26,102 +27,158 @@ class ClothingDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final itemAsync = ref.watch(clothingItemByIdProvider(itemId));
 
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.90,
-      minChildSize: 0.55,
-      maxChildSize: 0.97,
-      builder: (context, scrollController) => GlassSheet(
-        child: itemAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(child: Text('Fehler: $e')),
-          data: (item) {
-            if (item == null) {
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                if (context.mounted && Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-              });
-              return const SizedBox();
-            }
-            return Column(
-              children: [
-                const SizedBox(height: 14),
-                Container(
-                  width: 36,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LCColors.gradientPink,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _buildImageHeader(context, item),
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: scrollController,
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-                    child: _buildInfo(context, item),
-                  ),
-                ),
-                _buildActionBar(context, ref, item),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageHeader(BuildContext context, ClothingItem item) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Stack(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: SizedBox(
-              height: 260,
-              width: double.infinity,
-              child: Image.file(
-                File(item.imagePath),
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFF5EEF2),
-                  child: const Icon(Icons.checkroom_outlined,
-                      color: Color(0xFFD4789C), size: 48),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 10,
-            left: 10,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.80),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: itemAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Fehler: $e')),
+        data: (item) {
+          if (item == null) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted && Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            });
+            return const SizedBox();
+          }
+          return Stack(
+            children: [
+              // Hintergrund-Gradient (identisch zur WardrobePage)
+              Positioned.fill(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
+                      stops: [0.0, 0.45],
                     ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 15,
-                  color: Color(0xFF1A1A1A),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+              // Pinker Blob unten (stärker, da hinter Glass-Sheet)
+              Positioned(
+                bottom: -280,
+                left: -60,
+                right: -60,
+                child: Container(
+                  height: 600,
+                  decoration: const BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        Color(0xEEF4A7C3),
+                        Color.fromARGB(160, 246, 109, 159),
+                        Color.fromARGB(0, 255, 255, 255),
+                      ],
+                      stops: [0.0, 0.4, 1.0],
+                      radius: 0.55,
+                    ),
+                  ),
+                ),
+              ),
+              // Farbiger Blob hinter dem Foto (Farbe des Kleidungsstücks)
+              Positioned(
+                top: 10,
+                left: -40,
+                right: -40,
+                child: Builder(builder: (context) {
+                  final itemColor = item.colors.isNotEmpty
+                      ? (AppConstants.colorMap[item.colors.first] ?? const Color(0xFFD4789C))
+                      : const Color(0xFFD4789C);
+                  return Container(
+                    height: 500,
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        colors: [
+                          itemColor.withValues(alpha: 0.60),
+                          itemColor.withValues(alpha: 0.25),
+                          itemColor.withValues(alpha: 0.0),
+                        ],
+                        stops: const [0.0, 0.45, 1.0],
+                        radius: 0.55,
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              // Bild oben mit Padding
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 56,
+                left: 24,
+                right: 24,
+                height: 300,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.file(
+                    File(item.imagePath),
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(
+                      child: Icon(Icons.checkroom_outlined,
+                          color: Color(0xFFD4789C), size: 48),
+                    ),
+                  ),
+                ),
+              ),
+              // Zurück-Button
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 12,
+                left: 16,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.80),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.10),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 15,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ),
+                ),
+              ),
+              DraggableScrollableSheet(
+                initialChildSize: 0.48,
+                minChildSize: 0.43,
+                maxChildSize: 0.82,
+                builder: (ctx, scrollController) => GlassSheet(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 14),
+                      Container(
+                        width: 36,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          gradient: LCColors.gradientPink,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                          child: _buildInfo(context, item),
+                        ),
+                      ),
+                      _buildActionBar(context, ref, item),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

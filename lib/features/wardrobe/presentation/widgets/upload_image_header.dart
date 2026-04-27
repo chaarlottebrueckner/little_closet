@@ -39,22 +39,7 @@ class UploadImageHeader extends StatelessWidget {
                       : kIsWeb
                           ? Image.network(imagePath, fit: BoxFit.contain)
                           : Image.file(File(imagePath), fit: BoxFit.contain),
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      height: 60,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Color(0x44000000)],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (loadingStatus != null)
+if (loadingStatus != null)
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
