@@ -191,6 +191,9 @@ late final GeneratedColumnWithTypeConverter<List<String>, String> styleTags = Ge
 static const VerificationMeta _weatherTagsMeta = const VerificationMeta('weatherTags');
 @override
 late final GeneratedColumnWithTypeConverter<List<String>, String> weatherTags = GeneratedColumn<String>('weather_tags', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: false, defaultValue: const Constant('[]')).withConverter<List<String>>($OutfitsTable.$converterweatherTags);
+static const VerificationMeta _seasonsMeta = const VerificationMeta('seasons');
+@override
+late final GeneratedColumnWithTypeConverter<List<String>, String> seasons = GeneratedColumn<String>('seasons', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: false, defaultValue: const Constant('[]')).withConverter<List<String>>($OutfitsTable.$converterseasons);
 static const VerificationMeta _sortOrderMeta = const VerificationMeta('sortOrder');
 @override
 late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>('sort_order', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: false, defaultValue: const Constant(0));
@@ -198,7 +201,7 @@ static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt
 @override
 late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>('created_at', aliasedName, false, type: DriftSqlType.dateTime, requiredDuringInsert: false, defaultValue: currentDateAndTime);
 @override
-List<GeneratedColumn> get $columns => [id, name, styleTags, weatherTags, sortOrder, createdAt];
+List<GeneratedColumn> get $columns => [id, name, styleTags, weatherTags, seasons, sortOrder, createdAt];
 @override
 String get aliasedName => _alias ?? actualTableName;
 @override
@@ -216,74 +219,78 @@ if (data.containsKey('name')) {
 context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));} else if (isInserting) {
 context.missing(_nameMeta);
 }
-context.handle(_styleTagsMeta, const VerificationResult.success());context.handle(_weatherTagsMeta, const VerificationResult.success());if (data.containsKey('sort_order')) {
+context.handle(_styleTagsMeta, const VerificationResult.success());context.handle(_weatherTagsMeta, const VerificationResult.success());context.handle(_seasonsMeta, const VerificationResult.success());if (data.containsKey('sort_order')) {
 context.handle(_sortOrderMeta, sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));}if (data.containsKey('created_at')) {
 context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));}return context;
 }
 @override
 Set<GeneratedColumn> get $primaryKey => {id};
 @override Outfit map(Map<String, dynamic> data, {String? tablePrefix})  {
-final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';return Outfit(id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!, name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!, styleTags: $OutfitsTable.$converterstyleTags.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}style_tags'])!), weatherTags: $OutfitsTable.$converterweatherTags.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}weather_tags'])!), sortOrder: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!, createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!, );
+final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';return Outfit(id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!, name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!, styleTags: $OutfitsTable.$converterstyleTags.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}style_tags'])!), weatherTags: $OutfitsTable.$converterweatherTags.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}weather_tags'])!), seasons: $OutfitsTable.$converterseasons.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}seasons'])!), sortOrder: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!, createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!, );
 }
 @override
 $OutfitsTable createAlias(String alias) {
-return $OutfitsTable(attachedDatabase, alias);}static TypeConverter<List<String>,String> $converterstyleTags = const StringListConverter();static TypeConverter<List<String>,String> $converterweatherTags = const StringListConverter();}class Outfit extends DataClass implements Insertable<Outfit> 
+return $OutfitsTable(attachedDatabase, alias);}static TypeConverter<List<String>,String> $converterstyleTags = const StringListConverter();static TypeConverter<List<String>,String> $converterweatherTags = const StringListConverter();static TypeConverter<List<String>,String> $converterseasons = const StringListConverter();}class Outfit extends DataClass implements Insertable<Outfit> 
 {
 final String id;
 final String name;
 final List<String> styleTags;
 final List<String> weatherTags;
+final List<String> seasons;
 final int sortOrder;
 final DateTime createdAt;
-const Outfit({required this.id, required this.name, required this.styleTags, required this.weatherTags, required this.sortOrder, required this.createdAt});@override
+const Outfit({required this.id, required this.name, required this.styleTags, required this.weatherTags, required this.seasons, required this.sortOrder, required this.createdAt});@override
 Map<String, Expression> toColumns(bool nullToAbsent) {
 final map = <String, Expression> {};map['id'] = Variable<String>(id);
 map['name'] = Variable<String>(name);
 {map['style_tags'] = Variable<String>($OutfitsTable.$converterstyleTags.toSql(styleTags));
 }{map['weather_tags'] = Variable<String>($OutfitsTable.$converterweatherTags.toSql(weatherTags));
+}{map['seasons'] = Variable<String>($OutfitsTable.$converterseasons.toSql(seasons));
 }map['sort_order'] = Variable<int>(sortOrder);
 map['created_at'] = Variable<DateTime>(createdAt);
 return map; 
 }
 OutfitsCompanion toCompanion(bool nullToAbsent) {
-return OutfitsCompanion(id: Value(id),name: Value(name),styleTags: Value(styleTags),weatherTags: Value(weatherTags),sortOrder: Value(sortOrder),createdAt: Value(createdAt),);
+return OutfitsCompanion(id: Value(id),name: Value(name),styleTags: Value(styleTags),weatherTags: Value(weatherTags),seasons: Value(seasons),sortOrder: Value(sortOrder),createdAt: Value(createdAt),);
 }
 factory Outfit.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
 serializer ??= driftRuntimeOptions.defaultSerializer;
-return Outfit(id: serializer.fromJson<String>(json['id']),name: serializer.fromJson<String>(json['name']),styleTags: serializer.fromJson<List<String>>(json['styleTags']),weatherTags: serializer.fromJson<List<String>>(json['weatherTags']),sortOrder: serializer.fromJson<int>(json['sortOrder']),createdAt: serializer.fromJson<DateTime>(json['createdAt']),);}
+return Outfit(id: serializer.fromJson<String>(json['id']),name: serializer.fromJson<String>(json['name']),styleTags: serializer.fromJson<List<String>>(json['styleTags']),weatherTags: serializer.fromJson<List<String>>(json['weatherTags']),seasons: serializer.fromJson<List<String>>(json['seasons']),sortOrder: serializer.fromJson<int>(json['sortOrder']),createdAt: serializer.fromJson<DateTime>(json['createdAt']),);}
 @override Map<String, dynamic> toJson({ValueSerializer? serializer}) {
 serializer ??= driftRuntimeOptions.defaultSerializer;
 return <String, dynamic>{
-'id': serializer.toJson<String>(id),'name': serializer.toJson<String>(name),'styleTags': serializer.toJson<List<String>>(styleTags),'weatherTags': serializer.toJson<List<String>>(weatherTags),'sortOrder': serializer.toJson<int>(sortOrder),'createdAt': serializer.toJson<DateTime>(createdAt),};}Outfit copyWith({String? id,String? name,List<String>? styleTags,List<String>? weatherTags,int? sortOrder,DateTime? createdAt}) => Outfit(id: id ?? this.id,name: name ?? this.name,styleTags: styleTags ?? this.styleTags,weatherTags: weatherTags ?? this.weatherTags,sortOrder: sortOrder ?? this.sortOrder,createdAt: createdAt ?? this.createdAt,);Outfit copyWithCompanion(OutfitsCompanion data) {
+'id': serializer.toJson<String>(id),'name': serializer.toJson<String>(name),'styleTags': serializer.toJson<List<String>>(styleTags),'weatherTags': serializer.toJson<List<String>>(weatherTags),'seasons': serializer.toJson<List<String>>(seasons),'sortOrder': serializer.toJson<int>(sortOrder),'createdAt': serializer.toJson<DateTime>(createdAt),};}Outfit copyWith({String? id,String? name,List<String>? styleTags,List<String>? weatherTags,List<String>? seasons,int? sortOrder,DateTime? createdAt}) => Outfit(id: id ?? this.id,name: name ?? this.name,styleTags: styleTags ?? this.styleTags,weatherTags: weatherTags ?? this.weatherTags,seasons: seasons ?? this.seasons,sortOrder: sortOrder ?? this.sortOrder,createdAt: createdAt ?? this.createdAt,);Outfit copyWithCompanion(OutfitsCompanion data) {
 return Outfit(
-id: data.id.present ? data.id.value : this.id,name: data.name.present ? data.name.value : this.name,styleTags: data.styleTags.present ? data.styleTags.value : this.styleTags,weatherTags: data.weatherTags.present ? data.weatherTags.value : this.weatherTags,sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,);
+id: data.id.present ? data.id.value : this.id,name: data.name.present ? data.name.value : this.name,styleTags: data.styleTags.present ? data.styleTags.value : this.styleTags,weatherTags: data.weatherTags.present ? data.weatherTags.value : this.weatherTags,seasons: data.seasons.present ? data.seasons.value : this.seasons,sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,);
 }
 @override
-String toString() {return (StringBuffer('Outfit(')..write('id: $id, ')..write('name: $name, ')..write('styleTags: $styleTags, ')..write('weatherTags: $weatherTags, ')..write('sortOrder: $sortOrder, ')..write('createdAt: $createdAt')..write(')')).toString();}
+String toString() {return (StringBuffer('Outfit(')..write('id: $id, ')..write('name: $name, ')..write('styleTags: $styleTags, ')..write('weatherTags: $weatherTags, ')..write('seasons: $seasons, ')..write('sortOrder: $sortOrder, ')..write('createdAt: $createdAt')..write(')')).toString();}
 @override
- int get hashCode => Object.hash(id, name, styleTags, weatherTags, sortOrder, createdAt);@override
-bool operator ==(Object other) => identical(this, other) || (other is Outfit && other.id == this.id && other.name == this.name && other.styleTags == this.styleTags && other.weatherTags == this.weatherTags && other.sortOrder == this.sortOrder && other.createdAt == this.createdAt);
+ int get hashCode => Object.hash(id, name, styleTags, weatherTags, seasons, sortOrder, createdAt);@override
+bool operator ==(Object other) => identical(this, other) || (other is Outfit && other.id == this.id && other.name == this.name && other.styleTags == this.styleTags && other.weatherTags == this.weatherTags && other.seasons == this.seasons && other.sortOrder == this.sortOrder && other.createdAt == this.createdAt);
 }class OutfitsCompanion extends UpdateCompanion<Outfit> {
 final Value<String> id;
 final Value<String> name;
 final Value<List<String>> styleTags;
 final Value<List<String>> weatherTags;
+final Value<List<String>> seasons;
 final Value<int> sortOrder;
 final Value<DateTime> createdAt;
 final Value<int> rowid;
-const OutfitsCompanion({this.id = const Value.absent(),this.name = const Value.absent(),this.styleTags = const Value.absent(),this.weatherTags = const Value.absent(),this.sortOrder = const Value.absent(),this.createdAt = const Value.absent(),this.rowid = const Value.absent(),});
-OutfitsCompanion.insert({required String id,required String name,this.styleTags = const Value.absent(),this.weatherTags = const Value.absent(),this.sortOrder = const Value.absent(),this.createdAt = const Value.absent(),this.rowid = const Value.absent(),}): id = Value(id), name = Value(name);
+const OutfitsCompanion({this.id = const Value.absent(),this.name = const Value.absent(),this.styleTags = const Value.absent(),this.weatherTags = const Value.absent(),this.seasons = const Value.absent(),this.sortOrder = const Value.absent(),this.createdAt = const Value.absent(),this.rowid = const Value.absent(),});
+OutfitsCompanion.insert({required String id,required String name,this.styleTags = const Value.absent(),this.weatherTags = const Value.absent(),this.seasons = const Value.absent(),this.sortOrder = const Value.absent(),this.createdAt = const Value.absent(),this.rowid = const Value.absent(),}): id = Value(id), name = Value(name);
 static Insertable<Outfit> custom({Expression<String>? id, 
 Expression<String>? name, 
 Expression<String>? styleTags, 
 Expression<String>? weatherTags, 
+Expression<String>? seasons, 
 Expression<int>? sortOrder, 
 Expression<DateTime>? createdAt, 
 Expression<int>? rowid, 
 }) {
-return RawValuesInsertable({if (id != null)'id': id,if (name != null)'name': name,if (styleTags != null)'style_tags': styleTags,if (weatherTags != null)'weather_tags': weatherTags,if (sortOrder != null)'sort_order': sortOrder,if (createdAt != null)'created_at': createdAt,if (rowid != null)'rowid': rowid,});
-}OutfitsCompanion copyWith({Value<String>? id, Value<String>? name, Value<List<String>>? styleTags, Value<List<String>>? weatherTags, Value<int>? sortOrder, Value<DateTime>? createdAt, Value<int>? rowid}) {
-return OutfitsCompanion(id: id ?? this.id,name: name ?? this.name,styleTags: styleTags ?? this.styleTags,weatherTags: weatherTags ?? this.weatherTags,sortOrder: sortOrder ?? this.sortOrder,createdAt: createdAt ?? this.createdAt,rowid: rowid ?? this.rowid,);
+return RawValuesInsertable({if (id != null)'id': id,if (name != null)'name': name,if (styleTags != null)'style_tags': styleTags,if (weatherTags != null)'weather_tags': weatherTags,if (seasons != null)'seasons': seasons,if (sortOrder != null)'sort_order': sortOrder,if (createdAt != null)'created_at': createdAt,if (rowid != null)'rowid': rowid,});
+}OutfitsCompanion copyWith({Value<String>? id, Value<String>? name, Value<List<String>>? styleTags, Value<List<String>>? weatherTags, Value<List<String>>? seasons, Value<int>? sortOrder, Value<DateTime>? createdAt, Value<int>? rowid}) {
+return OutfitsCompanion(id: id ?? this.id,name: name ?? this.name,styleTags: styleTags ?? this.styleTags,weatherTags: weatherTags ?? this.weatherTags,seasons: seasons ?? this.seasons,sortOrder: sortOrder ?? this.sortOrder,createdAt: createdAt ?? this.createdAt,rowid: rowid ?? this.rowid,);
 }
 @override
 Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -295,6 +302,8 @@ if (styleTags.present) {
 map['style_tags'] = Variable<String>($OutfitsTable.$converterstyleTags.toSql(styleTags.value));}
 if (weatherTags.present) {
 map['weather_tags'] = Variable<String>($OutfitsTable.$converterweatherTags.toSql(weatherTags.value));}
+if (seasons.present) {
+map['seasons'] = Variable<String>($OutfitsTable.$converterseasons.toSql(seasons.value));}
 if (sortOrder.present) {
 map['sort_order'] = Variable<int>(sortOrder.value);}
 if (createdAt.present) {
@@ -304,7 +313,7 @@ map['rowid'] = Variable<int>(rowid.value);}
 return map; 
 }
 @override
-String toString() {return (StringBuffer('OutfitsCompanion(')..write('id: $id, ')..write('name: $name, ')..write('styleTags: $styleTags, ')..write('weatherTags: $weatherTags, ')..write('sortOrder: $sortOrder, ')..write('createdAt: $createdAt, ')..write('rowid: $rowid')..write(')')).toString();}
+String toString() {return (StringBuffer('OutfitsCompanion(')..write('id: $id, ')..write('name: $name, ')..write('styleTags: $styleTags, ')..write('weatherTags: $weatherTags, ')..write('seasons: $seasons, ')..write('sortOrder: $sortOrder, ')..write('createdAt: $createdAt, ')..write('rowid: $rowid')..write(')')).toString();}
 }
 class $OutfitClothingItemsTable extends OutfitClothingItems with TableInfo<$OutfitClothingItemsTable, OutfitClothingItem>{
 @override final GeneratedDatabase attachedDatabase;
@@ -968,8 +977,8 @@ GeneratedColumn<DateTime> get createdAt => $composableBuilder(
     (ClothingItem,BaseReferences<_$AppDatabase,$ClothingItemsTable,ClothingItem>),
     ClothingItem,
     PrefetchHooks Function()
-    >;typedef $$OutfitsTableCreateCompanionBuilder = OutfitsCompanion Function({required String id,required String name,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
-typedef $$OutfitsTableUpdateCompanionBuilder = OutfitsCompanion Function({Value<String> id,Value<String> name,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
+    >;typedef $$OutfitsTableCreateCompanionBuilder = OutfitsCompanion Function({required String id,required String name,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<List<String>> seasons,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
+typedef $$OutfitsTableUpdateCompanionBuilder = OutfitsCompanion Function({Value<String> id,Value<String> name,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<List<String>> seasons,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
 class $$OutfitsTableFilterComposer extends Composer<
         _$AppDatabase,
         $OutfitsTable> {
@@ -997,6 +1006,11 @@ ColumnFilters<String> get name => $composableBuilder(
       
           ColumnWithTypeConverterFilters<List<String>,List<String>,String> get weatherTags => $composableBuilder(
       column: $table.weatherTags,
+      builder: (column) => 
+      ColumnWithTypeConverterFilters(column));
+      
+          ColumnWithTypeConverterFilters<List<String>,List<String>,String> get seasons => $composableBuilder(
+      column: $table.seasons,
       builder: (column) => 
       ColumnWithTypeConverterFilters(column));
       
@@ -1041,6 +1055,11 @@ ColumnOrderings<String> get weatherTags => $composableBuilder(
       builder: (column) => 
       ColumnOrderings(column));
       
+ColumnOrderings<String> get seasons => $composableBuilder(
+      column: $table.seasons,
+      builder: (column) => 
+      ColumnOrderings(column));
+      
 ColumnOrderings<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder,
       builder: (column) => 
@@ -1078,6 +1097,10 @@ GeneratedColumn<String> get name => $composableBuilder(
       column: $table.weatherTags,
       builder: (column) => column);
       
+          GeneratedColumnWithTypeConverter<List<String>,String> get seasons => $composableBuilder(
+      column: $table.seasons,
+      builder: (column) => column);
+      
 GeneratedColumn<int> get sortOrder => $composableBuilder(
       column: $table.sortOrder,
       builder: (column) => column);
@@ -1106,8 +1129,8 @@ GeneratedColumn<DateTime> get createdAt => $composableBuilder(
         createFilteringComposer: () => $$OutfitsTableFilterComposer($db: db,$table:table),
         createOrderingComposer: () => $$OutfitsTableOrderingComposer($db: db,$table:table),
         createComputedFieldComposer: () => $$OutfitsTableAnnotationComposer($db: db,$table:table),
-        updateCompanionCallback: ({Value<String> id = const Value.absent(),Value<String> name = const Value.absent(),Value<List<String>> styleTags = const Value.absent(),Value<List<String>> weatherTags = const Value.absent(),Value<int> sortOrder = const Value.absent(),Value<DateTime> createdAt = const Value.absent(),Value<int> rowid = const Value.absent(),})=> OutfitsCompanion(id: id,name: name,styleTags: styleTags,weatherTags: weatherTags,sortOrder: sortOrder,createdAt: createdAt,rowid: rowid,),
-        createCompanionCallback: ({required String id,required String name,Value<List<String>> styleTags = const Value.absent(),Value<List<String>> weatherTags = const Value.absent(),Value<int> sortOrder = const Value.absent(),Value<DateTime> createdAt = const Value.absent(),Value<int> rowid = const Value.absent(),})=> OutfitsCompanion.insert(id: id,name: name,styleTags: styleTags,weatherTags: weatherTags,sortOrder: sortOrder,createdAt: createdAt,rowid: rowid,),
+        updateCompanionCallback: ({Value<String> id = const Value.absent(),Value<String> name = const Value.absent(),Value<List<String>> styleTags = const Value.absent(),Value<List<String>> weatherTags = const Value.absent(),Value<List<String>> seasons = const Value.absent(),Value<int> sortOrder = const Value.absent(),Value<DateTime> createdAt = const Value.absent(),Value<int> rowid = const Value.absent(),})=> OutfitsCompanion(id: id,name: name,styleTags: styleTags,weatherTags: weatherTags,seasons: seasons,sortOrder: sortOrder,createdAt: createdAt,rowid: rowid,),
+        createCompanionCallback: ({required String id,required String name,Value<List<String>> styleTags = const Value.absent(),Value<List<String>> weatherTags = const Value.absent(),Value<List<String>> seasons = const Value.absent(),Value<int> sortOrder = const Value.absent(),Value<DateTime> createdAt = const Value.absent(),Value<int> rowid = const Value.absent(),})=> OutfitsCompanion.insert(id: id,name: name,styleTags: styleTags,weatherTags: weatherTags,seasons: seasons,sortOrder: sortOrder,createdAt: createdAt,rowid: rowid,),
         withReferenceMapper: (p0) => p0
               .map(
                   (e) =>

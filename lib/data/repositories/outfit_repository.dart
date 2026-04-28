@@ -104,10 +104,10 @@ class OutfitRepository {
     required String outfitId,
     required String name,
     required List<PositionedItem> items,
-    List<String> styleTags = const [],
   }) async {
-    final weatherTags =
-        items.expand((i) => i.item.weatherTags).toSet().toList();
+    final styleTags = items.expand((i) => i.item.styleTags).toSet().toList();
+    final weatherTags = items.expand((i) => i.item.weatherTags).toSet().toList();
+    final seasons = items.expand((i) => i.item.seasons).toSet().toList();
 
     await _db.transaction(() async {
       await (_db.update(_db.outfits)..where((t) => t.id.equals(outfitId)))
@@ -115,6 +115,7 @@ class OutfitRepository {
         name: Value(name),
         styleTags: Value(styleTags),
         weatherTags: Value(weatherTags),
+        seasons: Value(seasons),
       ));
 
       await (_db.delete(_db.outfitClothingItems)

@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -35,6 +35,11 @@ class AppDatabase extends _$AppDatabase {
           "CASE WHEN color IS NULL THEN '[]' "
           "WHEN color LIKE '[%' THEN color "
           "ELSE json_array(color) END",
+        );
+      }
+      if (from < 3) {
+        await customStatement(
+          "ALTER TABLE outfits ADD COLUMN seasons TEXT NOT NULL DEFAULT '[]'",
         );
       }
     },
