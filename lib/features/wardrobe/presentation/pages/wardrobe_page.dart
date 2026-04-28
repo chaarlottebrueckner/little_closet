@@ -196,7 +196,12 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
       error: (e, _) => Center(child: Text('Fehler: $e')),
       data: (items) {
         final filtered = _applyFilters(items);
-        if (filtered.isEmpty) return const WardrobeEmptyState();
+        if (filtered.isEmpty) {
+          final reason = items.isEmpty
+              ? WardrobeEmptyReason.noClothing
+              : WardrobeEmptyReason.filteredOut;
+          return WardrobeEmptyState(reason: reason);
+        }
         return GridView.builder(
           padding: EdgeInsets.fromLTRB(16, 12, 16, _isSelectionMode ? 140 : 100),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

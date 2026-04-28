@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_filters.dart';
 import '../../domain/outfit_with_items.dart';
@@ -117,7 +118,9 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
           ),
         ],
       ),
-      floatingActionButton: _buildFAB(),
+      floatingActionButton: ref.watch(clothingItemsProvider).valueOrNull?.isNotEmpty == true
+          ? _buildFAB()
+          : null,
     );
   }
 
@@ -151,12 +154,24 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
 
   Widget _buildContent() {
     final outfitsAsync = ref.watch(outfitsProvider);
+    final clothingAsync = ref.watch(clothingItemsProvider);
     return outfitsAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Fehler: $e')),
       data: (outfits) {
         final filtered = _applyFilters(outfits);
-        if (filtered.isEmpty) return const OutfitEmptyState();
+        if (filtered.isEmpty) {
+          final reason = clothingAsync.when(
+            data: (items) {
+              if (items.isEmpty) return OutfitEmptyReason.noClothing;
+              if (outfits.isEmpty) return OutfitEmptyReason.noOutfits;
+              return OutfitEmptyReason.filteredOut;
+            },
+            loading: () => OutfitEmptyReason.noOutfits,
+            error: (_, __) => OutfitEmptyReason.noOutfits,
+          );
+          return OutfitEmptyState(reason: reason);
+        }
         return GridView.builder(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

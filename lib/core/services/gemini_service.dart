@@ -43,8 +43,9 @@ Rules:
 - Never return an empty array if any color is visible.
 
 Seasons (conservative — only if highly confident from clear visual cues, else empty array):
-Frühling, Sommer, Herbst, Winter, Ganzjährig
+Frühling, Sommer, Herbst, Winter
 Example: a heavy wool coat → Winter. A linen top → Sommer. A plain grey hoodie → omit.
+For year-round basics (e.g. a plain white tee), select all four seasons.
 
 Style tags (suggest 1–3; more only if multiple styles are unambiguously visible):
 Casual, Chic, Business, Sport, Party, Romantic, Edgy, Minimalist, Boho, Y2K, Streetwear, Preppy, Grunge

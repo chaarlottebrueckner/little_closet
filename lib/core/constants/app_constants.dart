@@ -69,7 +69,7 @@ class AppConstants {
 
   // Seasons
   static const List<String> seasons = [
-    'Frühling', 'Sommer', 'Herbst', 'Winter', 'Ganzjährig',
+    'Frühling', 'Sommer', 'Herbst', 'Winter',
   ];
 
   // Style tags

@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -40,6 +40,15 @@ class AppDatabase extends _$AppDatabase {
       if (from < 3) {
         await customStatement(
           "ALTER TABLE outfits ADD COLUMN seasons TEXT NOT NULL DEFAULT '[]'",
+        );
+      }
+      if (from < 4) {
+        const allSeasons = '["Frühling","Sommer","Herbst","Winter"]';
+        await customStatement(
+          "UPDATE clothing_items SET seasons = '$allSeasons' WHERE seasons LIKE '%Ganzjährig%'",
+        );
+        await customStatement(
+          "UPDATE outfits SET seasons = '$allSeasons' WHERE seasons LIKE '%Ganzjährig%'",
         );
       }
     },
