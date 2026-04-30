@@ -85,13 +85,17 @@ class OutfitCard extends StatelessWidget {
           color: Colors.white,
           child: Stack(
             children: sortedItems.map((p) {
-              final w = kItemBaseWidth * p.scale * sf;
-              final h = kItemBaseHeight * p.scale * sf;
+              final scaledW = kItemBaseWidth * p.scale;
+              final scaledH = kItemBaseHeight * p.scale;
+              // Editor uses Transform.scale from center, so visual top-left
+              // is at center − scaled_half, not at posX/posY directly.
+              final visualLeft = (p.posX + kItemBaseWidth / 2 - scaledW / 2) * sf;
+              final visualTop = (p.posY + kItemBaseHeight / 2 - scaledH / 2) * sf;
               return Positioned(
-                left: p.posX * sf,
-                top: p.posY * sf,
-                width: w,
-                height: h,
+                left: visualLeft,
+                top: visualTop,
+                width: scaledW * sf,
+                height: scaledH * sf,
                 child: Transform.rotate(
                   angle: p.rotation,
                   child: Image.file(

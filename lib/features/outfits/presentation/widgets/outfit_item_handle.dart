@@ -32,6 +32,10 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
   double _baseScale = 1.0;
   double _baseRotation = 0.0;
 
+  // X button center in pre-transform local coords: right:-10, top:-10 → (99, 1)
+  static const _xBtnCenter = Offset(kItemBaseWidth + 10 - 11, -10 + 11);
+  static const _xBtnRadius = 11.0;
+
   void _onScaleStart(ScaleStartDetails details) {
     _baseScale = widget.editableItem.scale;
     _baseRotation = widget.editableItem.rotation;
@@ -48,6 +52,15 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
     }
   }
 
+  void _onTapUp(TapUpDetails details) {
+    if (widget.isSelected &&
+        (details.localPosition - _xBtnCenter).distance <= _xBtnRadius) {
+      widget.onRemove();
+    } else {
+      widget.onSelect();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final item = widget.editableItem;
@@ -55,7 +68,7 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
       left: item.posX,
       top: item.posY,
       child: GestureDetector(
-        onTap: widget.onSelect,
+        onTapUp: _onTapUp,
         onScaleStart: _onScaleStart,
         onScaleUpdate: _onScaleUpdate,
         child: Transform.rotate(
@@ -68,7 +81,6 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Item image
                   Container(
                     decoration: widget.isSelected
                         ? BoxDecoration(
@@ -95,32 +107,28 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
                       ),
                     ),
                   ),
-                  // Remove button (only when selected)
                   if (widget.isSelected)
                     Positioned(
                       right: -10,
                       top: -10,
-                      child: GestureDetector(
-                        onTap: widget.onRemove,
-                        child: Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            color: LCColors.primary,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: LCColors.primary.withValues(alpha: 0.4),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 14,
-                          ),
+                      child: Container(
+                        width: 22,
+                        height: 22,
+                        decoration: BoxDecoration(
+                          color: LCColors.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: LCColors.primary.withValues(alpha: 0.4),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 14,
                         ),
                       ),
                     ),
