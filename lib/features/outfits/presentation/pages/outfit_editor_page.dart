@@ -104,7 +104,9 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
 
   void _panItem(String id, double dx, double dy) {
     setState(() {
-      final item = _items.firstWhere((e) => e.id == id);
+      final idx = _items.indexWhere((e) => e.id == id);
+      if (idx == -1) return;
+      final item = _items[idx];
       item.posX = (item.posX + dx).clamp(0.0, kCanvasWidth - kItemBaseWidth);
       item.posY = (item.posY + dy).clamp(0.0, kCanvasHeight - kItemBaseHeight);
     });
@@ -112,7 +114,9 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
 
   void _pinchItem(String id, double newScale, double newRotation) {
     setState(() {
-      final item = _items.firstWhere((e) => e.id == id);
+      final idx = _items.indexWhere((e) => e.id == id);
+      if (idx == -1) return;
+      final item = _items[idx];
       item.scale = newScale.clamp(0.3, 3.0);
       item.rotation = newRotation;
     });

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -29,6 +31,7 @@ class OutfitEditorCanvas extends StatelessWidget {
 
     return FittedBox(
       fit: BoxFit.contain,
+      alignment: Alignment.topCenter,
       child: SizedBox(
         width: kCanvasWidth,
         height: kCanvasHeight,
@@ -42,10 +45,45 @@ class OutfitEditorCanvas extends StatelessWidget {
                 editableItem: item,
                 isSelected: item.id == selectedItemId,
                 onSelect: () => onItemSelect(item.id),
-                onRemove: () => onItemRemove(item.id),
                 onPan: (dx, dy) => onItemPan(item.id, dx, dy),
                 onPinch: (s, r) => onItemPinch(item.id, s, r),
               ),
+            if (selectedItemId != null)
+              Builder(builder: (context) {
+                final item = sorted.where((e) => e.id == selectedItemId).firstOrNull;
+                if (item == null) return const SizedBox.shrink();
+                final cx = item.posX + kItemBaseWidth / 2;
+                final cy = item.posY + kItemBaseHeight / 2;
+                final hw = kItemBaseWidth / 2 * item.scale;
+                final hh = kItemBaseHeight / 2 * item.scale;
+                final ca = cos(item.rotation);
+                final sa = sin(item.rotation);
+                final btnLeft = cx + hw * ca + hh * sa - 11;
+                final btnTop = cy + hw * sa - hh * ca - 11;
+                return Positioned(
+                  left: btnLeft,
+                  top: btnTop,
+                  child: GestureDetector(
+                    onTap: () => onItemRemove(selectedItemId!),
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: LCColors.primary,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: LCColors.primary.withValues(alpha: 0.4),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.close, color: Colors.white, size: 14),
+                    ),
+                  ),
+                );
+              }),
           ],
         ),
       ),
