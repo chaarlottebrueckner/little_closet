@@ -10,6 +10,7 @@ import '../widgets/outfit_card.dart';
 import '../widgets/outfit_empty_state.dart';
 import '../widgets/outfit_filter_sheet.dart';
 import '../widgets/outfits_header.dart';
+import 'outfit_editor_page.dart';
 
 class OutfitsPage extends ConsumerStatefulWidget {
   const OutfitsPage({super.key});
@@ -203,13 +204,15 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
           ),
         ],
       ),
-      child: const FloatingActionButton.extended(
-        // Navigation to editor wired in Phase 3
-        onPressed: null,
+      child: FloatingActionButton.extended(
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const OutfitEditorPage()),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        icon: Icon(Icons.add, color: Colors.white),
-        label: Text(
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
           'Outfit erstellen',
           style: TextStyle(
             color: Colors.white,

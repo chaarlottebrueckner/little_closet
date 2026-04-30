@@ -104,18 +104,24 @@ class OutfitRepository {
     required String outfitId,
     required String name,
     required List<PositionedItem> items,
+    List<String>? styleTags,
+    List<String>? weatherTags,
+    List<String>? seasons,
   }) async {
-    final styleTags = items.expand((i) => i.item.styleTags).toSet().toList();
-    final weatherTags = items.expand((i) => i.item.weatherTags).toSet().toList();
-    final seasons = items.expand((i) => i.item.seasons).toSet().toList();
+    final resolvedStyleTags =
+        styleTags ?? items.expand((i) => i.item.styleTags).toSet().toList();
+    final resolvedWeatherTags =
+        weatherTags ?? items.expand((i) => i.item.weatherTags).toSet().toList();
+    final resolvedSeasons =
+        seasons ?? items.expand((i) => i.item.seasons).toSet().toList();
 
     await _db.transaction(() async {
       await (_db.update(_db.outfits)..where((t) => t.id.equals(outfitId)))
           .write(OutfitsCompanion(
         name: Value(name),
-        styleTags: Value(styleTags),
-        weatherTags: Value(weatherTags),
-        seasons: Value(seasons),
+        styleTags: Value(resolvedStyleTags),
+        weatherTags: Value(resolvedWeatherTags),
+        seasons: Value(resolvedSeasons),
       ));
 
       await (_db.delete(_db.outfitClothingItems)
