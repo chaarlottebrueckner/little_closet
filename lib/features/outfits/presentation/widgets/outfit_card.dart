@@ -113,9 +113,16 @@ class OutfitCard extends StatelessWidget {
   }
 
   Widget _buildInfo(BuildContext context) {
-    final name = outfitWithItems.outfit.name.isEmpty
-        ? 'Outfit'
-        : outfitWithItems.outfit.name;
+    const seasonIcons = {
+      'Frühling': Icons.local_florist,
+      'Sommer': Icons.wb_sunny,
+      'Herbst': Icons.eco,
+      'Winter': Icons.ac_unit,
+    };
+    const seasonOrder = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
+
+    final seasons = outfitWithItems.outfit.seasons;
+    final activeSeasons = seasonOrder.where(seasons.contains).toList();
     final tags = outfitWithItems.outfit.styleTags;
 
     return Padding(
@@ -123,15 +130,19 @@ class OutfitCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            name,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          if (activeSeasons.isNotEmpty)
+            Row(
+              children: activeSeasons
+                  .map((s) => Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: Icon(
+                          seasonIcons[s],
+                          size: 15,
+                          color: LCColors.primary,
+                        ),
+                      ))
+                  .toList(),
+            ),
           if (tags.isNotEmpty) ...[
             const SizedBox(height: 3),
             Text(

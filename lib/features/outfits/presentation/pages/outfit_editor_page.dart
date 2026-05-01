@@ -75,12 +75,13 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
   void _addItems(List<ClothingItem> items) {
     setState(() {
       for (final item in items) {
+        final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
         _items.add(EditableItem(
           item: item,
           posX: 150,
           posY: 190,
           scale: 1.8,
-          zIndex: _items.length,
+          zIndex: _items.isEmpty ? 0 : maxZ + 1,
         ));
       }
     });
@@ -90,6 +91,19 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeOut,
     );
+  }
+
+  void _bringToFront(String id) {
+    final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
+    final item = _items.firstWhere((i) => i.id == id);
+    if (item.zIndex < maxZ) {
+      setState(() => item.zIndex = maxZ + 1);
+    }
+  }
+
+  void _selectItem(String id) {
+    _bringToFront(id);
+    setState(() => _selectedItemId = id);
   }
 
   void _removeItem(String id) {
@@ -172,17 +186,14 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
     List<String> weatherTags,
     List<String> seasons,
   ) async {
-    final positionedItems = _items.asMap().entries.map((entry) {
-      final e = entry.value;
-      return PositionedItem(
-        item: e.item,
-        posX: e.posX,
-        posY: e.posY,
-        scale: e.scale,
-        rotation: e.rotation,
-        zIndex: entry.key,
-      );
-    }).toList();
+    final positionedItems = _items.map((e) => PositionedItem(
+          item: e.item,
+          posX: e.posX,
+          posY: e.posY,
+          scale: e.scale,
+          rotation: e.rotation,
+          zIndex: e.zIndex,
+        )).toList();
 
     await ref.read(outfitRepositoryProvider).saveOutfitWithItems(
           outfitId: outfitId,
@@ -260,7 +271,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
               child: OutfitEditorCanvas(
                 items: _items,
                 selectedItemId: _selectedItemId,
-                onItemSelect: (id) => setState(() => _selectedItemId = id),
+                onItemSelect: _selectItem,
                 onItemRemove: _removeItem,
                 onItemPan: _panItem,
                 onItemPinch: _pinchItem,

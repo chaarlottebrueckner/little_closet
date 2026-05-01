@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -49,50 +50,67 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
   @override
   Widget build(BuildContext context) {
     final item = widget.editableItem;
+
+    final cx = item.posX + kItemBaseWidth / 2;
+    final cy = item.posY + kItemBaseHeight / 2;
+    final sw = kItemBaseWidth * item.scale;
+    final sh = kItemBaseHeight * item.scale;
+    final cosR = cos(item.rotation).abs();
+    final sinR = sin(item.rotation).abs();
+    final bboxW = sw * cosR + sh * sinR;
+    final bboxH = sw * sinR + sh * cosR;
+
     return Positioned(
-      left: item.posX,
-      top: item.posY,
-      child: GestureDetector(
-        onTap: widget.onSelect,
-        onScaleStart: _onScaleStart,
-        onScaleUpdate: _onScaleUpdate,
-        child: Transform.rotate(
-          angle: item.rotation,
-          child: Transform.scale(
-            scale: item.scale,
-            child: SizedBox(
-              width: kItemBaseWidth,
-              height: kItemBaseHeight,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    decoration: widget.isSelected
-                        ? BoxDecoration(
-                            border: Border.all(
-                              color: LCColors.primary,
-                              width: 2,
+      left: cx - bboxW / 2,
+      top: cy - bboxH / 2,
+      child: SizedBox(
+        width: bboxW,
+        height: bboxH,
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: widget.onSelect,
+          onScaleStart: _onScaleStart,
+          onScaleUpdate: _onScaleUpdate,
+          child: Center(
+            child: Transform.rotate(
+              angle: item.rotation,
+              child: Transform.scale(
+                scale: item.scale,
+                child: SizedBox(
+                  width: kItemBaseWidth,
+                  height: kItemBaseHeight,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        decoration: widget.isSelected
+                            ? BoxDecoration(
+                                border: Border.all(
+                                  color: LCColors.primary,
+                                  width: 2,
+                                ),
+                                borderRadius: BorderRadius.circular(4),
+                              )
+                            : null,
+                        child: Image.file(
+                          File(item.item.imagePath),
+                          width: kItemBaseWidth,
+                          height: kItemBaseHeight,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: kItemBaseWidth,
+                            height: kItemBaseHeight,
+                            color: LCColors.accent.withValues(alpha: 0.2),
+                            child: const Icon(
+                              Icons.image_not_supported_outlined,
+                              color: LCColors.textMuted,
                             ),
-                            borderRadius: BorderRadius.circular(4),
-                          )
-                        : null,
-                    child: Image.file(
-                      File(item.item.imagePath),
-                      width: kItemBaseWidth,
-                      height: kItemBaseHeight,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: kItemBaseWidth,
-                        height: kItemBaseHeight,
-                        color: LCColors.accent.withValues(alpha: 0.2),
-                        child: const Icon(
-                          Icons.image_not_supported_outlined,
-                          color: LCColors.textMuted,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
