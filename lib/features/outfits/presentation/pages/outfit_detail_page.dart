@@ -24,7 +24,16 @@ class OutfitDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final outfit = outfitWithItems.outfit;
+    ref.listen(outfitByIdProvider(outfitWithItems.outfit.id), (_, next) {
+      if (next.hasValue && next.value == null && context.mounted) {
+        Navigator.pop(context);
+      }
+    });
+    final current = ref
+            .watch(outfitByIdProvider(outfitWithItems.outfit.id))
+            .valueOrNull ??
+        outfitWithItems;
+    final outfit = current.outfit;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
@@ -67,7 +76,7 @@ class OutfitDetailPage extends ConsumerWidget {
             height: 300,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: _buildCanvasPreview(),
+              child: _buildCanvasPreview(current),
             ),
           ),
           Positioned(
@@ -121,7 +130,7 @@ class OutfitDetailPage extends ConsumerWidget {
                       child: _buildInfo(context, outfit),
                     ),
                   ),
-                  _buildActionBar(context, ref),
+                  _buildActionBar(context, ref, current),
                 ],
               ),
             ),
@@ -131,8 +140,8 @@ class OutfitDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCanvasPreview() {
-    final sortedItems = [...outfitWithItems.items]
+  Widget _buildCanvasPreview(OutfitWithItems current) {
+    final sortedItems = [...current.items]
       ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
 
     if (sortedItems.isEmpty) {
@@ -203,7 +212,7 @@ class OutfitDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildActionBar(BuildContext context, WidgetRef ref) {
+  Widget _buildActionBar(BuildContext context, WidgetRef ref, OutfitWithItems current) {
     return SafeArea(
       top: false,
       child: Padding(
@@ -214,7 +223,7 @@ class OutfitDetailPage extends ConsumerWidget {
               child: OutlinedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  onEdit(outfitWithItems);
+                  onEdit(current);
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
@@ -251,7 +260,7 @@ class OutfitDetailPage extends ConsumerWidget {
                   ],
                 ),
                 child: TextButton(
-                  onPressed: () => _confirmDelete(context, ref),
+                  onPressed: () => _confirmDelete(context, ref, current),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
@@ -275,9 +284,9 @@ class OutfitDetailPage extends ConsumerWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref) {
-    final name = outfitWithItems.outfit.name.isNotEmpty
-        ? outfitWithItems.outfit.name
+  void _confirmDelete(BuildContext context, WidgetRef ref, OutfitWithItems current) {
+    final name = current.outfit.name.isNotEmpty
+        ? current.outfit.name
         : 'Dieses Outfit';
     showDialog(
       context: context,

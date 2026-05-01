@@ -109,7 +109,14 @@ class ClothingRepository {
     final item = await (_db.select(_db.clothingItems)
           ..where((t) => t.id.equals(id)))
         .getSingleOrNull();
-    await (_db.delete(_db.clothingItems)..where((t) => t.id.equals(id))).go();
+    await _db.transaction(() async {
+      final affectedOutfitIds = await _outfitIdsForItems([id]);
+      await (_db.delete(_db.outfitClothingItems)
+            ..where((t) => t.clothingItemId.equals(id)))
+          .go();
+      await (_db.delete(_db.clothingItems)..where((t) => t.id.equals(id))).go();
+      await _deleteEmptyOutfits(affectedOutfitIds);
+    });
     await _deleteImageFile(item?.imagePath);
   }
 
@@ -118,9 +125,42 @@ class ClothingRepository {
     final items = await (_db.select(_db.clothingItems)
           ..where((t) => t.id.isIn(ids)))
         .get();
-    await (_db.delete(_db.clothingItems)..where((t) => t.id.isIn(ids))).go();
+    await _db.transaction(() async {
+      final affectedOutfitIds = await _outfitIdsForItems(ids);
+      await (_db.delete(_db.outfitClothingItems)
+            ..where((t) => t.clothingItemId.isIn(ids)))
+          .go();
+      await (_db.delete(_db.clothingItems)..where((t) => t.id.isIn(ids))).go();
+      await _deleteEmptyOutfits(affectedOutfitIds);
+    });
     for (final item in items) {
       await _deleteImageFile(item.imagePath);
+    }
+  }
+
+  Future<List<String>> _outfitIdsForItems(List<String> itemIds) async {
+    final rows = await (_db.selectOnly(_db.outfitClothingItems, distinct: true)
+          ..addColumns([_db.outfitClothingItems.outfitId])
+          ..where(_db.outfitClothingItems.clothingItemId.isIn(itemIds)))
+        .get();
+    return rows
+        .map((r) => r.read(_db.outfitClothingItems.outfitId)!)
+        .toList();
+  }
+
+  Future<void> _deleteEmptyOutfits(List<String> outfitIds) async {
+    if (outfitIds.isEmpty) return;
+    final stillPopulated = await (_db.selectOnly(
+            _db.outfitClothingItems,
+            distinct: true)
+          ..addColumns([_db.outfitClothingItems.outfitId])
+          ..where(_db.outfitClothingItems.outfitId.isIn(outfitIds)))
+        .get();
+    final populated =
+        stillPopulated.map((r) => r.read(_db.outfitClothingItems.outfitId)!).toSet();
+    final empty = outfitIds.where((id) => !populated.contains(id)).toList();
+    if (empty.isNotEmpty) {
+      await (_db.delete(_db.outfits)..where((t) => t.id.isIn(empty))).go();
     }
   }
 

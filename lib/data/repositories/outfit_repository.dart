@@ -11,58 +11,75 @@ class OutfitRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
-  // ── Queries ────────────────────────────────────────────────────────────────
-
-  Future<List<PositionedItem>> _getItemsForOutfit(String outfitId) async {
-    final query = _db.select(_db.outfitClothingItems).join([
-      innerJoin(
-        _db.clothingItems,
-        _db.clothingItems.id.equalsExp(_db.outfitClothingItems.clothingItemId),
-      ),
-    ])
-      ..where(_db.outfitClothingItems.outfitId.equals(outfitId))
-      ..orderBy([OrderingTerm.asc(_db.outfitClothingItems.zIndex)]);
-
-    final rows = await query.get();
-    return rows.map((row) {
-      final junction = row.readTable(_db.outfitClothingItems);
-      final item = row.readTable(_db.clothingItems);
-      return PositionedItem(
-        item: item,
-        posX: junction.posX,
-        posY: junction.posY,
-        scale: junction.scale,
-        rotation: junction.rotation,
-        zIndex: junction.zIndex,
-      );
-    }).toList();
-  }
-
   // ── Streams ────────────────────────────────────────────────────────────────
 
   Stream<List<OutfitWithItems>> watchAllOutfits() {
-    return (_db.select(_db.outfits)
-          ..orderBy([
-            (t) => OrderingTerm.asc(t.sortOrder),
-            (t) => OrderingTerm.desc(t.createdAt),
-          ]))
-        .watch()
-        .asyncMap(
-          (outfits) => Future.wait(
-            outfits.map((outfit) async {
-              final items = await _getItemsForOutfit(outfit.id);
-              return OutfitWithItems(outfit: outfit, items: items);
-            }),
-          ),
-        );
+    final query = _db.select(_db.outfits).join([
+      leftOuterJoin(_db.outfitClothingItems,
+          _db.outfitClothingItems.outfitId.equalsExp(_db.outfits.id)),
+      leftOuterJoin(_db.clothingItems,
+          _db.clothingItems.id
+              .equalsExp(_db.outfitClothingItems.clothingItemId)),
+    ])
+      ..orderBy([
+        OrderingTerm.asc(_db.outfits.sortOrder),
+        OrderingTerm.desc(_db.outfits.createdAt),
+      ]);
+
+    return query.watch().map((rows) {
+      final outfitMap = <String, (Outfit, List<PositionedItem>)>{};
+      for (final row in rows) {
+        final outfit = row.readTable(_db.outfits);
+        outfitMap.putIfAbsent(outfit.id, () => (outfit, []));
+        final junction = row.readTableOrNull(_db.outfitClothingItems);
+        final clothing = row.readTableOrNull(_db.clothingItems);
+        if (junction != null && clothing != null) {
+          outfitMap[outfit.id]!.$2.add(PositionedItem(
+            item: clothing,
+            posX: junction.posX,
+            posY: junction.posY,
+            scale: junction.scale,
+            rotation: junction.rotation,
+            zIndex: junction.zIndex,
+          ));
+        }
+      }
+      return outfitMap.values.map((e) {
+        final items = e.$2..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+        return OutfitWithItems(outfit: e.$1, items: items);
+      }).toList();
+    });
   }
 
   Stream<OutfitWithItems?> watchOutfitById(String id) {
-    return (_db.select(_db.outfits)..where((t) => t.id.equals(id)))
-        .watchSingleOrNull()
-        .asyncMap((outfit) async {
-      if (outfit == null) return null;
-      final items = await _getItemsForOutfit(outfit.id);
+    final query = _db.select(_db.outfits).join([
+      leftOuterJoin(_db.outfitClothingItems,
+          _db.outfitClothingItems.outfitId.equalsExp(_db.outfits.id)),
+      leftOuterJoin(_db.clothingItems,
+          _db.clothingItems.id
+              .equalsExp(_db.outfitClothingItems.clothingItemId)),
+    ])
+      ..where(_db.outfits.id.equals(id))
+      ..orderBy([OrderingTerm.asc(_db.outfitClothingItems.zIndex)]);
+
+    return query.watch().map((rows) {
+      if (rows.isEmpty) return null;
+      final outfit = rows.first.readTable(_db.outfits);
+      final items = rows
+          .where((r) => r.readTableOrNull(_db.clothingItems) != null)
+          .map((r) {
+            final junction = r.readTable(_db.outfitClothingItems);
+            final clothing = r.readTable(_db.clothingItems);
+            return PositionedItem(
+              item: clothing,
+              posX: junction.posX,
+              posY: junction.posY,
+              scale: junction.scale,
+              rotation: junction.rotation,
+              zIndex: junction.zIndex,
+            );
+          })
+          .toList();
       return OutfitWithItems(outfit: outfit, items: items);
     });
   }
@@ -159,6 +176,15 @@ class OutfitRepository {
         await deleteOutfit(id);
       }
     });
+  }
+
+  Future<int> countItemsUsedInOutfits(List<String> ids) async {
+    if (ids.isEmpty) return 0;
+    final rows = await (_db.selectOnly(_db.outfitClothingItems, distinct: true)
+          ..addColumns([_db.outfitClothingItems.clothingItemId])
+          ..where(_db.outfitClothingItems.clothingItemId.isIn(ids)))
+        .get();
+    return rows.length;
   }
 
   // Called when deleting a clothing item to clean up orphaned junction rows.

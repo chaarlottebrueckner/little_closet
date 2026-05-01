@@ -1,10 +1,12 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../data/repositories/outfit_repository.dart';
 
-class SelectionBar extends StatelessWidget {
+class SelectionBar extends ConsumerWidget {
   final Set<String> selectedIds;
   final VoidCallback onCancel;
   final VoidCallback onDeleted;
@@ -23,7 +25,7 @@ class SelectionBar extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Positioned(
       left: 0,
       right: 0,
@@ -105,7 +107,15 @@ class SelectionBar extends StatelessWidget {
                       child: TextButton.icon(
                         onPressed: selectedIds.isEmpty
                             ? null
-                            : () => _confirmDelete(context),
+                            : () async {
+                                final outfitCount = await ref
+                                    .read(outfitRepositoryProvider)
+                                    .countItemsUsedInOutfits(
+                                        selectedIds.toList());
+                                if (context.mounted) {
+                                  _confirmDelete(context, outfitCount);
+                                }
+                              },
                         icon: const Icon(Icons.delete_outline_rounded,
                             size: 17, color: Colors.white),
                         label: const Text(
@@ -133,7 +143,7 @@ class SelectionBar extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context) {
+  void _confirmDelete(BuildContext context, int outfitCount) {
     final count = selectedIds.length;
     showDialog(
       context: context,
@@ -167,14 +177,18 @@ class SelectionBar extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '$count ${count == 1 ? itemSingular : itemPlural} löschen?',
+                    outfitCount > 0
+                        ? 'In Outfits verwendet'
+                        : '$count ${count == 1 ? itemSingular : itemPlural} löschen?',
                     style: Theme.of(ctx).textTheme.headlineSmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    count == 1
-                        ? 'Dies${itemSingular == 'Outfit' ? 'es' : 'es'} $itemSingular wirklich löschen?'
-                        : 'Diese $count $itemPlural wirklich löschen?',
+                    outfitCount > 0
+                        ? '$outfitCount ${outfitCount == 1 ? 'Teil wird' : 'Teile werden'} in Outfits verwendet und beim Löschen daraus entfernt.'
+                        : count == 1
+                            ? 'Dieses $itemSingular wirklich löschen?'
+                            : 'Diese $count $itemPlural wirklich löschen?',
                     textAlign: TextAlign.center,
                     style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
                           color: LCColors.textMuted,

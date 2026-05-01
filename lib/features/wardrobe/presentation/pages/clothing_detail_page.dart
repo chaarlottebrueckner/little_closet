@@ -13,7 +13,6 @@ import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/outfit_repository.dart';
-import '../../../outfits/domain/outfit_with_items.dart';
 import '../../../outfits/presentation/pages/outfit_detail_page.dart';
 import '../../../outfits/presentation/pages/outfit_editor_page.dart';
 import '../widgets/outfit_usage_section.dart';
@@ -384,15 +383,9 @@ class ClothingDetailPage extends ConsumerWidget {
                           child: TextButton(
                             onPressed: () async {
                               Navigator.pop(ctx);
-                              if (outfitCount > 0) {
-                                await ref
-                                    .read(outfitRepositoryProvider)
-                                    .removeClothingItemFromAllOutfits(item.id);
-                              }
                               await ref
                                   .read(clothingRepositoryProvider)
                                   .deleteClothingItem(item.id);
-                              // detail page auto-pops via stream (item becomes null)
                             },
                             style: TextButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
