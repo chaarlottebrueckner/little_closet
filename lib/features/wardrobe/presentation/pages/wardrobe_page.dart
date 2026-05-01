@@ -127,6 +127,9 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
                 selectedIds: _selectedIds,
                 onCancel: _exitSelectionMode,
                 onDeleted: _exitSelectionMode,
+                onDeleteConfirmed: (ids) => ref
+                    .read(clothingRepositoryProvider)
+                    .deleteMultipleClothingItems(ids),
               ),
           ],
         ),

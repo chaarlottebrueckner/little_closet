@@ -1,25 +1,29 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../../../data/repositories/clothing_repository.dart';
 
-class SelectionBar extends ConsumerWidget {
+class SelectionBar extends StatelessWidget {
   final Set<String> selectedIds;
   final VoidCallback onCancel;
   final VoidCallback onDeleted;
+  final Future<void> Function(List<String> ids) onDeleteConfirmed;
+  final String itemSingular;
+  final String itemPlural;
 
   const SelectionBar({
     super.key,
     required this.selectedIds,
     required this.onCancel,
     required this.onDeleted,
+    required this.onDeleteConfirmed,
+    this.itemSingular = 'Teil',
+    this.itemPlural = 'Teile',
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Positioned(
       left: 0,
       right: 0,
@@ -101,7 +105,7 @@ class SelectionBar extends ConsumerWidget {
                       child: TextButton.icon(
                         onPressed: selectedIds.isEmpty
                             ? null
-                            : () => _confirmDelete(context, ref),
+                            : () => _confirmDelete(context),
                         icon: const Icon(Icons.delete_outline_rounded,
                             size: 17, color: Colors.white),
                         label: const Text(
@@ -129,7 +133,7 @@ class SelectionBar extends ConsumerWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref) {
+  void _confirmDelete(BuildContext context) {
     final count = selectedIds.length;
     showDialog(
       context: context,
@@ -162,13 +166,15 @@ class SelectionBar extends ConsumerWidget {
                         color: LCColors.primary, size: 26),
                   ),
                   const SizedBox(height: 16),
-                  Text('$count ${count == 1 ? 'Teil' : 'Teile'} löschen?',
-                      style: Theme.of(ctx).textTheme.headlineSmall),
+                  Text(
+                    '$count ${count == 1 ? itemSingular : itemPlural} löschen?',
+                    style: Theme.of(ctx).textTheme.headlineSmall,
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     count == 1
-                        ? 'Dieses Teil wirklich aus der Garderobe entfernen?'
-                        : 'Diese $count Teile wirklich aus der Garderobe entfernen?',
+                        ? 'Dies${itemSingular == 'Outfit' ? 'es' : 'es'} $itemSingular wirklich löschen?'
+                        : 'Diese $count $itemPlural wirklich löschen?',
                     textAlign: TextAlign.center,
                     style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
                           color: LCColors.textMuted,
@@ -202,9 +208,7 @@ class SelectionBar extends ConsumerWidget {
                             onPressed: () async {
                               final idsToDelete = List<String>.from(selectedIds);
                               Navigator.pop(ctx);
-                              await ref
-                                  .read(clothingRepositoryProvider)
-                                  .deleteMultipleClothingItems(idsToDelete);
+                              await onDeleteConfirmed(idsToDelete);
                               onDeleted();
                             },
                             style: TextButton.styleFrom(

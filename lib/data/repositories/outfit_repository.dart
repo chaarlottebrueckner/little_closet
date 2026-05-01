@@ -153,6 +153,14 @@ class OutfitRepository {
     });
   }
 
+  Future<void> deleteMultipleOutfits(List<String> ids) async {
+    await _db.transaction(() async {
+      for (final id in ids) {
+        await deleteOutfit(id);
+      }
+    });
+  }
+
   // Called when deleting a clothing item to clean up orphaned junction rows.
   Future<void> removeClothingItemFromAllOutfits(String clothingItemId) async {
     await (_db.delete(_db.outfitClothingItems)

@@ -149,11 +149,20 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
     if (_items.isEmpty) return;
     setState(() => _isSaving = true);
 
-    final outfitId = await ref.read(outfitRepositoryProvider).createOutfit();
+    final isCreate = widget.initialOutfit == null;
+    final outfitId = isCreate
+        ? await ref.read(outfitRepositoryProvider).createOutfit()
+        : widget.initialOutfit!.outfit.id;
 
-    final suggestedStyle = _intersectTags((i) => i.styleTags);
-    final derivedWeather = _intersectTags((i) => i.weatherTags);
-    final derivedSeasons = _intersectTags((i) => i.seasons);
+    final suggestedStyle = isCreate
+        ? _intersectTags((i) => i.styleTags)
+        : widget.initialOutfit!.outfit.styleTags;
+    final derivedWeather = isCreate
+        ? _intersectTags((i) => i.weatherTags)
+        : widget.initialOutfit!.outfit.weatherTags;
+    final derivedSeasons = isCreate
+        ? _intersectTags((i) => i.seasons)
+        : widget.initialOutfit!.outfit.seasons;
 
     setState(() => _isSaving = false);
 
@@ -175,7 +184,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
       ),
     );
 
-    if (!saved && mounted) {
+    if (!saved && mounted && isCreate) {
       ref.read(outfitRepositoryProvider).deleteOutfit(outfitId);
     }
   }

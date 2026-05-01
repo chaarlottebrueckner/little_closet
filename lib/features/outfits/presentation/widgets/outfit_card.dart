@@ -9,12 +9,16 @@ class OutfitCard extends StatelessWidget {
   final OutfitWithItems outfitWithItems;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
+  final bool isSelectionMode;
+  final bool isSelected;
 
   const OutfitCard({
     super.key,
     required this.outfitWithItems,
     this.onTap,
     this.onLongPress,
+    this.isSelectionMode = false,
+    this.isSelected = false,
   });
 
   @override
@@ -26,31 +30,73 @@ class OutfitCard extends StatelessWidget {
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         decoration: BoxDecoration(
-          color: const Color(0xFFE8A0BF).withValues(alpha: 0.12),
+          color: isSelected
+              ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
+              : const Color(0xFFE8A0BF).withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFFE8A0BF).withValues(alpha: 0.3),
-            width: 0.8,
+            color: isSelected
+                ? const Color(0xFFD4789C).withValues(alpha: 0.85)
+                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
+            width: isSelected ? 2.0 : 0.8,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4789C).withValues(alpha: 0.08),
-              blurRadius: 12,
+              color: isSelected
+                  ? const Color(0xFFD4789C).withValues(alpha: 0.22)
+                  : const Color(0xFFD4789C).withValues(alpha: 0.08),
+              blurRadius: isSelected ? 18 : 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: Stack(
           children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-                child: _buildPreview(),
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(20)),
+                    child: _buildPreview(),
+                  ),
+                ),
+                _buildInfo(context),
+              ],
             ),
-            _buildInfo(context),
+            if (isSelectionMode)
+              Positioned(
+                top: 10,
+                right: 10,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  width: 26,
+                  height: 26,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected
+                        ? LCColors.primary
+                        : Colors.white.withValues(alpha: 0.85),
+                    border: Border.all(
+                      color: isSelected
+                          ? LCColors.primary
+                          : const Color(0xFFD4789C).withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: isSelected
+                      ? const Icon(Icons.check_rounded, size: 15, color: Colors.white)
+                      : null,
+                ),
+              ),
           ],
         ),
       ),

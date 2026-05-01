@@ -12,6 +12,11 @@ import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
+import '../../../../data/repositories/outfit_repository.dart';
+import '../../../outfits/domain/outfit_with_items.dart';
+import '../../../outfits/presentation/pages/outfit_detail_page.dart';
+import '../../../outfits/presentation/pages/outfit_editor_page.dart';
+import '../widgets/outfit_usage_section.dart';
 
 class ClothingDetailPage extends ConsumerWidget {
   final String itemId;
@@ -168,7 +173,7 @@ class ClothingDetailPage extends ConsumerWidget {
                         child: SingleChildScrollView(
                           controller: scrollController,
                           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                          child: _buildInfo(context, item),
+                          child: _buildInfo(context, ref, item),
                         ),
                       ),
                       _buildActionBar(context, ref, item),
@@ -183,7 +188,7 @@ class ClothingDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildInfo(BuildContext context, ClothingItem item) {
+  Widget _buildInfo(BuildContext context, WidgetRef ref, ClothingItem item) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -197,6 +202,36 @@ class ClothingDetailPage extends ConsumerWidget {
           _ChipRow(label: 'WETTER', values: item.weatherTags),
         if (item.styleTags.isNotEmpty)
           _ChipRow(label: 'STYLE', values: item.styleTags),
+        OutfitUsageSection(
+          itemId: item.id,
+          onOutfitTap: (owi) {
+            Navigator.push(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (_, __, ___) => OutfitDetailPage(
+                  outfitWithItems: owi,
+                  onEdit: (o) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OutfitEditorPage(initialOutfit: o),
+                    ),
+                  ),
+                ),
+                transitionsBuilder: (_, animation, __, child) => SlideTransition(
+                  position: Tween(
+                    begin: const Offset(0, 1),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  )),
+                  child: child,
+                ),
+                transitionDuration: const Duration(milliseconds: 350),
+              ),
+            );
+          },
+        ),
         const SizedBox(height: 8),
       ],
     );
@@ -272,6 +307,16 @@ class ClothingDetailPage extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, ClothingItem item) {
+    final usedInOutfits =
+        ref.read(outfitsContainingItemProvider(item.id)).valueOrNull ?? [];
+    final outfitCount = usedInOutfits.length;
+
+    final title = outfitCount > 0 ? 'In Outfits verwendet' : 'Löschen?';
+    final body = outfitCount > 0
+        ? 'Dieses Teil wird in $outfitCount Outfit${outfitCount == 1 ? '' : 's'} verwendet. Beim Löschen wird es aus allen Outfits entfernt.'
+        : 'Dieses Teil wirklich aus der Garderobe entfernen?';
+    final confirmLabel = outfitCount > 0 ? 'Trotzdem löschen' : 'Löschen';
+
     showDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.35),
@@ -303,11 +348,10 @@ class ClothingDetailPage extends ConsumerWidget {
                         color: LCColors.primary, size: 26),
                   ),
                   const SizedBox(height: 16),
-                  Text('Löschen?',
-                      style: Theme.of(ctx).textTheme.headlineSmall),
+                  Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
                   const SizedBox(height: 8),
                   Text(
-                    'Dieses Teil wirklich aus der Garderobe entfernen?',
+                    body,
                     textAlign: TextAlign.center,
                     style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
                           color: LCColors.textMuted,
@@ -340,6 +384,11 @@ class ClothingDetailPage extends ConsumerWidget {
                           child: TextButton(
                             onPressed: () async {
                               Navigator.pop(ctx);
+                              if (outfitCount > 0) {
+                                await ref
+                                    .read(outfitRepositoryProvider)
+                                    .removeClothingItemFromAllOutfits(item.id);
+                              }
                               await ref
                                   .read(clothingRepositoryProvider)
                                   .deleteClothingItem(item.id);
@@ -350,8 +399,8 @@ class ClothingDetailPage extends ConsumerWidget {
                               shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12)),
                             ),
-                            child: const Text('Löschen',
-                                style: TextStyle(
+                            child: Text(confirmLabel,
+                                style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600)),
                           ),

@@ -10,6 +10,8 @@ import '../widgets/outfit_card.dart';
 import '../widgets/outfit_empty_state.dart';
 import '../widgets/outfit_filter_sheet.dart';
 import '../widgets/outfits_header.dart';
+import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
+import 'outfit_detail_page.dart';
 import 'outfit_editor_page.dart';
 
 class OutfitsPage extends ConsumerStatefulWidget {
@@ -21,11 +23,34 @@ class OutfitsPage extends ConsumerStatefulWidget {
 
 class _OutfitsPageState extends ConsumerState<OutfitsPage> {
   late final OutfitActiveFilters _filters;
+  final Set<String> _selectedIds = {};
+
+  bool get _isSelectionMode => _selectedIds.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _filters = OutfitActiveFilters();
+  }
+
+  void _enterSelectionMode(String firstId) {
+    setState(() {
+      _selectedIds..clear()..add(firstId);
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() => _selectedIds.clear());
+  }
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+      } else {
+        _selectedIds.add(id);
+      }
+    });
   }
 
   void _showFilterSheet() {
@@ -68,60 +93,80 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Background gradient
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
-                stops: [0.0, 0.45],
-              ),
-            ),
-          ),
-          // Pink radial glow bottom
-          Positioned(
-            bottom: -210,
-            left: -150,
-            right: -150,
-            child: Container(
-              height: 700,
+    return PopScope(
+      canPop: !_isSelectionMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _isSelectionMode) _exitSelectionMode();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            // Background gradient
+            Container(
               decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0x88F4A7C3),
-                    Color.fromARGB(44, 246, 109, 159),
-                    Color.fromARGB(0, 255, 255, 255),
-                  ],
-                  stops: [0.0, 0.45, 1.0],
-                  radius: 0.5,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
+                  stops: [0.0, 0.45],
                 ),
               ),
             ),
-          ),
-          // Content
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                OutfitsHeader(
-                  filters: _filters,
-                  onFilterTap: _showFilterSheet,
+            // Pink radial glow bottom
+            Positioned(
+              bottom: -210,
+              left: -150,
+              right: -150,
+              child: Container(
+                height: 700,
+                decoration: const BoxDecoration(
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0x88F4A7C3),
+                      Color.fromARGB(44, 246, 109, 159),
+                      Color.fromARGB(0, 255, 255, 255),
+                    ],
+                    stops: [0.0, 0.45, 1.0],
+                    radius: 0.5,
+                  ),
                 ),
-                if (_filters.hasAny) _buildActiveFilterChips(),
-                Expanded(child: _buildContent()),
-              ],
+              ),
             ),
-          ),
-        ],
+            // Content
+            SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  OutfitsHeader(
+                    filters: _filters,
+                    onFilterTap: _showFilterSheet,
+                  ),
+                  if (_filters.hasAny && !_isSelectionMode) _buildActiveFilterChips(),
+                  Expanded(child: _buildContent()),
+                ],
+              ),
+            ),
+            // Selection bar
+            if (_isSelectionMode)
+              SelectionBar(
+                selectedIds: _selectedIds,
+                onCancel: _exitSelectionMode,
+                onDeleted: _exitSelectionMode,
+                onDeleteConfirmed: (ids) => ref
+                    .read(outfitRepositoryProvider)
+                    .deleteMultipleOutfits(ids),
+                itemSingular: 'Outfit',
+                itemPlural: 'Outfits',
+              ),
+          ],
+        ),
+        floatingActionButton: _isSelectionMode
+            ? null
+            : ref.watch(clothingItemsProvider).valueOrNull?.isNotEmpty == true
+                ? _buildFAB()
+                : null,
       ),
-      floatingActionButton: ref.watch(clothingItemsProvider).valueOrNull?.isNotEmpty == true
-          ? _buildFAB()
-          : null,
     );
   }
 
@@ -174,7 +219,7 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
           return OutfitEmptyState(reason: reason);
         }
         return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
+          padding: EdgeInsets.fromLTRB(16, 12, 16, _isSelectionMode ? 140 : 100),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
@@ -182,10 +227,43 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
             childAspectRatio: 0.72,
           ),
           itemCount: filtered.length,
-          itemBuilder: (context, i) => OutfitCard(
-            outfitWithItems: filtered[i],
-            // onTap and onLongPress wired in Phase 4
-          ),
+          itemBuilder: (context, i) {
+            final outfit = filtered[i];
+            final id = outfit.outfit.id;
+            return OutfitCard(
+              outfitWithItems: outfit,
+              isSelectionMode: _isSelectionMode,
+              isSelected: _selectedIds.contains(id),
+              onLongPress: _isSelectionMode ? null : () => _enterSelectionMode(id),
+              onTap: _isSelectionMode
+                  ? () => _toggleSelection(id)
+                  : () => Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (_, __, ___) => OutfitDetailPage(
+                            outfitWithItems: outfit,
+                            onEdit: (o) => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => OutfitEditorPage(initialOutfit: o),
+                              ),
+                            ),
+                          ),
+                          transitionsBuilder: (_, animation, __, child) => SlideTransition(
+                            position: Tween(
+                              begin: const Offset(0, 1),
+                              end: Offset.zero,
+                            ).animate(CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOutCubic,
+                            )),
+                            child: child,
+                          ),
+                          transitionDuration: const Duration(milliseconds: 350),
+                        ),
+                      ),
+            );
+          },
         );
       },
     );
