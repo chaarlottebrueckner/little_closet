@@ -68,5 +68,7 @@
 		</array>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Little Closet möchte Outfits in deiner Fotomediathek speichern.</string>
 	</dict>
 </plist>

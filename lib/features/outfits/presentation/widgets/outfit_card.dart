@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/outfit_with_items.dart';
 import 'outfit_canvas_preview.dart';
@@ -26,6 +27,7 @@ class OutfitCard extends StatelessWidget {
     const seasonOrder = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
     final activeSeasons = seasonOrder.where(seasons.contains).toList();
     final tags = outfitWithItems.outfit.styleTags;
+    final bg = _dominantColor(outfitWithItems);
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -35,8 +37,8 @@ class OutfitCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
-              : const Color(0xFFE8A0BF).withValues(alpha: 0.12),
+              ? bg.withValues(alpha: 0.30)
+              : bg.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -110,6 +112,24 @@ class OutfitCard extends StatelessWidget {
   }
 
   Widget _buildPreview() => OutfitCanvasPreview(items: outfitWithItems.items);
+
+  static Color _dominantColor(OutfitWithItems outfit) {
+    const fallback = Color(0xFFE8A0BF);
+    Color? best;
+    double bestSaturation = -1;
+    for (final positioned in outfit.items) {
+      for (final colorName in positioned.item.colors) {
+        final color = AppConstants.colorMap[colorName];
+        if (color == null) continue;
+        final saturation = HSLColor.fromColor(color).saturation;
+        if (saturation > bestSaturation) {
+          bestSaturation = saturation;
+          best = color;
+        }
+      }
+    }
+    return best ?? fallback;
+  }
 
   Widget _buildInfo(BuildContext context, {required List<String> activeSeasons, required List<String> tags}) {
     const seasonIcons = {
