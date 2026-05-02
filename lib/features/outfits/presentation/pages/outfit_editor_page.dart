@@ -78,8 +78,8 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
         final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
         _items.add(EditableItem(
           item: item,
-          posX: 150,
-          posY: 190,
+          posX: 130,
+          posY: 230,
           scale: 1.8,
           zIndex: _items.isEmpty ? 0 : maxZ + 1,
         ));
@@ -274,38 +274,48 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedItemId = null),
-              behavior: HitTestBehavior.opaque,
-              child: OutfitEditorCanvas(
-                items: _items,
-                selectedItemId: _selectedItemId,
-                onItemSelect: _selectItem,
-                onItemRemove: _removeItem,
-                onItemPan: _panItem,
-                onItemPinch: _pinchItem,
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -60,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                width: 320,
-                height: 320,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0xEEF4A7C3),
-                      Color.fromARGB(160, 246, 109, 159),
-                      Color.fromARGB(0, 255, 255, 255),
-                    ],
-                  ),
-                ),
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final canvasAreaHeight = constraints.maxHeight * (1 - _sheetMin);
+                return Column(
+                  children: [
+                    SizedBox(
+                      height: canvasAreaHeight,
+                      child: Stack(
+                        children: [
+                          // Pink gradient fills the side gaps
+                          Positioned.fill(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: RadialGradient(
+                                  center: Alignment.bottomCenter,
+                                  radius: 1.2,
+                                  colors: [
+                                    Color(0xFFFFF0F7),
+                                    Color(0xFFFAFAFA),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => setState(() => _selectedItemId = null),
+                            behavior: HitTestBehavior.opaque,
+                            child: OutfitEditorCanvas(
+                              items: _items,
+                              selectedItemId: _selectedItemId,
+                              onItemSelect: _selectItem,
+                              onItemRemove: _removeItem,
+                              onItemPan: _panItem,
+                              onItemPinch: _pinchItem,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
           DraggableScrollableSheet(

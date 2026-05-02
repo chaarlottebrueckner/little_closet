@@ -1,8 +1,8 @@
 import '../../../data/database/app_database.dart';
 
 // Logical canvas dimensions — shared between editor and preview cards
-const double kCanvasWidth = 400.0;
-const double kCanvasHeight = 500.0;
+const double kCanvasWidth = 360.0;
+const double kCanvasHeight = 640.0;
 const double kItemBaseWidth = 100.0;
 const double kItemBaseHeight = 120.0;
 

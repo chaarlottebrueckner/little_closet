@@ -32,11 +32,13 @@ class OutfitEditorCanvas extends StatelessWidget {
     return FittedBox(
       fit: BoxFit.contain,
       alignment: Alignment.topCenter,
-      child: SizedBox(
-        width: kCanvasWidth,
-        height: kCanvasHeight,
-        child: Stack(
-          clipBehavior: Clip.hardEdge,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          width: kCanvasWidth,
+          height: kCanvasHeight,
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
           children: [
             const Positioned.fill(child: _CanvasBackground()),
             for (final item in sorted)
@@ -85,6 +87,7 @@ class OutfitEditorCanvas extends StatelessWidget {
                 );
               }),
           ],
+        ),
         ),
       ),
     );

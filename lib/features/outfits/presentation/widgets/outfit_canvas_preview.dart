@@ -35,11 +35,13 @@ class OutfitCanvasPreview extends StatelessWidget {
       alignment: Alignment.center,
       child: RepaintBoundary(
         key: repaintKey,
-        child: SizedBox(
-          width: kCanvasWidth,
-          height: kCanvasHeight,
-          child: Stack(
-            clipBehavior: Clip.hardEdge,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: SizedBox(
+            width: kCanvasWidth,
+            height: kCanvasHeight,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
             children: [
               if (backgroundColor != null)
                 Positioned.fill(child: ColoredBox(color: backgroundColor!)),
@@ -79,6 +81,7 @@ class OutfitCanvasPreview extends StatelessWidget {
                 );
               }),
             ],
+          ),
           ),
         ),
       ),
