@@ -287,6 +287,27 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
               ),
             ),
           ),
+          Positioned(
+            bottom: -60,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Container(
+                width: 320,
+                height: 320,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      Color(0xEEF4A7C3),
+                      Color.fromARGB(160, 246, 109, 159),
+                      Color.fromARGB(0, 255, 255, 255),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
           DraggableScrollableSheet(
             controller: _sheetController,
             initialChildSize: _sheetMin,
