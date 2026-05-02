@@ -38,12 +38,6 @@ class OutfitCard extends StatelessWidget {
               ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
               : const Color(0xFFE8A0BF).withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected
-                ? const Color(0xFFD4789C).withValues(alpha: 0.85)
-                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
-            width: isSelected ? 2.0 : 0.8,
-          ),
           boxShadow: [
             BoxShadow(
               color: isSelected
@@ -53,6 +47,15 @@ class OutfitCard extends StatelessWidget {
               offset: const Offset(0, 4),
             ),
           ],
+        ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFFD4789C).withValues(alpha: 0.85)
+                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
+            width: isSelected ? 2.0 : 0.8,
+          ),
         ),
         child: Stack(
           children: [
