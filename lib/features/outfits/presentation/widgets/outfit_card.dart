@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/outfit_with_items.dart';
+import 'outfit_canvas_preview.dart';
 
 class OutfitCard extends StatelessWidget {
   final OutfitWithItems outfitWithItems;
@@ -23,12 +22,17 @@ class OutfitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seasons = outfitWithItems.outfit.seasons;
+    const seasonOrder = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
+    final activeSeasons = seasonOrder.where(seasons.contains).toList();
+    final tags = outfitWithItems.outfit.styleTags;
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
+        clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isSelected
               ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
@@ -56,13 +60,12 @@ class OutfitCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: ColoredBox(
+                    color: Colors.white,
                     child: _buildPreview(),
                   ),
                 ),
-                _buildInfo(context),
+                _buildInfo(context, activeSeasons: activeSeasons, tags: tags),
               ],
             ),
             if (isSelectionMode)
@@ -103,73 +106,17 @@ class OutfitCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPreview() {
-    final sortedItems = [...outfitWithItems.items]
-      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
+  Widget _buildPreview() => OutfitCanvasPreview(items: outfitWithItems.items);
 
-    if (sortedItems.isEmpty) {
-      return Container(
-        color: const Color(0xFFF5EEF2),
-        child: const Center(
-          child: Icon(
-            Icons.style_outlined,
-            color: Color(0xFFD4789C),
-            size: 36,
-          ),
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final scaleX = constraints.maxWidth / kCanvasWidth;
-        final scaleY = constraints.maxHeight / kCanvasHeight;
-        // Use the smaller factor so items stay within bounds
-        final sf = scaleX < scaleY ? scaleX : scaleY;
-
-        return Container(
-          color: Colors.white,
-          child: Stack(
-            children: sortedItems.map((p) {
-              final scaledW = kItemBaseWidth * p.scale;
-              final scaledH = kItemBaseHeight * p.scale;
-              // Editor uses Transform.scale from center, so visual top-left
-              // is at center − scaled_half, not at posX/posY directly.
-              final visualLeft = (p.posX + kItemBaseWidth / 2 - scaledW / 2) * sf;
-              final visualTop = (p.posY + kItemBaseHeight / 2 - scaledH / 2) * sf;
-              return Positioned(
-                left: visualLeft,
-                top: visualTop,
-                width: scaledW * sf,
-                height: scaledH * sf,
-                child: Transform.rotate(
-                  angle: p.rotation,
-                  child: Image.file(
-                    File(p.item.imagePath),
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox(),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildInfo(BuildContext context) {
+  Widget _buildInfo(BuildContext context, {required List<String> activeSeasons, required List<String> tags}) {
     const seasonIcons = {
       'Frühling': Icons.local_florist,
       'Sommer': Icons.wb_sunny,
       'Herbst': Icons.eco,
       'Winter': Icons.ac_unit,
     };
-    const seasonOrder = ['Frühling', 'Sommer', 'Herbst', 'Winter'];
 
-    final seasons = outfitWithItems.outfit.seasons;
-    final activeSeasons = seasonOrder.where(seasons.contains).toList();
-    final tags = outfitWithItems.outfit.styleTags;
+    if (activeSeasons.isEmpty && tags.isEmpty) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),

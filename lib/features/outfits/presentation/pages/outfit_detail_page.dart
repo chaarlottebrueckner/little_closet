@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
@@ -11,6 +10,9 @@ import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_with_items.dart';
+import '../widgets/outfit_canvas_preview.dart';
+
+const double _kMinSheet = 0.44;
 
 class OutfitDetailPage extends ConsumerWidget {
   final OutfitWithItems outfitWithItems;
@@ -70,13 +72,25 @@ class OutfitDetailPage extends ConsumerWidget {
             ),
           ),
           Positioned(
-            top: MediaQuery.of(context).padding.top + 56,
-            left: 24,
-            right: 24,
-            height: 300,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: _buildCanvasPreview(current),
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width - 32,
+                  maxHeight: MediaQuery.of(context).size.height * (1 - _kMinSheet) -
+                      MediaQuery.of(context).padding.top -
+                      24,
+                ),
+                child: AspectRatio(
+                  aspectRatio: kCanvasWidth / kCanvasHeight,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(28),
+                    child: _buildCanvasPreview(current),
+                  ),
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -107,9 +121,9 @@ class OutfitDetailPage extends ConsumerWidget {
             ),
           ),
           DraggableScrollableSheet(
-            initialChildSize: 0.48,
-            minChildSize: 0.43,
-            maxChildSize: 0.82,
+            initialChildSize: _kMinSheet,
+            minChildSize: _kMinSheet,
+            maxChildSize: 0.85,
             builder: (ctx, scrollController) => GlassSheet(
               child: Column(
                 children: [
@@ -140,53 +154,8 @@ class OutfitDetailPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCanvasPreview(OutfitWithItems current) {
-    final sortedItems = [...current.items]
-      ..sort((a, b) => a.zIndex.compareTo(b.zIndex));
-
-    if (sortedItems.isEmpty) {
-      return Container(
-        color: const Color(0xFFF5EEF2),
-        child: const Center(
-          child: Icon(Icons.style_outlined, color: Color(0xFFD4789C), size: 48),
-        ),
-      );
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final scaleX = constraints.maxWidth / kCanvasWidth;
-        final scaleY = constraints.maxHeight / kCanvasHeight;
-        final sf = scaleX < scaleY ? scaleX : scaleY;
-
-        return Container(
-          color: Colors.white,
-          child: Stack(
-            children: sortedItems.map((p) {
-              final scaledW = kItemBaseWidth * p.scale;
-              final scaledH = kItemBaseHeight * p.scale;
-              final visualLeft = (p.posX + kItemBaseWidth / 2 - scaledW / 2) * sf;
-              final visualTop = (p.posY + kItemBaseHeight / 2 - scaledH / 2) * sf;
-              return Positioned(
-                left: visualLeft,
-                top: visualTop,
-                width: scaledW * sf,
-                height: scaledH * sf,
-                child: Transform.rotate(
-                  angle: p.rotation,
-                  child: Image.file(
-                    File(p.item.imagePath),
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => const SizedBox(),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
+  Widget _buildCanvasPreview(OutfitWithItems current) =>
+      OutfitCanvasPreview(items: current.items);
 
   Widget _buildInfo(BuildContext context, Outfit outfit) {
     return Column(

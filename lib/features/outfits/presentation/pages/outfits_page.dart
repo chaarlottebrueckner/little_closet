@@ -218,13 +218,16 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
           );
           return OutfitEmptyState(reason: reason);
         }
+        final screenWidth = MediaQuery.of(context).size.width;
+        final itemWidth = (screenWidth - 32 - 12) / 2;
+        final mainAxisExtent = itemWidth * kCanvasHeight / kCanvasWidth + 44;
         return GridView.builder(
           padding: EdgeInsets.fromLTRB(16, 12, 16, _isSelectionMode ? 140 : 100),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
-            childAspectRatio: 0.72,
+            mainAxisExtent: mainAxisExtent,
           ),
           itemCount: filtered.length,
           itemBuilder: (context, i) {
