@@ -250,6 +250,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
               imagePath: _imagePath,
               processedImageBytes: _processedImageBytes,
               loadingStatus: _loadingStatus,
+              isAiLoading: _isAiLoading,
               onBack: () => Navigator.pop(context),
               onEdit: _replaceImage,
             ),

@@ -24,21 +24,11 @@ class WardrobeHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Color(0xFFD4789C), Color(0xFFE8A0BF)],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ).createShader(bounds),
-                  child: Text(
-                    'LITTLE CLOSET',
-                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          color: Colors.white,
-                          letterSpacing: 3,
-                          fontWeight: FontWeight.w700,
-                          height: 1.0,
-                        ),
-                  ),
+                Image.asset(
+                  'assets/images/logo.png',
+                  height: 52,
+                  fit: BoxFit.fitHeight,
+                  alignment: Alignment.centerLeft,
                 ),
                 const SizedBox(height: 6),
                 Row(

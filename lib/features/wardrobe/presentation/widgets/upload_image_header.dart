@@ -4,10 +4,11 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
-class UploadImageHeader extends StatelessWidget {
+class UploadImageHeader extends StatefulWidget {
   final Uint8List? processedImageBytes;
   final String imagePath;
   final String? loadingStatus;
+  final bool isAiLoading;
   final VoidCallback onBack;
   final VoidCallback onEdit;
 
@@ -18,7 +19,35 @@ class UploadImageHeader extends StatelessWidget {
     required this.onEdit,
     this.processedImageBytes,
     this.loadingStatus,
+    this.isAiLoading = false,
   });
+
+  @override
+  State<UploadImageHeader> createState() => _UploadImageHeaderState();
+}
+
+class _UploadImageHeaderState extends State<UploadImageHeader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    )..repeat(reverse: true);
+    _scale = Tween<double>(begin: 0.88, end: 1.12).animate(
+      CurvedAnimation(parent: _pulse, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +63,12 @@ class UploadImageHeader extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  processedImageBytes != null
-                      ? Image.memory(processedImageBytes!, fit: BoxFit.contain)
+                  widget.processedImageBytes != null
+                      ? Image.memory(widget.processedImageBytes!, fit: BoxFit.contain)
                       : kIsWeb
-                          ? Image.network(imagePath, fit: BoxFit.contain)
-                          : Image.file(File(imagePath), fit: BoxFit.contain),
-if (loadingStatus != null)
+                          ? Image.network(widget.imagePath, fit: BoxFit.contain)
+                          : Image.file(File(widget.imagePath), fit: BoxFit.contain),
+                  if (widget.loadingStatus != null)
                     Positioned.fill(
                       child: Container(
                         decoration: BoxDecoration(
@@ -59,9 +88,39 @@ if (loadingStatus != null)
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              loadingStatus!,
+                              widget.loadingStatus!,
                               style: const TextStyle(
                                 color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  if (widget.isAiLoading)
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.82),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ScaleTransition(
+                              scale: _scale,
+                              child: Image.asset(
+                                'assets/images/heart.png',
+                                width: 80,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'KI analysiert dein Kleidungsstück...',
+                              style: TextStyle(
+                                color: Color(0xFFD4789C),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -77,13 +136,13 @@ if (loadingStatus != null)
           Positioned(
             top: 10,
             right: 10,
-            child: _CircleButton(icon: Icons.edit_outlined, onTap: onEdit),
+            child: _CircleButton(icon: Icons.edit_outlined, onTap: widget.onEdit),
           ),
           Positioned(
             top: 10,
             left: 10,
             child: _CircleButton(
-                icon: Icons.arrow_back_ios_new_rounded, onTap: onBack),
+                icon: Icons.arrow_back_ios_new_rounded, onTap: widget.onBack),
           ),
         ],
       ),

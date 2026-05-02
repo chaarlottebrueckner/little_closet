@@ -158,6 +158,37 @@ class OutfitDetailPage extends ConsumerWidget {
       OutfitCanvasPreview(items: current.items);
 
   Widget _buildInfo(BuildContext context, Outfit outfit) {
+    final hasInfo = outfit.name.isNotEmpty ||
+        outfit.styleTags.isNotEmpty ||
+        outfit.weatherTags.isNotEmpty ||
+        outfit.seasons.isNotEmpty;
+
+    if (!hasInfo) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 16),
+            Text(
+              'Noch keine Infos zu diesem Outfit.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: LCColors.textMuted,
+                    fontStyle: FontStyle.italic,
+                  ),
+            ),
+            const SizedBox(height: 24),
+            Image.asset(
+              'assets/images/heart.png',
+              width: 90,
+              opacity: const AlwaysStoppedAnimation(0.9),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
