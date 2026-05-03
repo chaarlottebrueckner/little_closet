@@ -191,16 +191,6 @@ class ClothingDetailPage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _InfoRow(label: 'KATEGORIE', value: item.category),
-        if (item.subcategory != null)
-          _InfoRow(label: 'UNTERKATEGORIE', value: item.subcategory!),
-        if (item.colors.isNotEmpty) _ChipRow(label: 'FARBE', values: item.colors),
-        if (item.seasons.isNotEmpty)
-          _ChipRow(label: 'SAISON', values: item.seasons),
-        if (item.weatherTags.isNotEmpty)
-          _ChipRow(label: 'WETTER', values: item.weatherTags),
-        if (item.styleTags.isNotEmpty)
-          _ChipRow(label: 'STYLE', values: item.styleTags),
         OutfitUsageSection(
           itemId: item.id,
           onOutfitTap: (owi) {
@@ -231,6 +221,16 @@ class ClothingDetailPage extends ConsumerWidget {
             );
           },
         ),
+        _InfoRow(label: 'KATEGORIE', value: item.category),
+        if (item.subcategory != null)
+          _InfoRow(label: 'UNTERKATEGORIE', value: item.subcategory!),
+        if (item.colors.isNotEmpty) _ChipRow(label: 'FARBE', values: item.colors),
+        if (item.seasons.isNotEmpty)
+          _ChipRow(label: 'SAISON', values: item.seasons),
+        if (item.weatherTags.isNotEmpty)
+          _ChipRow(label: 'WETTER', values: item.weatherTags),
+        if (item.styleTags.isNotEmpty)
+          _ChipRow(label: 'STYLE', values: item.styleTags),
         const SizedBox(height: 8),
       ],
     );

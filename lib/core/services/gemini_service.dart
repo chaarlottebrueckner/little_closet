@@ -51,10 +51,17 @@ Style tags (suggest 1–3; more only if multiple styles are unambiguously visibl
 Casual, Chic, Business, Sport, Party, Romantic, Edgy, Minimalist, Boho, Y2K, Streetwear, Preppy, Grunge
 Never guess. Less is more.
 
-DO NOT include weatherTags — omit that field entirely.
+Weather tags (pick 0–3 that clearly apply based on material, thickness, and style):
+Sonne, Bewölkt, Regen, Schnee, Wind
+Rules:
+- Use "Sonne" for light summer pieces (thin fabric, open shoes, shorts, dresses).
+- Use "Schnee" / "Wind" for heavy outerwear, scarves, boots.
+- Use "Regen" for waterproof-looking jackets, trench coats, rubber boots.
+- For basics like a plain tee, omit (empty array).
+- Never return more than 3 tags. Less is more.
 
 Respond with this exact JSON structure:
-{"category":"...","subcategory":"...","colors":[...],"seasons":[...],"styleTags":[...]}
+{"category":"...","subcategory":"...","colors":[...],"seasons":[...],"styleTags":[...],"weatherTags":[...]}
 ''';
 
   Future<ClothingClassification?> classifyClothing(XFile imageFile) async {
@@ -110,42 +117,10 @@ Respond with this exact JSON structure:
 
       final text = response.data['candidates'][0]['content']['parts'][0]['text'] as String;
       final json = jsonDecode(text) as Map<String, dynamic>;
-      final classification = ClothingClassification.fromJson(json);
-
-      final weatherTags = _deriveWeatherTags(classification.category, classification.subcategory);
-
-      return ClothingClassification(
-        category: classification.category,
-        subcategory: classification.subcategory,
-        colors: classification.colors,
-        seasons: classification.seasons,
-        styleTags: classification.styleTags,
-        weatherTags: weatherTags,
-      );
+      return ClothingClassification.fromJson(json);
     } catch (_) {
       return null;
     }
-  }
-
-  List<String> _deriveWeatherTags(String? category, String? subcategory) {
-    return switch (subcategory ?? category) {
-      'Puffer'      => ['Schnee', 'Wind', 'Bewölkt'],
-      'Trenchcoat'  => ['Regen', 'Wind', 'Bewölkt'],
-      'Lederjacke'  => ['Wind', 'Bewölkt'],
-      'Strickjacke' => ['Bewölkt', 'Wind'],
-      'Blazer'      => ['Sonne', 'Bewölkt'],
-      'Jeansjacke'  => ['Bewölkt', 'Wind'],
-      'Shorts'      => ['Sonne'],
-      'Sandalen'    => ['Sonne'],
-      'Ballerinas'  => ['Sonne', 'Bewölkt'],
-      'Sneaker'     => ['Sonne', 'Bewölkt'],
-      'Pumps'       => ['Sonne', 'Bewölkt'],
-      'Loafer'      => ['Sonne', 'Bewölkt'],
-      'Boots'       => ['Regen', 'Wind', 'Bewölkt'],
-      'Schal'       => ['Wind', 'Schnee', 'Bewölkt'],
-      'Hut'         => ['Sonne'],
-      _ => [],
-    };
   }
 }
 

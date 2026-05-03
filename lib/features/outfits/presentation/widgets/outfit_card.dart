@@ -115,20 +115,29 @@ class OutfitCard extends StatelessWidget {
 
   static Color _dominantColor(OutfitWithItems outfit) {
     const fallback = Color(0xFFE8A0BF);
-    Color? best;
-    double bestSaturation = -1;
-    for (final positioned in outfit.items) {
-      for (final colorName in positioned.item.colors) {
-        final color = AppConstants.colorMap[colorName];
-        if (color == null) continue;
-        final saturation = HSLColor.fromColor(color).saturation;
-        if (saturation > bestSaturation) {
-          bestSaturation = saturation;
-          best = color;
+    const tierOrder = [
+      ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],
+      ['Jacke / Mantel', 'Schuhe', 'Sport'],
+      ['Accessoire', 'Unterwäsche', 'Sonstiges'],
+    ];
+    for (final tier in tierOrder) {
+      Color? best;
+      double bestSaturation = -1;
+      for (final positioned in outfit.items) {
+        if (!tier.contains(positioned.item.category)) continue;
+        for (final colorName in positioned.item.colors) {
+          final color = AppConstants.colorMap[colorName];
+          if (color == null) continue;
+          final saturation = HSLColor.fromColor(color).saturation;
+          if (saturation > bestSaturation) {
+            bestSaturation = saturation;
+            best = color;
+          }
         }
       }
+      if (best != null) return best;
     }
-    return best ?? fallback;
+    return fallback;
   }
 
   Widget _buildInfo(BuildContext context, {required List<String> activeSeasons, required List<String> tags}) {
