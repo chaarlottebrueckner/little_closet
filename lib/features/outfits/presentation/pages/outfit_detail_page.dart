@@ -144,6 +144,10 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.80),
                   shape: BoxShape.circle,
+                  border: Border.all(
+                    color: LCColors.primary.withValues(alpha: 0.45),
+                    width: 1.2,
+                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.10),
@@ -163,7 +167,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                     : const Icon(
                         Icons.download_rounded,
                         size: 18,
-                        color: Color(0xFF1A1A1A),
+                        color: LCColors.primary,
                       ),
               ),
             ),
