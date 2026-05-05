@@ -9,6 +9,7 @@ import 'tables/outfit_clothing_items.dart';
 import 'tables/collections.dart';
 import 'tables/collection_outfits.dart';
 import 'tables/collection_clothing_items.dart';
+import 'tables/user_tags.dart';
 
 part 'app_database.g.dart';
 
@@ -19,12 +20,13 @@ part 'app_database.g.dart';
   Collections,
   CollectionOutfits,
   CollectionClothingItems,
+  UserTags,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -49,6 +51,11 @@ class AppDatabase extends _$AppDatabase {
         );
         await customStatement(
           "UPDATE outfits SET seasons = '$allSeasons' WHERE seasons LIKE '%Ganzjährig%'",
+        );
+      }
+      if (from < 5) {
+        await customStatement(
+          "CREATE TABLE IF NOT EXISTS user_tags (id TEXT NOT NULL, name TEXT NOT NULL, PRIMARY KEY (id))",
         );
       }
     },

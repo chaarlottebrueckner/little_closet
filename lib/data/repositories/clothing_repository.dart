@@ -168,6 +168,19 @@ class ClothingRepository {
     return (_db.select(_db.clothingItems)..where((t) => t.id.equals(id)))
         .watchSingleOrNull();
   }
+
+  Stream<List<UserTag>> watchAllUserTags() =>
+      (_db.select(_db.userTags)..orderBy([(t) => OrderingTerm.asc(t.name)]))
+          .watch();
+
+  Future<void> createUserTag(String name) async {
+    await _db.into(_db.userTags).insert(
+          UserTagsCompanion.insert(id: _uuid.v4(), name: name),
+        );
+  }
+
+  Future<void> deleteUserTag(String id) =>
+      (_db.delete(_db.userTags)..where((t) => t.id.equals(id))).go();
 }
 
 final clothingRepositoryProvider = Provider<ClothingRepository>((ref) {
@@ -181,4 +194,8 @@ final clothingItemsProvider = StreamProvider<List<ClothingItem>>((ref) {
 final clothingItemByIdProvider =
     StreamProvider.family<ClothingItem?, String>((ref, id) {
   return ref.watch(clothingRepositoryProvider).watchItemById(id);
+});
+
+final userTagsProvider = StreamProvider<List<UserTag>>((ref) {
+  return ref.watch(clothingRepositoryProvider).watchAllUserTags();
 });

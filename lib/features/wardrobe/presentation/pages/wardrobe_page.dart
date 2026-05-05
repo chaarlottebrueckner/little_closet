@@ -181,6 +181,10 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
       ),
       builder: (context) => FilterSheet(
         filters: _filters,
+        customStyleTags: ref.read(userTagsProvider).valueOrNull
+                ?.map((t) => t.name)
+                .toList() ??
+            [],
         onApply: (updated) => setState(() {
           _filters.categories = updated.categories;
           _filters.seasons = updated.seasons;

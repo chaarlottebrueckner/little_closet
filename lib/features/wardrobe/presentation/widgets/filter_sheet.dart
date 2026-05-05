@@ -9,7 +9,14 @@ class FilterSheet extends StatefulWidget {
   final ActiveFilters filters;
   final void Function(ActiveFilters) onApply;
 
-  const FilterSheet({super.key, required this.filters, required this.onApply});
+  final List<String> customStyleTags;
+
+  const FilterSheet({
+    super.key,
+    required this.filters,
+    required this.onApply,
+    this.customStyleTags = const [],
+  });
 
   @override
   State<FilterSheet> createState() => _FilterSheetState();
@@ -134,7 +141,9 @@ class _FilterSheetState extends State<FilterSheet> {
                       _buildMultiSection('Farbe', AppConstants.colorOptions,
                           _colors,
                           (v) => setState(() => _colors.contains(v) ? _colors.remove(v) : _colors.add(v))),
-                      _buildMultiSection('Style', AppConstants.styleTags,
+                      _buildMultiSection(
+                          'Style',
+                          [...AppConstants.styleTags, ...widget.customStyleTags],
                           _styleTags,
                           (v) => setState(() => _styleTags.contains(v) ? _styleTags.remove(v) : _styleTags.add(v))),
                       _buildMultiSection('Wetter', AppConstants.weatherTags,

@@ -349,18 +349,68 @@ class _UploadPageState extends ConsumerState<UploadPage> {
               isAiField: _aiFilledFields.contains('styleTags'),
               isAiLoading: _isAiLoading),
           const SizedBox(height: 12),
-          _buildChips(
-            options: AppConstants.styleTags,
-            isSelected: (v) => _styleTags.contains(v),
-            onTap: (v) => setState(() {
-              _markUserTouched('styleTags');
-              _styleTags.contains(v) ? _styleTags.remove(v) : _styleTags.add(v);
-            }),
-          ),
+          _buildStyleChips(),
           const SizedBox(height: 8),
         ],
       ),
     );
+  }
+
+  Widget _buildStyleChips() {
+    final customTags = ref.watch(userTagsProvider).valueOrNull ?? [];
+    final allOptions = [
+      ...AppConstants.styleTags,
+      ...customTags.map((t) => t.name),
+    ];
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        ...allOptions.map((opt) => LCChip(
+              label: opt,
+              isSelected: _styleTags.contains(opt),
+              onTap: () => setState(() {
+                _markUserTouched('styleTags');
+                _styleTags.contains(opt)
+                    ? _styleTags.remove(opt)
+                    : _styleTags.add(opt);
+              }),
+            )),
+        LCChip(label: '+', onTap: _showCreateTagDialog),
+      ],
+    );
+  }
+
+  Future<void> _showCreateTagDialog() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFFFDF6FA),
+        title: const Text('Neuer Style-Tag'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'z.B. Cottagecore'),
+          onSubmitted: (v) => Navigator.pop(ctx, v.trim()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Abbrechen'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text('Erstellen'),
+          ),
+        ],
+      ),
+    );
+    if (name != null && name.isNotEmpty && mounted) {
+      await ref.read(clothingRepositoryProvider).createUserTag(name);
+      setState(() => _styleTags.add(name));
+    }
   }
 
   Widget _buildChips({
