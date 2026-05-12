@@ -309,6 +309,11 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
             backgroundColor: LCColors.primary,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            action: SnackBarAction(
+              label: 'Öffnen',
+              textColor: Colors.white,
+              onPressed: () => Gal.open(),
+            ),
           ),
         );
       }
