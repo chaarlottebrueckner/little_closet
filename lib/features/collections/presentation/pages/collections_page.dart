@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
 import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
+import 'collection_detail_page.dart';
 import '../widgets/collection_card.dart';
 import '../widgets/collection_empty_state.dart';
 import '../widgets/collections_header.dart';
@@ -149,9 +150,26 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
                       : () => _enterSelectionMode(c.collection.id),
                   onTap: _isSelectionMode
                       ? () => _toggleSelection(c.collection.id)
-                      : () {
-                          // Phase 4: Navigator.push → CollectionDetailPage
-                        },
+                      : () => Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) =>
+                                  CollectionDetailPage(collection: c),
+                              transitionsBuilder:
+                                  (_, animation, __, child) => SlideTransition(
+                                position: Tween(
+                                  begin: const Offset(0, 1),
+                                  end: Offset.zero,
+                                ).animate(CurvedAnimation(
+                                  parent: animation,
+                                  curve: Curves.easeOutCubic,
+                                )),
+                                child: child,
+                              ),
+                              transitionDuration:
+                                  const Duration(milliseconds: 350),
+                            ),
+                          ),
                 );
               },
             );
