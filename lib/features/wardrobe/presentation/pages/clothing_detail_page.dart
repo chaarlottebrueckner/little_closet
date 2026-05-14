@@ -14,6 +14,7 @@ import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../../outfits/presentation/pages/outfit_detail_page.dart';
+import '../../../collections/presentation/widgets/add_to_collection_sheet.dart';
 import '../../../outfits/presentation/pages/outfit_editor_page.dart';
 import '../widgets/outfit_usage_section.dart';
 
@@ -231,6 +232,17 @@ class ClothingDetailPage extends ConsumerWidget {
           _ChipRow(label: 'WETTER', values: item.weatherTags),
         if (item.styleTags.isNotEmpty)
           _ChipRow(label: 'STYLE', values: item.styleTags),
+        _ActionOptionRow(
+          icon: Icons.bookmark_add_rounded,
+          label: 'Zu Kollektion hinzufügen',
+          onTap: () => showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            builder: (_) => AddToCollectionSheet(clothingItemId: item.id),
+          ),
+        ),
+        const SizedBox(height: 12),
         const SizedBox(height: 8),
       ],
     );
@@ -456,6 +468,62 @@ class _ChipRow extends StatelessWidget {
                 .toList(),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionOptionRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  const _ActionOptionRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: LCColors.primary.withValues(alpha: 0.15),
+            width: 1,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: LCColors.primary.withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: LCColors.primary, size: 18),
+            ),
+            const SizedBox(width: 14),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const Spacer(),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 14,
+              color: LCColors.textMuted,
+            ),
+          ],
+        ),
       ),
     );
   }

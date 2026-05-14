@@ -14,6 +14,7 @@ import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_with_items.dart';
 import '../widgets/outfit_canvas_preview.dart';
+import '../../../collections/presentation/widgets/add_to_collection_sheet.dart';
 
 const double _kMinSheet = 0.44;
 
@@ -169,6 +170,43 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                         size: 18,
                         color: LCColors.primary,
                       ),
+              ),
+            ),
+          ),
+          // Bookmark button (Add to Collection)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 12,
+            right: 60,
+            child: GestureDetector(
+              onTap: () => showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => AddToCollectionSheet(outfitId: current.outfit.id),
+              ),
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.80),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: LCColors.primary.withValues(alpha: 0.45),
+                    width: 1.2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.10),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.bookmark_add_rounded,
+                  size: 18,
+                  color: LCColors.primary,
+                ),
               ),
             ),
           ),
