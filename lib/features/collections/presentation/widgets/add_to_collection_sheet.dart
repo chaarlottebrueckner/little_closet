@@ -71,6 +71,7 @@ class _AddToCollectionSheetState extends ConsumerState<AddToCollectionSheet> {
               _originalIds.add(newId);
             });
           }
+          return null;
         },
       ),
     );

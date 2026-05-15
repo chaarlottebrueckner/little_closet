@@ -43,6 +43,27 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
       builder: (_) => CreateCollectionSheet(
         onSubmit: (name) =>
             ref.read(collectionRepositoryProvider).createCollection(name),
+        onCreated: (id) {
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) =>
+                  CollectionDetailPage(collectionId: id, openPickerOnLoad: true),
+              transitionsBuilder: (_, animation, __, child) => SlideTransition(
+                position: Tween(
+                  begin: const Offset(0, 1),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              ),
+              transitionDuration: const Duration(milliseconds: 350),
+            ),
+          );
+        },
       ),
     );
   }
@@ -154,7 +175,8 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
                             context,
                             PageRouteBuilder(
                               pageBuilder: (_, __, ___) =>
-                                  CollectionDetailPage(collection: c),
+                                  CollectionDetailPage(
+                                      collectionId: c.collection.id),
                               transitionsBuilder:
                                   (_, animation, __, child) => SlideTransition(
                                 position: Tween(

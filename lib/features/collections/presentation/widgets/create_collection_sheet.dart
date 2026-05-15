@@ -10,13 +10,18 @@ class CreateCollectionSheet extends StatefulWidget {
     super.key,
     this.existingName,
     required this.onSubmit,
+    this.onCreated,
   });
 
   /// Non-null puts the sheet into rename mode.
   final String? existingName;
 
   /// Called with the trimmed name. The sheet closes itself after awaiting.
-  final Future<void> Function(String name) onSubmit;
+  /// In create mode, should return the new collection's ID; in rename mode null is fine.
+  final Future<String?> Function(String name) onSubmit;
+
+  /// Called with the new collection ID after creation (create mode only).
+  final void Function(String collectionId)? onCreated;
 
   @override
   State<CreateCollectionSheet> createState() => _CreateCollectionSheetState();
@@ -46,8 +51,11 @@ class _CreateCollectionSheetState extends State<CreateCollectionSheet> {
   Future<void> _submit() async {
     if (!_canSubmit) return;
     setState(() => _loading = true);
-    await widget.onSubmit(_controller.text.trim());
-    if (mounted) Navigator.pop(context);
+    final resultId = await widget.onSubmit(_controller.text.trim());
+    if (mounted) {
+      Navigator.pop(context);
+      if (resultId != null) widget.onCreated?.call(resultId);
+    }
   }
 
   @override
