@@ -7,6 +7,8 @@ import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
 import 'collection_detail_page.dart';
 import '../widgets/collection_card.dart';
 import '../widgets/collection_empty_state.dart';
+import '../widgets/collection_gradient_fab.dart';
+import '../widgets/collections_background.dart';
 import '../widgets/collections_header.dart';
 import '../widgets/create_collection_sheet.dart';
 
@@ -47,20 +49,8 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           if (!mounted) return;
           Navigator.push(
             context,
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) =>
-                  CollectionDetailPage(collectionId: id, openPickerOnLoad: true),
-              transitionsBuilder: (_, animation, __, child) => SlideTransition(
-                position: Tween(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: child,
-              ),
-              transitionDuration: const Duration(milliseconds: 350),
+            _slideUpRoute(
+              CollectionDetailPage(collectionId: id, openPickerOnLoad: true),
             ),
           );
         },
@@ -77,64 +67,38 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            // Gradient background
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
-                  stops: [0.0, 0.45],
+        body: CollectionsBackground(
+          child: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CollectionsHeader(),
+                    Expanded(child: _buildBody()),
+                  ],
                 ),
               ),
-            ),
-            // Pink radial glow bottom
-            Positioned(
-              bottom: -210,
-              left: -150,
-              right: -150,
-              child: Container(
-                height: 700,
-                decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x88F4A7C3),
-                      Color.fromARGB(44, 246, 109, 159),
-                      Color.fromARGB(0, 255, 255, 255),
-                    ],
-                    stops: [0.0, 0.45, 1.0],
-                    radius: 0.5,
-                  ),
+              if (_isSelectionMode)
+                SelectionBar(
+                  selectedIds: _selectedIds,
+                  onCancel: _exitSelectionMode,
+                  onDeleted: _exitSelectionMode,
+                  onDeleteConfirmed: (ids) => ref
+                      .read(collectionRepositoryProvider)
+                      .deleteMultipleCollections(ids),
+                  itemSingular: 'Kollektion',
+                  itemPlural: 'Kollektionen',
                 ),
-              ),
-            ),
-            // Content
-            SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CollectionsHeader(),
-                  Expanded(child: _buildBody()),
-                ],
-              ),
-            ),
-            // Selection bar
-            if (_isSelectionMode)
-              SelectionBar(
-                selectedIds: _selectedIds,
-                onCancel: _exitSelectionMode,
-                onDeleted: _exitSelectionMode,
-                onDeleteConfirmed: (ids) => ref
-                    .read(collectionRepositoryProvider)
-                    .deleteMultipleCollections(ids),
-                itemSingular: 'Kollektion',
-                itemPlural: 'Kollektionen',
-              ),
-          ],
+            ],
+          ),
         ),
-        floatingActionButton: _isSelectionMode ? null : _buildFAB(),
+        floatingActionButton: _isSelectionMode
+            ? null
+            : CollectionGradientFAB(
+                onPressed: _showCreateSheet,
+                label: 'Kollektion erstellen',
+              ),
       ),
     );
   }
@@ -173,23 +137,9 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
                       ? () => _toggleSelection(c.collection.id)
                       : () => Navigator.push(
                             context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) =>
-                                  CollectionDetailPage(
-                                      collectionId: c.collection.id),
-                              transitionsBuilder:
-                                  (_, animation, __, child) => SlideTransition(
-                                position: Tween(
-                                  begin: const Offset(0, 1),
-                                  end: Offset.zero,
-                                ).animate(CurvedAnimation(
-                                  parent: animation,
-                                  curve: Curves.easeOutCubic,
-                                )),
-                                child: child,
-                              ),
-                              transitionDuration:
-                                  const Duration(milliseconds: 350),
+                            _slideUpRoute(
+                              CollectionDetailPage(
+                                  collectionId: c.collection.id),
                             ),
                           ),
                 );
@@ -198,35 +148,21 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           },
         );
   }
+}
 
-  Widget _buildFAB() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LCColors.gradientPink,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: LCColors.primary.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: _showCreateSheet,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Kollektion erstellen',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'DMSans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
+Route<T> _slideUpRoute<T extends Object?>(Widget page) {
+  return PageRouteBuilder<T>(
+    pageBuilder: (_, __, ___) => page,
+    transitionsBuilder: (_, animation, __, child) => SlideTransition(
+      position: Tween(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      )),
+      child: child,
+    ),
+    transitionDuration: const Duration(milliseconds: 350),
+  );
 }

@@ -1,5 +1,3 @@
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,7 +10,10 @@ import '../../../outfits/presentation/pages/outfit_editor_page.dart';
 import '../../../outfits/presentation/widgets/outfit_card.dart';
 import '../../../outfits/presentation/widgets/outfit_filter_sheet.dart';
 import '../../domain/collection_with_content.dart';
+import '../widgets/collection_gradient_fab.dart';
+import '../widgets/collections_background.dart';
 import '../widgets/create_collection_sheet.dart';
+import '../widgets/delete_collection_dialog.dart';
 import '../widgets/outfit_picker_sheet.dart';
 
 class CollectionDetailPage extends ConsumerStatefulWidget {
@@ -109,59 +110,30 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
-                  stops: [0.0, 0.45],
-                ),
-              ),
-            ),
+      body: CollectionsBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAppBar(context, data),
+              if (_filters.hasAny) _buildActiveFilterChips(),
+              const SizedBox(height: 8),
+              Expanded(child: _buildContent(context, data, filtered)),
+            ],
           ),
-          Positioned(
-            bottom: -210,
-            left: -150,
-            right: -150,
-            child: Container(
-              height: 700,
-              decoration: const BoxDecoration(
-                gradient: RadialGradient(
-                  colors: [
-                    Color(0x88F4A7C3),
-                    Color.fromARGB(44, 246, 109, 159),
-                    Color.fromARGB(0, 255, 255, 255),
-                  ],
-                  stops: [0.0, 0.45, 1.0],
-                  radius: 0.5,
-                ),
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildAppBar(context, data),
-                if (_filters.hasAny) _buildActiveFilterChips(),
-                const SizedBox(height: 8),
-                Expanded(child: _buildContent(context, data, filtered)),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
-      floatingActionButton: data != null ? _buildFAB() : null,
+      floatingActionButton: data != null
+          ? CollectionGradientFAB(
+              onPressed: _openPicker,
+              label: 'Outfit hinzufügen',
+            )
+          : null,
     );
   }
 
   Widget _buildAppBar(BuildContext context, CollectionWithContent? data) {
     final name = data?.collection.name ?? '';
-    final filterCount = _filters.count;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
@@ -191,57 +163,9 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
               ),
             ),
           ),
-          // Filter button
-          GestureDetector(
+          _FilterBadgeButton(
+            filterCount: _filters.count,
             onTap: _showFilterSheet,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: filterCount > 0
-                        ? LCColors.primary.withValues(alpha: 0.12)
-                        : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: filterCount > 0
-                          ? LCColors.primary.withValues(alpha: 0.4)
-                          : const Color(0xFFEDE0E8),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: filterCount > 0 ? LCColors.primary : LCColors.textMuted,
-                    size: 22,
-                  ),
-                ),
-                if (filterCount > 0)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 18,
-                      height: 18,
-                      decoration: const BoxDecoration(
-                        gradient: LCColors.gradientPink,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$filterCount',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
           ),
           const SizedBox(width: 4),
           if (data != null) ...[
@@ -266,7 +190,8 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded,
                   size: 18, color: LCColors.primary),
-              onPressed: () => _confirmDelete(context, data),
+              onPressed: () =>
+                  showDeleteCollectionDialog(context, ref, data),
             ),
           ],
         ],
@@ -331,31 +256,17 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
         final outfit = filtered[i];
         return OutfitCard(
           outfitWithItems: outfit,
-          onTap: () => Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => OutfitDetailPage(
-                outfitWithItems: outfit,
-                onEdit: (o) => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => OutfitEditorPage(initialOutfit: o),
-                  ),
+          onTap: () => Navigator.push(context, _slideUpRoute(
+            OutfitDetailPage(
+              outfitWithItems: outfit,
+              onEdit: (o) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OutfitEditorPage(initialOutfit: o),
                 ),
               ),
-              transitionsBuilder: (_, animation, __, child) => SlideTransition(
-                position: Tween(
-                  begin: const Offset(0, 1),
-                  end: Offset.zero,
-                ).animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutCubic,
-                )),
-                child: child,
-              ),
-              transitionDuration: const Duration(milliseconds: 350),
             ),
-          ),
+          )),
         );
       },
     );
@@ -396,132 +307,85 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
       ),
     );
   }
+}
 
-  Widget _buildFAB() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LCColors.gradientPink,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: LCColors.primary.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: _openPicker,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Outfit hinzufügen',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'DMSans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-    );
-  }
+Route<T> _slideUpRoute<T extends Object?>(Widget page) {
+  return PageRouteBuilder<T>(
+    pageBuilder: (_, __, ___) => page,
+    transitionsBuilder: (_, animation, __, child) => SlideTransition(
+      position: Tween(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOutCubic,
+      )),
+      child: child,
+    ),
+    transitionDuration: const Duration(milliseconds: 350),
+  );
+}
 
-  void _confirmDelete(BuildContext context, CollectionWithContent data) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              decoration: BoxDecoration(
-                color: LCGlass.sheetColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: LCGlass.borderColor, width: LCGlass.borderWidth),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4789C).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.delete_outline_rounded,
-                        color: LCColors.primary, size: 26),
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Kollektion löschen',
-                      style: Theme.of(ctx).textTheme.headlineSmall),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Möchtest du "${data.collection.name}" wirklich löschen? Enthaltene Outfits bleiben erhalten.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(ctx)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: LCColors.textMuted),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(
-                                color: LCColors.primary.withValues(alpha: 0.4)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: const Text('Abbrechen',
-                              style: TextStyle(color: LCColors.primary)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LCColors.gradientPink,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              Navigator.pop(ctx);
-                              await ref
-                                  .read(collectionRepositoryProvider)
-                                  .deleteCollection(data.collection.id);
-                              if (context.mounted) Navigator.pop(context);
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: const Text('Löschen',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+class _FilterBadgeButton extends StatelessWidget {
+  const _FilterBadgeButton({
+    required this.filterCount,
+    required this.onTap,
+  });
+
+  final int filterCount;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: filterCount > 0
+                  ? LCColors.primary.withValues(alpha: 0.12)
+                  : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: filterCount > 0
+                    ? LCColors.primary.withValues(alpha: 0.4)
+                    : const Color(0xFFEDE0E8),
               ),
             ),
+            child: Icon(
+              Icons.tune_rounded,
+              color: filterCount > 0 ? LCColors.primary : LCColors.textMuted,
+              size: 22,
+            ),
           ),
-        ),
+          if (filterCount > 0)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                width: 18,
+                height: 18,
+                decoration: const BoxDecoration(
+                  gradient: LCColors.gradientPink,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    '$filterCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
