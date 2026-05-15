@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:ui' show ImageFilter;
-
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,8 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
+import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/widgets/lc_circle_icon_button.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/outfit_repository.dart';
@@ -128,28 +130,9 @@ class ClothingDetailPage extends ConsumerWidget {
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 left: 16,
-                child: GestureDetector(
+                child: LCCircleIconButton(
+                  icon: Icons.arrow_back_ios_new_rounded,
                   onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.80),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.10),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      size: 15,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
                 ),
               ),
               DraggableScrollableSheet(
@@ -160,14 +143,7 @@ class ClothingDetailPage extends ConsumerWidget {
                   child: Column(
                     children: [
                       const SizedBox(height: 14),
-                      Container(
-                        width: 36,
-                        height: 3,
-                        decoration: BoxDecoration(
-                          gradient: LCColors.gradientPink,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
+                      const LCSheetHandle(),
                       const SizedBox(height: 8),
                       Expanded(
                         child: SingleChildScrollView(
@@ -197,28 +173,15 @@ class ClothingDetailPage extends ConsumerWidget {
           onOutfitTap: (owi) {
             Navigator.push(
               context,
-              PageRouteBuilder(
-                pageBuilder: (_, __, ___) => OutfitDetailPage(
-                  outfitWithItems: owi,
-                  onEdit: (o) => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => OutfitEditorPage(initialOutfit: o),
-                    ),
+              slideUpRoute(OutfitDetailPage(
+                outfitWithItems: owi,
+                onEdit: (o) => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => OutfitEditorPage(initialOutfit: o),
                   ),
                 ),
-                transitionsBuilder: (_, animation, __, child) => SlideTransition(
-                  position: Tween(
-                    begin: const Offset(0, 1),
-                    end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeOutCubic,
-                  )),
-                  child: child,
-                ),
-                transitionDuration: const Duration(milliseconds: 350),
-              ),
+              )),
             );
           },
         ),
@@ -322,103 +285,15 @@ class ClothingDetailPage extends ConsumerWidget {
         ref.read(outfitsContainingItemProvider(item.id)).valueOrNull ?? [];
     final outfitCount = usedInOutfits.length;
 
-    final title = outfitCount > 0 ? 'In Outfits verwendet' : 'Löschen?';
-    final body = outfitCount > 0
-        ? 'Dieses Teil wird in $outfitCount Outfit${outfitCount == 1 ? '' : 's'} verwendet. Beim Löschen wird es aus allen Outfits entfernt.'
-        : 'Dieses Teil wirklich aus der Garderobe entfernen?';
-    final confirmLabel = outfitCount > 0 ? 'Trotzdem löschen' : 'Löschen';
-
-    showDialog(
+    showLCDeleteConfirmDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              decoration: BoxDecoration(
-                color: LCGlass.sheetColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: LCGlass.borderColor, width: LCGlass.borderWidth),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4789C).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.delete_outline_rounded,
-                        color: LCColors.primary, size: 26),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
-                  const SizedBox(height: 8),
-                  Text(
-                    body,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                          color: LCColors.textMuted,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(
-                                color: LCColors.primary.withValues(alpha: 0.4)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: const Text('Abbrechen',
-                              style: TextStyle(color: LCColors.primary)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LCColors.gradientPink,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              Navigator.pop(ctx);
-                              await ref
-                                  .read(clothingRepositoryProvider)
-                                  .deleteClothingItem(item.id);
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: Text(confirmLabel,
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      title: outfitCount > 0 ? 'In Outfits verwendet' : 'Löschen?',
+      body: outfitCount > 0
+          ? 'Dieses Teil wird in $outfitCount Outfit${outfitCount == 1 ? '' : 's'} verwendet. Beim Löschen wird es aus allen Outfits entfernt.'
+          : 'Dieses Teil wirklich aus der Garderobe entfernen?',
+      confirmLabel: outfitCount > 0 ? 'Trotzdem löschen' : 'Löschen',
+      onConfirm: () =>
+          ref.read(clothingRepositoryProvider).deleteClothingItem(item.id),
     );
   }
 }

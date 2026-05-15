@@ -229,9 +229,8 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
           ).createShader(bounds),
           child: Text(
             isEditMode ? 'OUTFIT BEARBEITEN' : 'OUTFIT ERSTELLEN',
-            style: const TextStyle(
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               color: Colors.white,
-              fontFamily: 'SpaceGrotesk',
               fontWeight: FontWeight.w700,
               fontSize: 18,
               letterSpacing: 1.5,
@@ -257,11 +256,10 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
                       ? [LCColors.textMuted, LCColors.textMuted]
                       : [const Color(0xFFD4789C), const Color(0xFFE8A0BF)],
                 ).createShader(bounds),
-                child: const Text(
+                child: Text(
                   'Speichern',
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: Colors.white,
-                    fontFamily: 'DMSans',
                     fontWeight: FontWeight.w700,
                     fontSize: 15,
                     letterSpacing: 0.3,

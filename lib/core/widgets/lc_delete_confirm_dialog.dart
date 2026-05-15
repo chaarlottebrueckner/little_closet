@@ -1,18 +1,18 @@
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_theme.dart';
-import '../../../../data/repositories/collection_repository.dart';
-import '../../domain/collection_with_content.dart';
+import '../theme/app_theme.dart';
 
-Future<void> showDeleteCollectionDialog(
-  BuildContext context,
-  WidgetRef ref,
-  CollectionWithContent data,
-) {
-  return showDialog(
+Future<void> showLCDeleteConfirmDialog({
+  required BuildContext context,
+  required String title,
+  required String body,
+  String confirmLabel = 'Löschen',
+  required Future<void> Function() onConfirm,
+  VoidCallback? onAfterConfirm,
+}) {
+  return showDialog<void>(
     context: context,
     barrierColor: Colors.black.withValues(alpha: 0.35),
     builder: (ctx) => Dialog(
@@ -25,8 +25,7 @@ Future<void> showDeleteCollectionDialog(
             decoration: BoxDecoration(
               color: LCGlass.sheetColor,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                  color: LCGlass.borderColor, width: LCGlass.borderWidth),
+              border: Border.all(color: LCGlass.borderColor, width: LCGlass.borderWidth),
             ),
             padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
             child: Column(
@@ -36,23 +35,18 @@ Future<void> showDeleteCollectionDialog(
                   width: 52,
                   height: 52,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD4789C).withValues(alpha: 0.12),
+                    color: LCColors.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.delete_outline_rounded,
-                      color: LCColors.primary, size: 26),
+                  child: const Icon(Icons.delete_outline_rounded, color: LCColors.primary, size: 26),
                 ),
                 const SizedBox(height: 16),
-                Text('Kollektion löschen',
-                    style: Theme.of(ctx).textTheme.headlineSmall),
+                Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
                 const SizedBox(height: 8),
                 Text(
-                  'Möchtest du "${data.collection.name}" wirklich löschen? Enthaltene Outfits bleiben erhalten.',
+                  body,
                   textAlign: TextAlign.center,
-                  style: Theme.of(ctx)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: LCColors.textMuted),
+                  style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(color: LCColors.textMuted),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -62,13 +56,10 @@ Future<void> showDeleteCollectionDialog(
                         onPressed: () => Navigator.pop(ctx),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: BorderSide(
-                              color: LCColors.primary.withValues(alpha: 0.4)),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                          side: BorderSide(color: LCColors.primary.withValues(alpha: 0.4)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Abbrechen',
-                            style: TextStyle(color: LCColors.primary)),
+                        child: const Text('Abbrechen', style: TextStyle(color: LCColors.primary)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -81,20 +72,17 @@ Future<void> showDeleteCollectionDialog(
                         child: TextButton(
                           onPressed: () async {
                             Navigator.pop(ctx);
-                            await ref
-                                .read(collectionRepositoryProvider)
-                                .deleteCollection(data.collection.id);
-                            if (context.mounted) Navigator.pop(context);
+                            await onConfirm();
+                            onAfterConfirm?.call();
                           },
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
-                          child: const Text('Löschen',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600)),
+                          child: Text(
+                            confirmLabel,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     ),

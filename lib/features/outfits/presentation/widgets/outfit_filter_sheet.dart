@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../domain/outfit_filters.dart';
 
 class OutfitFilterSheet extends StatefulWidget {
@@ -58,14 +59,7 @@ class _OutfitFilterSheetState extends State<OutfitFilterSheet> {
         child: Column(
           children: [
             const SizedBox(height: 14),
-            Container(
-              width: 36,
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LCColors.gradientPink,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            const LCSheetHandle(),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 18, 16, 0),
               child: Row(

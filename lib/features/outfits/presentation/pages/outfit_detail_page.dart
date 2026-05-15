@@ -8,8 +8,11 @@ import 'package:gal/gal.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
+import '../../../../core/widgets/lc_circle_icon_button.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_with_items.dart';
@@ -109,104 +112,38 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
-            child: GestureDetector(
+            child: LCCircleIconButton(
+              icon: Icons.arrow_back_ios_new_rounded,
               onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.80),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 15,
-                  color: Color(0xFF1A1A1A),
-                ),
-              ),
             ),
           ),
           // Download button
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             right: 16,
-            child: GestureDetector(
+            child: LCCircleIconButton(
+              icon: Icons.download_rounded,
+              iconSize: 18,
+              iconColor: LCColors.primary,
+              hasBorder: true,
+              isLoading: _isExporting,
               onTap: _isExporting ? null : () => _showExportSheet(context, current),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.80),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: LCColors.primary.withValues(alpha: 0.45),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: _isExporting
-                    ? const Padding(
-                        padding: EdgeInsets.all(10),
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: LCColors.primary,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.download_rounded,
-                        size: 18,
-                        color: LCColors.primary,
-                      ),
-              ),
             ),
           ),
           // Bookmark button (Add to Collection)
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             right: 60,
-            child: GestureDetector(
+            child: LCCircleIconButton(
+              icon: Icons.bookmark_add_rounded,
+              iconSize: 18,
+              iconColor: LCColors.primary,
+              hasBorder: true,
               onTap: () => showModalBottomSheet(
                 context: context,
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
                 builder: (_) => AddToCollectionSheet(outfitId: current.outfit.id),
-              ),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.80),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: LCColors.primary.withValues(alpha: 0.45),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.10),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.bookmark_add_rounded,
-                  size: 18,
-                  color: LCColors.primary,
-                ),
               ),
             ),
           ),
@@ -218,14 +155,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
               child: Column(
                 children: [
                   const SizedBox(height: 14),
-                  Container(
-                    width: 36,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      gradient: LCColors.gradientPink,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
+                  const LCSheetHandle(),
                   const SizedBox(height: 8),
                   Expanded(
                     child: SingleChildScrollView(
@@ -269,16 +199,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      gradient: LCColors.gradientPink,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
+                const Center(child: LCSheetHandle()),
                 const SizedBox(height: 20),
                 Text(
                   'In der Galerie speichern',
@@ -495,114 +416,13 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
 
   void _confirmDelete(BuildContext context, OutfitWithItems current) {
     final name = current.outfit.name.isNotEmpty ? current.outfit.name : 'Dieses Outfit';
-    showDialog(
+    showLCDeleteConfirmDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-            child: Container(
-              decoration: BoxDecoration(
-                color: LCGlass.sheetColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: LCGlass.borderColor,
-                  width: LCGlass.borderWidth,
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4789C).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.delete_outline_rounded,
-                      color: LCColors.primary,
-                      size: 26,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Outfit löschen',
-                    style: Theme.of(ctx).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Möchtest du "$name" wirklich löschen?',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                          color: LCColors.textMuted,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(
-                              color: LCColors.primary.withValues(alpha: 0.4),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text(
-                            'Abbrechen',
-                            style: TextStyle(color: LCColors.primary),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LCColors.gradientPink,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              Navigator.pop(ctx);
-                              await ref
-                                  .read(outfitRepositoryProvider)
-                                  .deleteOutfit(widget.outfitWithItems.outfit.id);
-                              if (context.mounted) Navigator.pop(context);
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Löschen',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      title: 'Outfit löschen',
+      body: 'Möchtest du "$name" wirklich löschen?',
+      onConfirm: () => ref
+          .read(outfitRepositoryProvider)
+          .deleteOutfit(widget.outfitWithItems.outfit.id),
     );
   }
 }

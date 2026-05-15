@@ -1,5 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
+import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -145,106 +147,19 @@ class SelectionBar extends ConsumerWidget {
 
   void _confirmDelete(BuildContext context, int outfitCount) {
     final count = selectedIds.length;
-    showDialog(
+    final idsToDelete = List<String>.from(selectedIds);
+    showLCDeleteConfirmDialog(
       context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.35),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: LCGlass.blurSigma, sigmaY: LCGlass.blurSigma),
-            child: Container(
-              decoration: BoxDecoration(
-                color: LCGlass.sheetColor,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                    color: LCGlass.borderColor, width: LCGlass.borderWidth),
-              ),
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD4789C).withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.delete_outline_rounded,
-                        color: LCColors.primary, size: 26),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    outfitCount > 0
-                        ? 'In Outfits verwendet'
-                        : '$count ${count == 1 ? itemSingular : itemPlural} löschen?',
-                    style: Theme.of(ctx).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    outfitCount > 0
-                        ? '$outfitCount ${outfitCount == 1 ? 'Teil wird' : 'Teile werden'} in Outfits verwendet und beim Löschen daraus entfernt.'
-                        : count == 1
-                            ? 'Dieses $itemSingular wirklich löschen?'
-                            : 'Diese $count $itemPlural wirklich löschen?',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                          color: LCColors.textMuted,
-                        ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () => Navigator.pop(ctx),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            side: BorderSide(
-                                color: LCColors.primary.withValues(alpha: 0.4)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ),
-                          child: const Text('Abbrechen',
-                              style: TextStyle(color: LCColors.primary)),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LCColors.gradientPink,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: TextButton(
-                            onPressed: () async {
-                              final idsToDelete = List<String>.from(selectedIds);
-                              Navigator.pop(ctx);
-                              await onDeleteConfirmed(idsToDelete);
-                              onDeleted();
-                            },
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12)),
-                            ),
-                            child: const Text('Löschen',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      title: outfitCount > 0
+          ? 'In Outfits verwendet'
+          : '$count ${count == 1 ? itemSingular : itemPlural} löschen?',
+      body: outfitCount > 0
+          ? '$outfitCount ${outfitCount == 1 ? 'Teil wird' : 'Teile werden'} in Outfits verwendet und beim Löschen daraus entfernt.'
+          : count == 1
+              ? 'Dieses $itemSingular wirklich löschen?'
+              : 'Diese $count $itemPlural wirklich löschen?',
+      onConfirm: () => onDeleteConfirmed(idsToDelete),
+      onAfterConfirm: onDeleted,
     );
   }
 }

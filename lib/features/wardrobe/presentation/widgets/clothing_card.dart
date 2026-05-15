@@ -67,9 +67,9 @@ class ClothingCard extends StatelessWidget {
                       File(item.imagePath),
                       fit: BoxFit.contain,
                       errorBuilder: (_, __, ___) => Container(
-                        color: const Color(0xFFF5EEF2),
+                        color: LCColors.surfaceWarm,
                         child: const Icon(Icons.checkroom_outlined,
-                            color: Color(0xFFD4789C), size: 36),
+                            color: LCColors.primary, size: 36),
                       ),
                     ),
                   ),

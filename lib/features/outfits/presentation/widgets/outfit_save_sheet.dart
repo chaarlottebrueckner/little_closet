@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 
 class OutfitSaveSheet extends StatefulWidget {
   final List<String> suggestedStyleTags;
@@ -57,14 +58,7 @@ class _OutfitSaveSheetState extends State<OutfitSaveSheet> {
         child: Column(
           children: [
             const SizedBox(height: 14),
-            Container(
-              width: 36,
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LCColors.gradientPink,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            const LCSheetHandle(),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
               child: ShaderMask(

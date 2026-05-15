@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 
@@ -75,14 +76,7 @@ class _OutfitItemSheetState extends ConsumerState<OutfitItemSheet> {
                     child: Column(
                       children: [
                         const SizedBox(height: 12),
-                        Container(
-                          width: 36,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            gradient: LCColors.gradientPink,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
+                        const LCSheetHandle(),
                         const SizedBox(height: 14),
                         // Filter chips
                         SizedBox(
@@ -199,9 +193,8 @@ class _OutfitItemSheetState extends ConsumerState<OutfitItemSheet> {
                       ),
                       child: Text(
                         '${_pendingIds.length} Teile hinzufügen',
-                        style: const TextStyle(
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
                           color: Colors.white,
-                          fontFamily: 'DMSans',
                           fontWeight: FontWeight.w700,
                           fontSize: 15,
                           letterSpacing: 0.5,

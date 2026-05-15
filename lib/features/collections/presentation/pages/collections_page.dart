@@ -7,8 +7,9 @@ import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
 import 'collection_detail_page.dart';
 import '../widgets/collection_card.dart';
 import '../widgets/collection_empty_state.dart';
-import '../widgets/collection_gradient_fab.dart';
-import '../widgets/collections_background.dart';
+import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/widgets/lc_gradient_fab.dart';
+import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/collections_header.dart';
 import '../widgets/create_collection_sheet.dart';
 
@@ -49,7 +50,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           if (!mounted) return;
           Navigator.push(
             context,
-            _slideUpRoute(
+            slideUpRoute(
               CollectionDetailPage(collectionId: id, openPickerOnLoad: true),
             ),
           );
@@ -67,7 +68,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: CollectionsBackground(
+        body: LCPageBackground(
           child: Stack(
             children: [
               SafeArea(
@@ -95,7 +96,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
         ),
         floatingActionButton: _isSelectionMode
             ? null
-            : CollectionGradientFAB(
+            : LCGradientFAB(
                 onPressed: _showCreateSheet,
                 label: 'Kollektion erstellen',
               ),
@@ -137,7 +138,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
                       ? () => _toggleSelection(c.collection.id)
                       : () => Navigator.push(
                             context,
-                            _slideUpRoute(
+                            slideUpRoute(
                               CollectionDetailPage(
                                   collectionId: c.collection.id),
                             ),
@@ -148,21 +149,4 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           },
         );
   }
-}
-
-Route<T> _slideUpRoute<T extends Object?>(Widget page) {
-  return PageRouteBuilder<T>(
-    pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, animation, __, child) => SlideTransition(
-      position: Tween(
-        begin: const Offset(0, 1),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
-      child: child,
-    ),
-    transitionDuration: const Duration(milliseconds: 350),
-  );
 }

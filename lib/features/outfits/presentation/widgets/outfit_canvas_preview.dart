@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../domain/outfit_with_items.dart';
 
 class OutfitCanvasPreview extends StatelessWidget {
@@ -23,9 +24,9 @@ class OutfitCanvasPreview extends StatelessWidget {
 
     if (sorted.isEmpty) {
       return const ColoredBox(
-        color: Color(0xFFF5EEF2),
+        color: LCColors.surfaceWarm,
         child: Center(
-          child: Icon(Icons.style_outlined, color: Color(0xFFD4789C), size: 48),
+          child: Icon(Icons.style_outlined, color: LCColors.primary, size: 48),
         ),
       );
     }

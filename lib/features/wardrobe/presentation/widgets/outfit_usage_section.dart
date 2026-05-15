@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../../outfits/domain/outfit_with_items.dart';
@@ -88,9 +89,9 @@ class _OutfitPreviewTile extends ConsumerWidget {
   Widget _buildPreview(OutfitWithItems? owi) {
     if (owi == null || owi.items.isEmpty) {
       return Container(
-        color: const Color(0xFFF5EEF2),
+        color: LCColors.surfaceWarm,
         child: const Center(
-          child: Icon(Icons.style_outlined, color: Color(0xFFD4789C), size: 20),
+          child: Icon(Icons.style_outlined, color: LCColors.primary, size: 20),
         ),
       );
     }

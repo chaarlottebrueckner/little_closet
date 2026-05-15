@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../theme/app_theme.dart';
 
-class CollectionGradientFAB extends StatelessWidget {
-  const CollectionGradientFAB({
+class LCGradientFAB extends StatelessWidget {
+  const LCGradientFAB({
     super.key,
     required this.onPressed,
     required this.label,
@@ -35,12 +35,10 @@ class CollectionGradientFAB extends StatelessWidget {
         icon: Icon(icon, color: Colors.white),
         label: Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontFamily: 'DMSans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
         ),
       ),
     );

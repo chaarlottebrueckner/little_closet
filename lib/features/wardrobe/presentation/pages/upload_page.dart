@@ -12,6 +12,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../widgets/image_source_sheet.dart';
@@ -237,14 +238,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
         child: Column(
           children: [
             const SizedBox(height: 14),
-            Container(
-              width: 36,
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LCColors.gradientPink,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            const LCSheetHandle(),
             const SizedBox(height: 8),
             UploadImageHeader(
               imagePath: _imagePath,

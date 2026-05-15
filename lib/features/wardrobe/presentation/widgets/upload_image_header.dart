@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/lc_circle_icon_button.dart';
+
 class UploadImageHeader extends StatefulWidget {
   final Uint8List? processedImageBytes;
   final String imagePath;
@@ -136,12 +138,12 @@ class _UploadImageHeaderState extends State<UploadImageHeader>
           Positioned(
             top: 10,
             right: 10,
-            child: _CircleButton(icon: Icons.edit_outlined, onTap: widget.onEdit),
+            child: LCCircleIconButton(icon: Icons.edit_outlined, onTap: widget.onEdit),
           ),
           Positioned(
             top: 10,
             left: 10,
-            child: _CircleButton(
+            child: LCCircleIconButton(
                 icon: Icons.arrow_back_ios_new_rounded, onTap: widget.onBack),
           ),
         ],
@@ -150,32 +152,3 @@ class _UploadImageHeaderState extends State<UploadImageHeader>
   }
 }
 
-class _CircleButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _CircleButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.80),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.10),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Icon(icon, size: 15, color: const Color(0xFF1A1A1A)),
-      ),
-    );
-  }
-}

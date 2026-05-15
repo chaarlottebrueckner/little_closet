@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/lc_active_filter_chips.dart';
+import '../../../../core/widgets/lc_gradient_fab.dart';
+import '../../../../core/widgets/lc_page_background.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_filters.dart';
@@ -11,6 +13,7 @@ import '../widgets/outfit_empty_state.dart';
 import '../widgets/outfit_filter_sheet.dart';
 import '../widgets/outfits_header.dart';
 import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
+import '../../../../core/navigation/app_routes.dart';
 import 'outfit_detail_page.dart';
 import 'outfit_editor_page.dart';
 
@@ -100,66 +103,35 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            // Background gradient
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
-                  stops: [0.0, 0.45],
+        body: LCPageBackground(
+          child: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    OutfitsHeader(
+                      filters: _filters,
+                      onFilterTap: _showFilterSheet,
+                    ),
+                    if (_filters.hasAny && !_isSelectionMode) _buildActiveFilterChips(),
+                    Expanded(child: _buildContent()),
+                  ],
                 ),
               ),
-            ),
-            // Pink radial glow bottom
-            Positioned(
-              bottom: -210,
-              left: -150,
-              right: -150,
-              child: Container(
-                height: 700,
-                decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x88F4A7C3),
-                      Color.fromARGB(44, 246, 109, 159),
-                      Color.fromARGB(0, 255, 255, 255),
-                    ],
-                    stops: [0.0, 0.45, 1.0],
-                    radius: 0.5,
-                  ),
+              if (_isSelectionMode)
+                SelectionBar(
+                  selectedIds: _selectedIds,
+                  onCancel: _exitSelectionMode,
+                  onDeleted: _exitSelectionMode,
+                  onDeleteConfirmed: (ids) => ref
+                      .read(outfitRepositoryProvider)
+                      .deleteMultipleOutfits(ids),
+                  itemSingular: 'Outfit',
+                  itemPlural: 'Outfits',
                 ),
-              ),
-            ),
-            // Content
-            SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  OutfitsHeader(
-                    filters: _filters,
-                    onFilterTap: _showFilterSheet,
-                  ),
-                  if (_filters.hasAny && !_isSelectionMode) _buildActiveFilterChips(),
-                  Expanded(child: _buildContent()),
-                ],
-              ),
-            ),
-            // Selection bar
-            if (_isSelectionMode)
-              SelectionBar(
-                selectedIds: _selectedIds,
-                onCancel: _exitSelectionMode,
-                onDeleted: _exitSelectionMode,
-                onDeleteConfirmed: (ids) => ref
-                    .read(outfitRepositoryProvider)
-                    .deleteMultipleOutfits(ids),
-                itemSingular: 'Outfit',
-                itemPlural: 'Outfits',
-              ),
-          ],
+            ],
+          ),
         ),
         floatingActionButton: _isSelectionMode
             ? null
@@ -171,31 +143,14 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
   }
 
   Widget _buildActiveFilterChips() {
-    final entries = <MapEntry<String, VoidCallback>>[
+    return LCActiveFilterChips(entries: [
       for (final v in _filters.styleTags)
         MapEntry(v, () => setState(() => _filters.styleTags.remove(v))),
       for (final v in _filters.seasons)
         MapEntry(v, () => setState(() => _filters.seasons.remove(v))),
       for (final v in _filters.weatherTags)
         MapEntry(v, () => setState(() => _filters.weatherTags.remove(v))),
-    ];
-
-    return SizedBox(
-      height: 36,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: entries.length,
-        itemBuilder: (context, i) => Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: InputChip(
-            label: Text(entries[i].key),
-            onDeleted: entries[i].value,
-            deleteIconColor: LCColors.primary,
-          ),
-        ),
-      ),
-    );
+    ]);
   }
 
   Widget _buildContent() {
@@ -242,28 +197,15 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
                   ? () => _toggleSelection(id)
                   : () => Navigator.push(
                         context,
-                        PageRouteBuilder(
-                          pageBuilder: (_, __, ___) => OutfitDetailPage(
-                            outfitWithItems: outfit,
-                            onEdit: (o) => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => OutfitEditorPage(initialOutfit: o),
-                              ),
+                        slideUpRoute(OutfitDetailPage(
+                          outfitWithItems: outfit,
+                          onEdit: (o) => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OutfitEditorPage(initialOutfit: o),
                             ),
                           ),
-                          transitionsBuilder: (_, animation, __, child) => SlideTransition(
-                            position: Tween(
-                              begin: const Offset(0, 1),
-                              end: Offset.zero,
-                            ).animate(CurvedAnimation(
-                              parent: animation,
-                              curve: Curves.easeOutCubic,
-                            )),
-                            child: child,
-                          ),
-                          transitionDuration: const Duration(milliseconds: 350),
-                        ),
+                        )),
                       ),
             );
           },
@@ -273,36 +215,12 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
   }
 
   Widget _buildFAB() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LCColors.gradientPink,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: LCColors.primary.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+    return LCGradientFAB(
+      onPressed: () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OutfitEditorPage()),
       ),
-      child: FloatingActionButton.extended(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const OutfitEditorPage()),
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Outfit erstellen',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'DMSans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+      label: 'Outfit erstellen',
     );
   }
 }

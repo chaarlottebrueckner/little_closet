@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/lc_filter_badge_button.dart';
 import '../../domain/active_filters.dart';
 
 class WardrobeHeader extends StatelessWidget {
@@ -54,56 +55,9 @@ class WardrobeHeader extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
+          LCFilterBadgeButton(
+            filterCount: filters.count,
             onTap: onFilterTap,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: filters.hasAny
-                        ? LCColors.primary.withValues(alpha: 0.12)
-                        : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: filters.hasAny
-                          ? LCColors.primary.withValues(alpha: 0.4)
-                          : const Color(0xFFEDE0E8),
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.tune_rounded,
-                    color: filters.hasAny ? LCColors.primary : LCColors.textMuted,
-                    size: 22,
-                  ),
-                ),
-                if (filters.hasAny)
-                  Positioned(
-                    top: -4,
-                    right: -4,
-                    child: Container(
-                      width: 18,
-                      height: 18,
-                      decoration: BoxDecoration(
-                        gradient: LCColors.gradientPink,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${filters.count}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
           ),
         ],
       ),

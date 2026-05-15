@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../domain/active_filters.dart';
 
 class FilterSheet extends StatefulWidget {
@@ -69,15 +70,7 @@ class _FilterSheetState extends State<FilterSheet> {
         child: Column(
               children: [
                 const SizedBox(height: 14),
-                // Gradient handle
-                Container(
-                  width: 36,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: LCColors.gradientPink,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
+                const LCSheetHandle(),
                 // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 18, 16, 0),

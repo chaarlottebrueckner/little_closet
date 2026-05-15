@@ -12,7 +12,7 @@ assets/.env
 .pub-cache/
 build/
 
-# Web spezifisch (da du Chrome-Logs hattest)
+# Web spezifisch 
 .cache/
 .history/
 

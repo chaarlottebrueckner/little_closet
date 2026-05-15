@@ -12,8 +12,9 @@ class LCColors {
   static const chrome = Color(0xFFC0C0C0);       
   static const textDark = Color(0xFF1A1A1A);     
   static const textMuted = Color(0xFF8A8A8A);     
-  static const surface = Color(0xFFFFFFFF);       
-  static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);  
+  static const surface = Color(0xFFFFFFFF);
+  static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);
+  static const surfaceWarm = Color(0xFFF5EEF2);
 
   // Gradients
   static const gradientPink = LinearGradient(

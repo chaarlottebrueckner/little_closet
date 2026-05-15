@@ -141,8 +141,7 @@ class _NavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
-                fontFamily: 'DMSans',
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                 color: isActive ? LCColors.primary : LCColors.textMuted,

@@ -78,7 +78,7 @@ class CollectionCoverMosaic extends StatelessWidget {
 
   Widget _outfitSlot(OutfitWithItems outfit) {
     return ColoredBox(
-      color: const Color(0xFFF5EEF2),
+      color: LCColors.surfaceWarm,
       child: OutfitCanvasPreview(items: outfit.items),
     );
   }
@@ -105,10 +105,10 @@ class CollectionCoverMosaic extends StatelessWidget {
   }
 
   Widget _errorSlot() {
-    return Container(
-      color: const Color(0xFFF5EEF2),
-      child: const Center(
-        child: Icon(Icons.broken_image_outlined, color: Color(0xFFD4789C), size: 24),
+    return const ColoredBox(
+      color: LCColors.surfaceWarm,
+      child: Center(
+        child: Icon(Icons.broken_image_outlined, color: LCColors.primary, size: 24),
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../core/widgets/lc_sheet_option.dart';
 
 class ImageSourceSheet extends StatelessWidget {
@@ -16,14 +17,7 @@ class ImageSourceSheet extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 36,
-              height: 3,
-              decoration: BoxDecoration(
-                gradient: LCColors.gradientPink,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            const LCSheetHandle(),
             const SizedBox(height: 24),
             Text(
               'Foto ändern',

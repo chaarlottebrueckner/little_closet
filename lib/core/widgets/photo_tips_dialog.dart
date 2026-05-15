@@ -33,24 +33,20 @@ class PhotoTipsDialog extends StatelessWidget {
                   child: const Icon(Icons.photo_camera, color: Colors.white, size: 26),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Perfektes Foto',
-                  style: TextStyle(
-                    fontFamily: 'SpaceGrotesk',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: LCColors.textDark,
                     letterSpacing: 0.3,
                   ),
                 ),
                 const SizedBox(height: 6),
-                const Text(
+                Text(
                   'So bekommt die KI die besten Ergebnisse',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'DMSans',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontSize: 13,
-                    color: LCColors.textMuted,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -78,11 +74,10 @@ class PhotoTipsDialog extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Verstanden',
-                        style: TextStyle(
-                          fontFamily: 'DMSans',
-                          fontWeight: FontWeight.w600,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: Colors.white,
                           fontSize: 15,
                           letterSpacing: 0.5,
                         ),
@@ -120,11 +115,8 @@ class _TipRow extends StatelessWidget {
         const SizedBox(width: 14),
         Text(
           text,
-          style: const TextStyle(
-            fontFamily: 'DMSans',
-            fontSize: 14,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             fontWeight: FontWeight.w500,
-            color: LCColors.textDark,
           ),
         ),
       ],

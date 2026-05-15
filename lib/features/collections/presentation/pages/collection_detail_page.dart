@@ -10,10 +10,13 @@ import '../../../outfits/presentation/pages/outfit_editor_page.dart';
 import '../../../outfits/presentation/widgets/outfit_card.dart';
 import '../../../outfits/presentation/widgets/outfit_filter_sheet.dart';
 import '../../domain/collection_with_content.dart';
-import '../widgets/collection_gradient_fab.dart';
-import '../widgets/collections_background.dart';
+import '../../../../core/widgets/lc_active_filter_chips.dart';
+import '../../../../core/widgets/lc_filter_badge_button.dart';
+import '../../../../core/widgets/lc_gradient_fab.dart';
+import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
+import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/create_collection_sheet.dart';
-import '../widgets/delete_collection_dialog.dart';
 import '../widgets/outfit_picker_sheet.dart';
 
 class CollectionDetailPage extends ConsumerStatefulWidget {
@@ -110,7 +113,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: CollectionsBackground(
+      body: LCPageBackground(
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +127,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
         ),
       ),
       floatingActionButton: data != null
-          ? CollectionGradientFAB(
+          ? LCGradientFAB(
               onPressed: _openPicker,
               label: 'Outfit hinzufügen',
             )
@@ -143,7 +146,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
             icon: const Icon(
               Icons.arrow_back_ios_new_rounded,
               size: 18,
-              color: Color(0xFF1A1A1A),
+              color: LCColors.textDark,
             ),
             onPressed: () => Navigator.pop(context),
           ),
@@ -163,7 +166,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
               ),
             ),
           ),
-          _FilterBadgeButton(
+          LCFilterBadgeButton(
             filterCount: _filters.count,
             onTap: _showFilterSheet,
           ),
@@ -190,8 +193,14 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
             IconButton(
               icon: const Icon(Icons.delete_outline_rounded,
                   size: 18, color: LCColors.primary),
-              onPressed: () =>
-                  showDeleteCollectionDialog(context, ref, data),
+              onPressed: () => showLCDeleteConfirmDialog(
+                context: context,
+                title: 'Kollektion löschen',
+                body: 'Möchtest du "${data.collection.name}" wirklich löschen? Enthaltene Outfits bleiben erhalten.',
+                onConfirm: () => ref
+                    .read(collectionRepositoryProvider)
+                    .deleteCollection(data.collection.id),
+              ),
             ),
           ],
         ],
@@ -200,31 +209,14 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
   }
 
   Widget _buildActiveFilterChips() {
-    final entries = <MapEntry<String, VoidCallback>>[
+    return LCActiveFilterChips(entries: [
       for (final v in _filters.styleTags)
         MapEntry(v, () => setState(() => _filters.styleTags.remove(v))),
       for (final v in _filters.seasons)
         MapEntry(v, () => setState(() => _filters.seasons.remove(v))),
       for (final v in _filters.weatherTags)
         MapEntry(v, () => setState(() => _filters.weatherTags.remove(v))),
-    ];
-
-    return SizedBox(
-      height: 36,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: entries.length,
-        itemBuilder: (_, i) => Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: InputChip(
-            label: Text(entries[i].key),
-            onDeleted: entries[i].value,
-            deleteIconColor: LCColors.primary,
-          ),
-        ),
-      ),
-    );
+    ]);
   }
 
   Widget _buildContent(BuildContext context, CollectionWithContent? data,
@@ -256,7 +248,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
         final outfit = filtered[i];
         return OutfitCard(
           outfitWithItems: outfit,
-          onTap: () => Navigator.push(context, _slideUpRoute(
+          onTap: () => Navigator.push(context, slideUpRoute(
             OutfitDetailPage(
               outfitWithItems: outfit,
               onEdit: (o) => Navigator.push(
@@ -292,7 +284,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
             isFiltered ? 'Keine Outfits gefunden' : 'Noch keine Outfits',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1A1A1A),
+              color: LCColors.textDark,
               fontSize: 16,
             ),
           ),
@@ -303,88 +295,6 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
                 : 'Tippe auf + um Outfits hinzuzufügen',
             style: const TextStyle(color: LCColors.textMuted, fontSize: 13),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-Route<T> _slideUpRoute<T extends Object?>(Widget page) {
-  return PageRouteBuilder<T>(
-    pageBuilder: (_, __, ___) => page,
-    transitionsBuilder: (_, animation, __, child) => SlideTransition(
-      position: Tween(
-        begin: const Offset(0, 1),
-        end: Offset.zero,
-      ).animate(CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-      )),
-      child: child,
-    ),
-    transitionDuration: const Duration(milliseconds: 350),
-  );
-}
-
-class _FilterBadgeButton extends StatelessWidget {
-  const _FilterBadgeButton({
-    required this.filterCount,
-    required this.onTap,
-  });
-
-  final int filterCount;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: filterCount > 0
-                  ? LCColors.primary.withValues(alpha: 0.12)
-                  : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: filterCount > 0
-                    ? LCColors.primary.withValues(alpha: 0.4)
-                    : const Color(0xFFEDE0E8),
-              ),
-            ),
-            child: Icon(
-              Icons.tune_rounded,
-              color: filterCount > 0 ? LCColors.primary : LCColors.textMuted,
-              size: 22,
-            ),
-          ),
-          if (filterCount > 0)
-            Positioned(
-              top: -4,
-              right: -4,
-              child: Container(
-                width: 18,
-                height: 18,
-                decoration: const BoxDecoration(
-                  gradient: LCColors.gradientPink,
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    '$filterCount',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
         ],
       ),
     );

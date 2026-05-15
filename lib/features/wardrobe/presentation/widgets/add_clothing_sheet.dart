@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../core/widgets/lc_sheet_option.dart';
 
 class AddClothingSheet extends StatefulWidget {
@@ -29,14 +30,7 @@ class _AddClothingSheetState extends State<AddClothingSheet> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 36,
-            height: 3,
-            decoration: BoxDecoration(
-              gradient: LCColors.gradientPink,
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
+          const LCSheetHandle(),
           const SizedBox(height: 24),
           Text(
             'Kleidung hinzufügen',

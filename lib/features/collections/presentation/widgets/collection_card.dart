@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/collection_with_content.dart';
@@ -31,8 +32,8 @@ class CollectionCard extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFF5EEF2).withValues(alpha: 0.85)
-              : const Color(0xFFF5EEF2).withValues(alpha: 0.60),
+              ? LCColors.surfaceWarm.withValues(alpha: 0.85)
+              : LCColors.surfaceWarm.withValues(alpha: 0.60),
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -116,8 +117,7 @@ class CollectionCard extends StatelessWidget {
           Expanded(
             child: Text(
               collection.collection.name,
-              style: const TextStyle(
-                fontFamily: 'SpaceGrotesk',
+              style: GoogleFonts.spaceGrotesk(
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),

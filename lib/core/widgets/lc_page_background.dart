@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class CollectionsBackground extends StatelessWidget {
-  const CollectionsBackground({super.key, required this.child});
+class LCPageBackground extends StatelessWidget {
+  const LCPageBackground({super.key, required this.child});
 
   final Widget child;
 

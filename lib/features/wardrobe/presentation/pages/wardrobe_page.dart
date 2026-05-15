@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../core/theme/app_theme.dart';
+import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/widgets/glass_sheet.dart';
+import '../../../../core/widgets/lc_active_filter_chips.dart';
+import '../../../../core/widgets/lc_gradient_fab.dart';
+import '../../../../core/widgets/lc_page_background.dart';
 import '../../../../core/widgets/photo_tips_dialog.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
@@ -71,67 +74,34 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Stack(
-          children: [
-            //1. Hintergrund Gradient
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFFFFF0F7), Color(0xFFFAFAFA)],
-                  stops: [0.0, 0.45],
+        body: LCPageBackground(
+          child: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    WardrobeHeader(
+                      filters: _filters,
+                      onFilterTap: _showFilterSheet,
+                    ),
+                    if (_filters.hasAny && !_isSelectionMode)
+                      _buildActiveFilterChips(),
+                    Expanded(child: _buildContent()),
+                  ],
                 ),
               ),
-            ),
-            //2. Pinker circular Gradient unten 
-            Positioned(
-              bottom: -210,
-              left: -150,
-              right: -150,
-              child: Container(
-                height: 700,
-                decoration: const BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      Color(0x88F4A7C3),
-                      Color.fromARGB(44, 246, 109, 159),
-                      Color.fromARGB(0, 255, 255, 255),
-                    ],
-                    stops: [0.0, 0.45, 1.0],
-                    radius: 0.5,
-                  ),
+              if (_isSelectionMode)
+                SelectionBar(
+                  selectedIds: _selectedIds,
+                  onCancel: _exitSelectionMode,
+                  onDeleted: _exitSelectionMode,
+                  onDeleteConfirmed: (ids) => ref
+                      .read(clothingRepositoryProvider)
+                      .deleteMultipleClothingItems(ids),
                 ),
-              ),
-            ),
-            
-            // 3. Inhalt: Header, Filterchips, Grid
-            SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  WardrobeHeader(
-                    filters: _filters,
-                    onFilterTap: _showFilterSheet,
-                  ),
-                  if (_filters.hasAny && !_isSelectionMode)
-                    _buildActiveFilterChips(),
-                  Expanded(child: _buildContent()),
-                ],
-              ),
-            ),
-            
-            //4. Selection Bar - nur in Selection Mode
-            if (_isSelectionMode)
-              SelectionBar(
-                selectedIds: _selectedIds,
-                onCancel: _exitSelectionMode,
-                onDeleted: _exitSelectionMode,
-                onDeleteConfirmed: (ids) => ref
-                    .read(clothingRepositoryProvider)
-                    .deleteMultipleClothingItems(ids),
-              ),
-          ],
+            ],
+          ),
         ),
         floatingActionButton: _isSelectionMode ? null : _buildFAB(),
       ),
@@ -139,7 +109,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   }
 
   Widget _buildActiveFilterChips() {
-    final entries = <MapEntry<String, VoidCallback>>[
+    return LCActiveFilterChips(entries: [
       for (final v in _filters.categories)
         MapEntry(v, () => setState(() => _filters.categories.remove(v))),
       for (final v in _filters.seasons)
@@ -150,24 +120,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
         MapEntry(v, () => setState(() => _filters.styleTags.remove(v))),
       for (final v in _filters.weatherTags)
         MapEntry(v, () => setState(() => _filters.weatherTags.remove(v))),
-    ];
-
-    return SizedBox(
-      height: 36,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: entries.length,
-        itemBuilder: (context, i) => Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: InputChip(
-            label: Text(entries[i].key),
-            onDeleted: entries[i].value,
-            deleteIconColor: LCColors.primary,
-          ),
-        ),
-      ),
-    );
+    ]);
   }
 
   void _showFilterSheet() {
@@ -250,33 +203,9 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   }
 
   Widget _buildFAB() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LCColors.gradientPink,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: LCColors.primary.withValues(alpha: 0.4),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: FloatingActionButton.extended(
-        onPressed: _showAddClothingOptions,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text(
-          'Kleidung hinzufügen',
-          style: TextStyle(
-            color: Colors.white,
-            fontFamily: 'DMSans',
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
+    return LCGradientFAB(
+      onPressed: _showAddClothingOptions,
+      label: 'Kleidung hinzufügen',
     );
   }
 
@@ -312,20 +241,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   void _openDetailPage(ClothingItem item) {
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => ClothingDetailPage(
-          itemId: item.id,
-          onEdit: _openEditFromDetail,
-        ),
-        transitionsBuilder: (_, animation, __, child) => SlideTransition(
-          position: Tween(
-            begin: const Offset(0, 1),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
-          child: child,
-        ),
-        transitionDuration: const Duration(milliseconds: 350),
-      ),
+      slideUpRoute(ClothingDetailPage(itemId: item.id, onEdit: _openEditFromDetail)),
     );
   }
 
