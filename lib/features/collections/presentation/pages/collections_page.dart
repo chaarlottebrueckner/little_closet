@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
@@ -13,6 +14,9 @@ import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/collections_header.dart';
 import '../widgets/create_collection_sheet.dart';
 import '../../domain/collection_with_content.dart';
+import '../widgets/collections_masonry_tab.dart';
+import '../widgets/collections_netflix_tab.dart';
+import '../widgets/collections_editorial_tab.dart';
 
 class CollectionsPage extends ConsumerStatefulWidget {
   const CollectionsPage({super.key});
@@ -21,8 +25,22 @@ class CollectionsPage extends ConsumerStatefulWidget {
   ConsumerState<CollectionsPage> createState() => _CollectionsPageState();
 }
 
-class _CollectionsPageState extends ConsumerState<CollectionsPage> {
+class _CollectionsPageState extends ConsumerState<CollectionsPage>
+    with SingleTickerProviderStateMixin {
   final Set<String> _selectedIds = {};
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   bool get _isSelectionMode => _selectedIds.isNotEmpty;
 
@@ -60,6 +78,33 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
     );
   }
 
+  Widget _buildTabBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+      child: TabBar(
+        controller: _tabController,
+        indicator: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: LCColors.primary.withValues(alpha: 0.12),
+        ),
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
+        labelColor: LCColors.primary,
+        unselectedLabelColor: LCColors.textMuted,
+        labelStyle: GoogleFonts.spaceGrotesk(
+            fontSize: 12, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: GoogleFonts.spaceGrotesk(
+            fontSize: 12, fontWeight: FontWeight.w400),
+        tabs: const [
+          Tab(text: 'Aktuell'),
+          Tab(text: 'Masonry'),
+          Tab(text: 'Netflix'),
+          Tab(text: 'Editorial'),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -77,7 +122,18 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const CollectionsHeader(),
-                    Expanded(child: _buildBody()),
+                    _buildTabBar(),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildBody(),
+                          const CollectionsMasonryTab(),
+                          const CollectionsNetflixTab(),
+                          const CollectionsEditorialTab(),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -11,10 +11,12 @@ class CollectionCoverMosaic extends StatelessWidget {
     super.key,
     required this.collection,
     this.size = 160,
+    this.borderRadius = const BorderRadius.all(Radius.circular(16)),
   });
 
   final CollectionWithContent collection;
   final double size;
+  final BorderRadius borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -39,11 +41,14 @@ class CollectionCoverMosaic extends StatelessWidget {
         Expanded(child: slots[0]),
         _vDivider(),
         Expanded(
-          child: Column(children: [
-            Expanded(child: slots[1]),
-            _hDivider(),
-            Expanded(child: slots[2]),
-          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: slots[1]),
+              _hDivider(),
+              Expanded(child: slots[2]),
+            ],
+          ),
         ),
       ]);
     } else {
@@ -68,7 +73,7 @@ class CollectionCoverMosaic extends StatelessWidget {
 
     return SizedBox.expand(
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: borderRadius,
         child: mosaic,
       ),
     );

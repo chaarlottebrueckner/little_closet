@@ -316,6 +316,13 @@ class _SheetItemCard extends StatelessWidget {
               ),
             ),
             if (isPending)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(11),
+                child: Container(
+                  color: LCColors.primary.withValues(alpha: 0.15),
+                ),
+              ),
+            if (isPending)
               Positioned(
                 top: 6,
                 right: 6,

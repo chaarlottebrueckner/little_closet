@@ -68,24 +68,11 @@ class _OutfitPickerSheetState extends ConsumerState<OutfitPickerSheet> {
             const Center(child: LCSheetHandle()),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ShaderMask(
-                      shaderCallback: (bounds) =>
-                          LCColors.gradientPink.createShader(bounds),
-                      child: Text(
-                        'OUTFITS HINZUFÜGEN',
-                        style:
-                            Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  letterSpacing: 2.5,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                      ),
+              child: Text(
+                'Outfits hinzufügen',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                ],
               ),
             ),
             const SizedBox(height: 8),
@@ -125,12 +112,19 @@ class _OutfitPickerSheetState extends ConsumerState<OutfitPickerSheet> {
                       ),
                     );
                   }
-                  return ListView.builder(
+                  return GridView.builder(
                     controller: scrollController,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 0.75,
+                    ),
                     itemCount: outfits.length,
-                    itemBuilder: (_, i) =>
-                        _OutfitPickerTile(
+                    itemBuilder: (_, i) => _OutfitPickerCard(
                       outfit: outfits[i],
                       selected: _selected.contains(outfits[i].outfit.id),
                       onChanged: (val) => setState(() {
@@ -160,8 +154,8 @@ class _OutfitPickerSheetState extends ConsumerState<OutfitPickerSheet> {
   }
 }
 
-class _OutfitPickerTile extends StatelessWidget {
-  const _OutfitPickerTile({
+class _OutfitPickerCard extends StatelessWidget {
+  const _OutfitPickerCard({
     required this.outfit,
     required this.selected,
     required this.onChanged,
@@ -173,81 +167,50 @@ class _OutfitPickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tags = outfit.outfit.styleTags;
-    final seasons = outfit.outfit.seasons;
-
-    return InkWell(
-      onTap: () => onChanged(!selected),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: SizedBox(
-                width: 56,
-                height: 56,
-                child: ColoredBox(
-                  color: Colors.white,
-                  child: OutfitCanvasPreview(items: outfit.items),
-                ),
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (tags.isNotEmpty)
-                    Text(
-                      tags.take(2).join(' · '),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: LCColors.textMuted,
-                            fontSize: 11,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  if (seasons.isNotEmpty)
-                    Text(
-                      seasons.join(', '),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: LCColors.textMuted,
-                            fontSize: 11,
-                          ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  if (tags.isEmpty && seasons.isEmpty)
-                    Text(
-                      'Outfit',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                ],
-              ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: selected ? LCColors.primary : Colors.transparent,
-                border: Border.all(
-                  color: selected
-                      ? LCColors.primary
-                      : LCColors.primary.withValues(alpha: 0.35),
-                  width: 1.5,
-                ),
-              ),
-              child: selected
-                  ? const Icon(Icons.check_rounded,
-                      size: 14, color: Colors.white)
-                  : null,
-            ),
-          ],
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: ColoredBox(
+            color: Colors.white,
+            child: OutfitCanvasPreview(items: outfit.items),
+          ),
         ),
-      ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: selected ? LCColors.primary : Colors.transparent,
+              width: 2,
+            ),
+            color: selected
+                ? LCColors.primary.withValues(alpha: 0.15)
+                : Colors.transparent,
+          ),
+        ),
+        Positioned(
+          top: 6,
+          right: 6,
+          child: Opacity(
+            opacity: selected ? 1.0 : 0.0,
+            child: Container(
+              width: 22,
+              height: 22,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: LCColors.primary,
+              ),
+              child: const Icon(
+                Icons.check_rounded,
+                size: 13,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        GestureDetector(onTap: () => onChanged(!selected)),
+      ],
     );
   }
 }

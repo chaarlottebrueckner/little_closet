@@ -73,17 +73,11 @@ class _CreateCollectionSheetState extends State<CreateCollectionSheet> {
             const Center(child: LCSheetHandle()),
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-              child: ShaderMask(
-                shaderCallback: (bounds) => LCColors.gradientPink
-                    .createShader(bounds),
-                child: Text(
-                  _isRename ? 'UMBENENNEN' : 'KOLLEKTION ERSTELLEN',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                        letterSpacing: 2.5,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
+              child: Text(
+                _isRename ? 'Umbenennen' : 'Kollektion erstellen',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
               ),
             ),
             const SizedBox(height: 8),
