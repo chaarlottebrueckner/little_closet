@@ -66,9 +66,7 @@ class CollectionCoverMosaic extends StatelessWidget {
       ]);
     }
 
-    return SizedBox(
-      width: size,
-      height: size,
+    return SizedBox.expand(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: mosaic,
@@ -77,10 +75,8 @@ class CollectionCoverMosaic extends StatelessWidget {
   }
 
   Widget _outfitSlot(OutfitWithItems outfit) {
-    return ColoredBox(
-      color: LCColors.surfaceWarm,
-      child: OutfitCanvasPreview(items: outfit.items),
-    );
+    final bg = Color.lerp(Colors.white, outfit.dominantColor, 0.30)!;
+    return OutfitCanvasPreview(items: outfit.items, backgroundColor: bg, fit: BoxFit.cover);
   }
 
   Widget _clothingSlot(String imagePath) {

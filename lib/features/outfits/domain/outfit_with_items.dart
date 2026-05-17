@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+
+import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
 
 // Logical canvas dimensions — shared between editor and preview cards
@@ -59,4 +62,33 @@ class OutfitWithItems {
 
   List<String> get derivedSeasons =>
       items.expand((i) => i.item.seasons).toSet().toList();
+}
+
+extension OutfitDominantColor on OutfitWithItems {
+  Color get dominantColor {
+    const fallback = Color(0xFFE8A0BF);
+    const tierOrder = [
+      ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],
+      ['Jacke / Mantel', 'Schuhe', 'Sport'],
+      ['Accessoire', 'Unterwäsche', 'Sonstiges'],
+    ];
+    for (final tier in tierOrder) {
+      Color? best;
+      double bestSaturation = -1;
+      for (final positioned in items) {
+        if (!tier.contains(positioned.item.category)) continue;
+        for (final colorName in positioned.item.colors) {
+          final color = AppConstants.colorMap[colorName];
+          if (color == null) continue;
+          final saturation = HSLColor.fromColor(color).saturation;
+          if (saturation > bestSaturation) {
+            bestSaturation = saturation;
+            best = color;
+          }
+        }
+      }
+      if (best != null) return best;
+    }
+    return fallback;
+  }
 }

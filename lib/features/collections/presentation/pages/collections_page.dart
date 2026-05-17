@@ -12,6 +12,7 @@ import '../../../../core/widgets/lc_gradient_fab.dart';
 import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/collections_header.dart';
 import '../widgets/create_collection_sheet.dart';
+import '../../domain/collection_with_content.dart';
 
 class CollectionsPage extends ConsumerStatefulWidget {
   const CollectionsPage({super.key});
@@ -112,41 +113,134 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
             if (collections.isEmpty) return const CollectionEmptyState();
-            final itemWidth =
-                (MediaQuery.of(context).size.width - 32 - 12) / 2;
-            final mainAxisExtent = itemWidth + 44;
-            return GridView.builder(
-              padding: EdgeInsets.fromLTRB(
-                  16, 12, 16, _isSelectionMode ? 140 : 100),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                mainAxisExtent: mainAxisExtent,
-              ),
-              itemCount: collections.length,
-              itemBuilder: (_, i) {
-                final c = collections[i];
-                return CollectionCard(
-                  collection: c,
-                  isSelectionMode: _isSelectionMode,
-                  isSelected: _selectedIds.contains(c.collection.id),
-                  onLongPress: _isSelectionMode
-                      ? null
-                      : () => _enterSelectionMode(c.collection.id),
-                  onTap: _isSelectionMode
-                      ? () => _toggleSelection(c.collection.id)
-                      : () => Navigator.push(
-                            context,
-                            slideUpRoute(
-                              CollectionDetailPage(
-                                  collectionId: c.collection.id),
-                            ),
-                          ),
-                );
-              },
+
+            final screenWidth = MediaQuery.of(context).size.width;
+            const gap = 8.0;
+            const hPad = 16.0;
+            final cellW = (screenWidth - hPad * 2 - gap) / 2;
+            final cellH = cellW * 0.9 + 44;
+            final tallH = cellH * 1.45;
+
+            final blocks = _splitIntoBlocks(collections);
+
+            return CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                      hPad, 12, hPad, _isSelectionMode ? 140 : 100),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (_, i) => Padding(
+                        padding: EdgeInsets.only(
+                            bottom: i < blocks.length - 1 ? gap : 0),
+                        child: _buildBlock(
+                          blocks[i],
+                          gap: gap,
+                          cellH: cellH,
+                          tallH: tallH,
+                        ),
+                      ),
+                      childCount: blocks.length,
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         );
+  }
+
+  List<List<CollectionWithContent>> _splitIntoBlocks(List<CollectionWithContent> items) {
+    final blocks = <List<CollectionWithContent>>[];
+    var i = 0;
+    while (i < items.length) {
+      final remaining = items.length - i;
+      int size;
+      if (remaining <= 4) {
+        size = remaining;
+      } else if (remaining == 5) {
+        // 3 + 2 looks better than 4 + 1
+        size = 3;
+      } else {
+        size = 4;
+      }
+      blocks.add(items.sublist(i, i + size));
+      i += size;
+    }
+    return blocks;
+  }
+
+  Widget _buildBlock(
+    List<CollectionWithContent> block, {
+    required double gap,
+    required double cellH,
+    required double tallH,
+  }) {
+    switch (block.length) {
+      case 1:
+        return SizedBox(height: cellH, child: _card(block[0]));
+      case 2:
+        return SizedBox(
+          height: cellH,
+          child: Row(children: [
+            Expanded(child: _card(block[0])),
+            SizedBox(width: gap),
+            Expanded(child: _card(block[1])),
+          ]),
+        );
+      case 3:
+        final halfH = (tallH - gap) / 2;
+        return SizedBox(
+          height: tallH,
+          child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Expanded(child: _card(block[0])),
+            SizedBox(width: gap),
+            Expanded(
+              child: Column(children: [
+                SizedBox(height: halfH, child: _card(block[1])),
+                SizedBox(height: gap),
+                SizedBox(height: halfH, child: _card(block[2])),
+              ]),
+            ),
+          ]),
+        );
+      default: // 4
+        final shortH = cellH * 0.75;
+        return Column(children: [
+          SizedBox(
+            height: shortH,
+            child: Row(children: [
+              Expanded(flex: 3, child: _card(block[0])),
+              SizedBox(width: gap),
+              Expanded(flex: 2, child: _card(block[1])),
+            ]),
+          ),
+          SizedBox(height: gap),
+          SizedBox(
+            height: shortH,
+            child: Row(children: [
+              Expanded(flex: 2, child: _card(block[2])),
+              SizedBox(width: gap),
+              Expanded(flex: 3, child: _card(block[3])),
+            ]),
+          ),
+        ]);
+    }
+  }
+
+  Widget _card(CollectionWithContent c) {
+    return CollectionCard(
+      collection: c,
+      isSelectionMode: _isSelectionMode,
+      isSelected: _selectedIds.contains(c.collection.id),
+      onLongPress:
+          _isSelectionMode ? null : () => _enterSelectionMode(c.collection.id),
+      onTap: _isSelectionMode
+          ? () => _toggleSelection(c.collection.id)
+          : () => Navigator.push(
+                context,
+                slideUpRoute(CollectionDetailPage(collectionId: c.collection.id)),
+              ),
+    );
   }
 }

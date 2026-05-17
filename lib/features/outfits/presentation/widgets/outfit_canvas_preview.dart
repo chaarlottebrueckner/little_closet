@@ -10,12 +10,14 @@ class OutfitCanvasPreview extends StatelessWidget {
   final List<PositionedItem> items;
   final Color? backgroundColor;
   final GlobalKey? repaintKey;
+  final BoxFit fit;
 
   const OutfitCanvasPreview({
     super.key,
     required this.items,
     this.backgroundColor = Colors.white,
     this.repaintKey,
+    this.fit = BoxFit.contain,
   });
 
   @override
@@ -31,8 +33,8 @@ class OutfitCanvasPreview extends StatelessWidget {
       );
     }
 
-    return FittedBox(
-      fit: BoxFit.contain,
+    final fittedContent = FittedBox(
+      fit: fit,
       alignment: Alignment.center,
       child: RepaintBoundary(
         key: repaintKey,
@@ -87,5 +89,7 @@ class OutfitCanvasPreview extends StatelessWidget {
         ),
       ),
     );
+
+    return fit == BoxFit.cover ? ClipRect(child: fittedContent) : fittedContent;
   }
 }
