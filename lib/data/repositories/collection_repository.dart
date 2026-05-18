@@ -20,7 +20,6 @@ class CollectionRepository {
       readsFrom: {
         _db.collections,
         _db.collectionOutfits,
-        _db.collectionClothingItems,
         _db.outfits,
         _db.outfitClothingItems,
         _db.clothingItems,
@@ -34,7 +33,6 @@ class CollectionRepository {
       readsFrom: {
         _db.collections,
         _db.collectionOutfits,
-        _db.collectionClothingItems,
         _db.outfits,
         _db.outfitClothingItems,
         _db.clothingItems,
@@ -125,10 +123,7 @@ class CollectionRepository {
     final outfitRows = await (_db.select(_db.collectionOutfits)
           ..where((t) => t.collectionId.equals(id)))
         .get();
-    final itemRows = await (_db.select(_db.collectionClothingItems)
-          ..where((t) => t.collectionId.equals(id)))
-        .get();
-    if (outfitRows.isEmpty && itemRows.isEmpty) {
+    if (outfitRows.isEmpty) {
       await deleteCollection(id);
       return true;
     }
@@ -138,9 +133,6 @@ class CollectionRepository {
   Future<void> deleteCollection(String id) async {
     await _db.transaction(() async {
       await (_db.delete(_db.collectionOutfits)
-            ..where((t) => t.collectionId.equals(id)))
-          .go();
-      await (_db.delete(_db.collectionClothingItems)
             ..where((t) => t.collectionId.equals(id)))
           .go();
       await (_db.delete(_db.collections)..where((t) => t.id.equals(id))).go();

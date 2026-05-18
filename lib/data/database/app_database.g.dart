@@ -654,99 +654,6 @@ return map;
 @override
 String toString() {return (StringBuffer('CollectionOutfitsCompanion(')..write('collectionId: $collectionId, ')..write('outfitId: $outfitId, ')..write('rowid: $rowid')..write(')')).toString();}
 }
-class $CollectionClothingItemsTable extends CollectionClothingItems with TableInfo<$CollectionClothingItemsTable, CollectionClothingItem>{
-@override final GeneratedDatabase attachedDatabase;
-final String? _alias;
-$CollectionClothingItemsTable(this.attachedDatabase, [this._alias]);
-static const VerificationMeta _collectionIdMeta = const VerificationMeta('collectionId');
-@override
-late final GeneratedColumn<String> collectionId = GeneratedColumn<String>('collection_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
-static const VerificationMeta _clothingItemIdMeta = const VerificationMeta('clothingItemId');
-@override
-late final GeneratedColumn<String> clothingItemId = GeneratedColumn<String>('clothing_item_id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
-@override
-List<GeneratedColumn> get $columns => [collectionId, clothingItemId];
-@override
-String get aliasedName => _alias ?? actualTableName;
-@override
- String get actualTableName => $name;
-static const String $name = 'collection_clothing_items';
-@override
-VerificationContext validateIntegrity(Insertable<CollectionClothingItem> instance, {bool isInserting = false}) {
-final context = VerificationContext();
-final data = instance.toColumns(true);
-if (data.containsKey('collection_id')) {
-context.handle(_collectionIdMeta, collectionId.isAcceptableOrUnknown(data['collection_id']!, _collectionIdMeta));} else if (isInserting) {
-context.missing(_collectionIdMeta);
-}
-if (data.containsKey('clothing_item_id')) {
-context.handle(_clothingItemIdMeta, clothingItemId.isAcceptableOrUnknown(data['clothing_item_id']!, _clothingItemIdMeta));} else if (isInserting) {
-context.missing(_clothingItemIdMeta);
-}
-return context;
-}
-@override
-Set<GeneratedColumn> get $primaryKey => {collectionId, clothingItemId};
-@override CollectionClothingItem map(Map<String, dynamic> data, {String? tablePrefix})  {
-final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';return CollectionClothingItem(collectionId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}collection_id'])!, clothingItemId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}clothing_item_id'])!, );
-}
-@override
-$CollectionClothingItemsTable createAlias(String alias) {
-return $CollectionClothingItemsTable(attachedDatabase, alias);}}class CollectionClothingItem extends DataClass implements Insertable<CollectionClothingItem> 
-{
-final String collectionId;
-final String clothingItemId;
-const CollectionClothingItem({required this.collectionId, required this.clothingItemId});@override
-Map<String, Expression> toColumns(bool nullToAbsent) {
-final map = <String, Expression> {};map['collection_id'] = Variable<String>(collectionId);
-map['clothing_item_id'] = Variable<String>(clothingItemId);
-return map; 
-}
-CollectionClothingItemsCompanion toCompanion(bool nullToAbsent) {
-return CollectionClothingItemsCompanion(collectionId: Value(collectionId),clothingItemId: Value(clothingItemId),);
-}
-factory CollectionClothingItem.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
-serializer ??= driftRuntimeOptions.defaultSerializer;
-return CollectionClothingItem(collectionId: serializer.fromJson<String>(json['collectionId']),clothingItemId: serializer.fromJson<String>(json['clothingItemId']),);}
-@override Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-serializer ??= driftRuntimeOptions.defaultSerializer;
-return <String, dynamic>{
-'collectionId': serializer.toJson<String>(collectionId),'clothingItemId': serializer.toJson<String>(clothingItemId),};}CollectionClothingItem copyWith({String? collectionId,String? clothingItemId}) => CollectionClothingItem(collectionId: collectionId ?? this.collectionId,clothingItemId: clothingItemId ?? this.clothingItemId,);CollectionClothingItem copyWithCompanion(CollectionClothingItemsCompanion data) {
-return CollectionClothingItem(
-collectionId: data.collectionId.present ? data.collectionId.value : this.collectionId,clothingItemId: data.clothingItemId.present ? data.clothingItemId.value : this.clothingItemId,);
-}
-@override
-String toString() {return (StringBuffer('CollectionClothingItem(')..write('collectionId: $collectionId, ')..write('clothingItemId: $clothingItemId')..write(')')).toString();}
-@override
- int get hashCode => Object.hash(collectionId, clothingItemId);@override
-bool operator ==(Object other) => identical(this, other) || (other is CollectionClothingItem && other.collectionId == this.collectionId && other.clothingItemId == this.clothingItemId);
-}class CollectionClothingItemsCompanion extends UpdateCompanion<CollectionClothingItem> {
-final Value<String> collectionId;
-final Value<String> clothingItemId;
-final Value<int> rowid;
-const CollectionClothingItemsCompanion({this.collectionId = const Value.absent(),this.clothingItemId = const Value.absent(),this.rowid = const Value.absent(),});
-CollectionClothingItemsCompanion.insert({required String collectionId,required String clothingItemId,this.rowid = const Value.absent(),}): collectionId = Value(collectionId), clothingItemId = Value(clothingItemId);
-static Insertable<CollectionClothingItem> custom({Expression<String>? collectionId, 
-Expression<String>? clothingItemId, 
-Expression<int>? rowid, 
-}) {
-return RawValuesInsertable({if (collectionId != null)'collection_id': collectionId,if (clothingItemId != null)'clothing_item_id': clothingItemId,if (rowid != null)'rowid': rowid,});
-}CollectionClothingItemsCompanion copyWith({Value<String>? collectionId, Value<String>? clothingItemId, Value<int>? rowid}) {
-return CollectionClothingItemsCompanion(collectionId: collectionId ?? this.collectionId,clothingItemId: clothingItemId ?? this.clothingItemId,rowid: rowid ?? this.rowid,);
-}
-@override
-Map<String, Expression> toColumns(bool nullToAbsent) {
-final map = <String, Expression> {};if (collectionId.present) {
-map['collection_id'] = Variable<String>(collectionId.value);}
-if (clothingItemId.present) {
-map['clothing_item_id'] = Variable<String>(clothingItemId.value);}
-if (rowid.present) {
-map['rowid'] = Variable<int>(rowid.value);}
-return map; 
-}
-@override
-String toString() {return (StringBuffer('CollectionClothingItemsCompanion(')..write('collectionId: $collectionId, ')..write('clothingItemId: $clothingItemId, ')..write('rowid: $rowid')..write(')')).toString();}
-}
 class $UserTagsTable extends UserTags with TableInfo<$UserTagsTable, UserTag>{
 @override final GeneratedDatabase attachedDatabase;
 final String? _alias;
@@ -848,12 +755,11 @@ late final $OutfitsTable outfits = $OutfitsTable(this);
 late final $OutfitClothingItemsTable outfitClothingItems = $OutfitClothingItemsTable(this);
 late final $CollectionsTable collections = $CollectionsTable(this);
 late final $CollectionOutfitsTable collectionOutfits = $CollectionOutfitsTable(this);
-late final $CollectionClothingItemsTable collectionClothingItems = $CollectionClothingItemsTable(this);
 late final $UserTagsTable userTags = $UserTagsTable(this);
 @override
 Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
 @override
-List<DatabaseSchemaEntity> get allSchemaEntities => [clothingItems, outfits, outfitClothingItems, collections, collectionOutfits, collectionClothingItems, userTags];
+List<DatabaseSchemaEntity> get allSchemaEntities => [clothingItems, outfits, outfitClothingItems, collections, collectionOutfits, userTags];
 }
 typedef $$ClothingItemsTableCreateCompanionBuilder = ClothingItemsCompanion Function({required String id,required String imagePath,required String category,Value<String?> subcategory,Value<List<String>> colors,Value<List<String>> seasons,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
 typedef $$ClothingItemsTableUpdateCompanionBuilder = ClothingItemsCompanion Function({Value<String> id,Value<String> imagePath,Value<String> category,Value<String?> subcategory,Value<List<String>> colors,Value<List<String>> seasons,Value<List<String>> styleTags,Value<List<String>> weatherTags,Value<int> sortOrder,Value<DateTime> createdAt,Value<int> rowid,});
@@ -1641,110 +1547,6 @@ GeneratedColumn<String> get outfitId => $composableBuilder(
     (CollectionOutfit,BaseReferences<_$AppDatabase,$CollectionOutfitsTable,CollectionOutfit>),
     CollectionOutfit,
     PrefetchHooks Function()
-    >;typedef $$CollectionClothingItemsTableCreateCompanionBuilder = CollectionClothingItemsCompanion Function({required String collectionId,required String clothingItemId,Value<int> rowid,});
-typedef $$CollectionClothingItemsTableUpdateCompanionBuilder = CollectionClothingItemsCompanion Function({Value<String> collectionId,Value<String> clothingItemId,Value<int> rowid,});
-class $$CollectionClothingItemsTableFilterComposer extends Composer<
-        _$AppDatabase,
-        $CollectionClothingItemsTable> {
-        $$CollectionClothingItemsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-          ColumnFilters<String> get collectionId => $composableBuilder(
-      column: $table.collectionId,
-      builder: (column) => 
-      ColumnFilters(column));
-      
-ColumnFilters<String> get clothingItemId => $composableBuilder(
-      column: $table.clothingItemId,
-      builder: (column) => 
-      ColumnFilters(column));
-      
-        }
-      class $$CollectionClothingItemsTableOrderingComposer extends Composer<
-        _$AppDatabase,
-        $CollectionClothingItemsTable> {
-        $$CollectionClothingItemsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-          ColumnOrderings<String> get collectionId => $composableBuilder(
-      column: $table.collectionId,
-      builder: (column) => 
-      ColumnOrderings(column));
-      
-ColumnOrderings<String> get clothingItemId => $composableBuilder(
-      column: $table.clothingItemId,
-      builder: (column) => 
-      ColumnOrderings(column));
-      
-        }
-      class $$CollectionClothingItemsTableAnnotationComposer extends Composer<
-        _$AppDatabase,
-        $CollectionClothingItemsTable> {
-        $$CollectionClothingItemsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-          GeneratedColumn<String> get collectionId => $composableBuilder(
-      column: $table.collectionId,
-      builder: (column) => column);
-      
-GeneratedColumn<String> get clothingItemId => $composableBuilder(
-      column: $table.clothingItemId,
-      builder: (column) => column);
-      
-        }
-      class $$CollectionClothingItemsTableTableManager extends RootTableManager    <_$AppDatabase,
-    $CollectionClothingItemsTable,
-    CollectionClothingItem,
-    $$CollectionClothingItemsTableFilterComposer,
-    $$CollectionClothingItemsTableOrderingComposer,
-    $$CollectionClothingItemsTableAnnotationComposer,
-    $$CollectionClothingItemsTableCreateCompanionBuilder,
-    $$CollectionClothingItemsTableUpdateCompanionBuilder,
-    (CollectionClothingItem,BaseReferences<_$AppDatabase,$CollectionClothingItemsTable,CollectionClothingItem>),
-    CollectionClothingItem,
-    PrefetchHooks Function()
-    > {
-    $$CollectionClothingItemsTableTableManager(_$AppDatabase db, $CollectionClothingItemsTable table) : super(
-      TableManagerState(
-        db: db,
-        table: table,
-        createFilteringComposer: () => $$CollectionClothingItemsTableFilterComposer($db: db,$table:table),
-        createOrderingComposer: () => $$CollectionClothingItemsTableOrderingComposer($db: db,$table:table),
-        createComputedFieldComposer: () => $$CollectionClothingItemsTableAnnotationComposer($db: db,$table:table),
-        updateCompanionCallback: ({Value<String> collectionId = const Value.absent(),Value<String> clothingItemId = const Value.absent(),Value<int> rowid = const Value.absent(),})=> CollectionClothingItemsCompanion(collectionId: collectionId,clothingItemId: clothingItemId,rowid: rowid,),
-        createCompanionCallback: ({required String collectionId,required String clothingItemId,Value<int> rowid = const Value.absent(),})=> CollectionClothingItemsCompanion.insert(collectionId: collectionId,clothingItemId: clothingItemId,rowid: rowid,),
-        withReferenceMapper: (p0) => p0
-              .map(
-                  (e) =>
-                     (e.readTable(table), BaseReferences(db, table, e))
-                  )
-              .toList(),
-        prefetchHooksCallback: null,
-        ));
-        }
-    typedef $$CollectionClothingItemsTableProcessedTableManager = ProcessedTableManager    <_$AppDatabase,
-    $CollectionClothingItemsTable,
-    CollectionClothingItem,
-    $$CollectionClothingItemsTableFilterComposer,
-    $$CollectionClothingItemsTableOrderingComposer,
-    $$CollectionClothingItemsTableAnnotationComposer,
-    $$CollectionClothingItemsTableCreateCompanionBuilder,
-    $$CollectionClothingItemsTableUpdateCompanionBuilder,
-    (CollectionClothingItem,BaseReferences<_$AppDatabase,$CollectionClothingItemsTable,CollectionClothingItem>),
-    CollectionClothingItem,
-    PrefetchHooks Function()
     >;typedef $$UserTagsTableCreateCompanionBuilder = UserTagsCompanion Function({required String id,required String name,Value<int> rowid,});
 typedef $$UserTagsTableUpdateCompanionBuilder = UserTagsCompanion Function({Value<String> id,Value<String> name,Value<int> rowid,});
 class $$UserTagsTableFilterComposer extends Composer<
@@ -1857,6 +1659,5 @@ $$OutfitsTableTableManager get outfits => $$OutfitsTableTableManager(_db, _db.ou
 $$OutfitClothingItemsTableTableManager get outfitClothingItems => $$OutfitClothingItemsTableTableManager(_db, _db.outfitClothingItems);
 $$CollectionsTableTableManager get collections => $$CollectionsTableTableManager(_db, _db.collections);
 $$CollectionOutfitsTableTableManager get collectionOutfits => $$CollectionOutfitsTableTableManager(_db, _db.collectionOutfits);
-$$CollectionClothingItemsTableTableManager get collectionClothingItems => $$CollectionClothingItemsTableTableManager(_db, _db.collectionClothingItems);
 $$UserTagsTableTableManager get userTags => $$UserTagsTableTableManager(_db, _db.userTags);
 }
