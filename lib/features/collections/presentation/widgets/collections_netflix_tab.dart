@@ -154,18 +154,27 @@ class _OutfitCard extends StatelessWidget {
     final bg = Color.lerp(Colors.white, outfit.dominantColor, 0.30)!;
     return GestureDetector(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 110,
-          height: 150,
-          child: ColoredBox(
-            color: bg,
-            child: OutfitCanvasPreview(
-              items: outfit.items,
-              backgroundColor: bg,
-              fit: BoxFit.cover,
+      child: Container(
+        width: 110,
+        height: 150,
+        decoration: BoxDecoration(
+          color: bg.withValues(alpha: 0.55),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: LCGlass.borderColor, width: LCGlass.borderWidth),
+          boxShadow: [
+            BoxShadow(
+              color: LCColors.primary.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: OutfitCanvasPreview(
+            items: outfit.items,
+            backgroundColor: bg.withValues(alpha: 0.55),
+            fit: BoxFit.cover,
           ),
         ),
       ),
