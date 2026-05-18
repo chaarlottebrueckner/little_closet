@@ -1,9 +1,8 @@
-import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
@@ -19,7 +18,6 @@ import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/outfit_repository.dart';
 import '../../domain/outfit_with_items.dart';
 import '../widgets/outfit_canvas_preview.dart';
-import '../../../collections/presentation/widgets/add_to_collection_sheet.dart';
 
 const double _kMinSheet = 0.44;
 
@@ -132,23 +130,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
               onTap: _isExporting ? null : () => _showExportSheet(context, current),
             ),
           ),
-          // Bookmark button (Add to Collection)
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 12,
-            right: 60,
-            child: LCCircleIconButton(
-              icon: Icons.bookmark_add_rounded,
-              iconSize: 18,
-              iconColor: LCColors.primary,
-              hasBorder: true,
-              onTap: () => showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                isScrollControlled: true,
-                builder: (_) => AddToCollectionSheet(outfitId: current.outfit.id),
-              ),
-            ),
-          ),
+
           DraggableScrollableSheet(
             initialChildSize: _kMinSheet,
             minChildSize: _kMinSheet,
@@ -251,7 +233,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     });
 
     try {
-      await WidgetsBinding.instance.endOfFrame;
+      await Future.delayed(const Duration(milliseconds: 150));
       if (!mounted) return;
 
       final boundary =
@@ -262,13 +244,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return;
 
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File(
-        '${tempDir.path}/outfit_${DateTime.now().millisecondsSinceEpoch}.png',
-      );
-      await tempFile.writeAsBytes(byteData.buffer.asUint8List());
-      await Gal.putImage(tempFile.path);
-      await tempFile.delete();
+      await Gal.putImageBytes(byteData.buffer.asUint8List());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -279,7 +255,8 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
             action: SnackBarAction(
               label: 'Öffnen',
               textColor: Colors.white,
-              onPressed: () => Gal.open(),
+              onPressed: () => const MethodChannel('com.example.little_closet/gallery')
+                  .invokeMethod('openGallery'),
             ),
           ),
         );
