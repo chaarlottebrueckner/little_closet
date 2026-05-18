@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
@@ -249,7 +251,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     });
 
     try {
-      await Future.delayed(const Duration(milliseconds: 150));
+      await WidgetsBinding.instance.endOfFrame;
       if (!mounted) return;
 
       final boundary =
@@ -260,7 +262,13 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return;
 
-      await Gal.putImageBytes(byteData.buffer.asUint8List());
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File(
+        '${tempDir.path}/outfit_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
+      await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+      await Gal.putImage(tempFile.path);
+      await tempFile.delete();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
@@ -22,7 +21,6 @@ class CollectionCoverMosaic extends StatelessWidget {
   Widget build(BuildContext context) {
     final slots = <Widget>[
       ...collection.outfits.map((o) => _outfitSlot(o)),
-      ...collection.clothingItems.map((c) => _clothingSlot(c.imagePath)),
     ];
 
     Widget mosaic;
@@ -84,14 +82,6 @@ class CollectionCoverMosaic extends StatelessWidget {
     return OutfitCanvasPreview(items: outfit.items, backgroundColor: bg, fit: BoxFit.cover);
   }
 
-  Widget _clothingSlot(String imagePath) {
-    return Image.file(
-      File(imagePath),
-      fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => _errorSlot(),
-    );
-  }
-
   Widget _emptySlot() {
     return Container(
       decoration: const BoxDecoration(gradient: LCColors.gradientPink),
@@ -101,15 +91,6 @@ class CollectionCoverMosaic extends StatelessWidget {
           size: 60,
           color: Colors.white,
         ),
-      ),
-    );
-  }
-
-  Widget _errorSlot() {
-    return const ColoredBox(
-      color: LCColors.surfaceWarm,
-      child: Center(
-        child: Icon(Icons.broken_image_outlined, color: LCColors.primary, size: 24),
       ),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -36,6 +38,8 @@ class CollectionDetailPage extends ConsumerStatefulWidget {
 
 class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
   late final OutfitActiveFilters _filters;
+  bool _isSelectionMode = false;
+  final Set<String> _selectedIds = {};
 
   @override
   void initState() {
@@ -44,6 +48,31 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
     if (widget.openPickerOnLoad) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _openPicker());
     }
+  }
+
+  void _enterSelectionMode(String firstId) {
+    setState(() {
+      _isSelectionMode = true;
+      _selectedIds..clear()..add(firstId);
+    });
+  }
+
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedIds.clear();
+    });
+  }
+
+  void _toggleSelection(String id) {
+    setState(() {
+      if (_selectedIds.contains(id)) {
+        _selectedIds.remove(id);
+        if (_selectedIds.isEmpty) _isSelectionMode = false;
+      } else {
+        _selectedIds.add(id);
+      }
+    });
   }
 
   void _openPicker() {
@@ -59,7 +88,22 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
         initialOutfitIds:
             Set.from(current?.outfits.map((o) => o.outfit.id) ?? []),
       ),
-    );
+    ).then((_) => _deleteIfEmpty());
+  }
+
+  Future<void> _deleteIfEmpty() async {
+    if (!mounted) return;
+    final deleted = await ref
+        .read(collectionRepositoryProvider)
+        .deleteCollectionIfEmpty(widget.collectionId);
+    if (deleted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Kollektion gelöscht – keine Outfits hinzugefügt'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   void _showFilterSheet() {
@@ -111,27 +155,38 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
     final outfits = data?.outfits ?? [];
     final filtered = _applyFilters(outfits);
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: LCPageBackground(
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return PopScope(
+      canPop: !_isSelectionMode,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && _isSelectionMode) _exitSelectionMode();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: LCPageBackground(
+          child: Stack(
             children: [
-              _buildAppBar(context, data),
-              if (_filters.hasAny) _buildActiveFilterChips(),
-              const SizedBox(height: 8),
-              Expanded(child: _buildContent(context, data, filtered)),
+              SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildAppBar(context, data),
+                    if (_filters.hasAny) _buildActiveFilterChips(),
+                    const SizedBox(height: 8),
+                    Expanded(child: _buildContent(context, data, filtered)),
+                  ],
+                ),
+              ),
+              if (_isSelectionMode) _buildRemovalBar(context),
             ],
           ),
         ),
+        floatingActionButton: data != null && !_isSelectionMode
+            ? LCGradientFAB(
+                onPressed: _openPicker,
+                label: 'Outfit hinzufügen',
+              )
+            : null,
       ),
-      floatingActionButton: data != null
-          ? LCGradientFAB(
-              onPressed: _openPicker,
-              label: 'Outfit hinzufügen',
-            )
-          : null,
     );
   }
 
@@ -246,21 +301,155 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
       itemCount: filtered.length,
       itemBuilder: (_, i) {
         final outfit = filtered[i];
+        final id = outfit.outfit.id;
         return OutfitCard(
           outfitWithItems: outfit,
-          onTap: () => Navigator.push(context, slideUpRoute(
-            OutfitDetailPage(
-              outfitWithItems: outfit,
-              onEdit: (o) => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OutfitEditorPage(initialOutfit: o),
+          isSelectionMode: _isSelectionMode,
+          isSelected: _selectedIds.contains(id),
+          onLongPress: _isSelectionMode ? null : () => _enterSelectionMode(id),
+          onTap: _isSelectionMode
+              ? () => _toggleSelection(id)
+              : () => Navigator.push(context, slideUpRoute(
+                    OutfitDetailPage(
+                      outfitWithItems: outfit,
+                      onEdit: (o) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OutfitEditorPage(initialOutfit: o),
+                        ),
+                      ),
+                    ),
+                  )),
+        );
+      },
+    );
+  }
+
+  Widget _buildRemovalBar(BuildContext context) {
+    final count = _selectedIds.length;
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(
+                  sigmaX: LCGlass.blurSigma, sigmaY: LCGlass.blurSigma),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                decoration: BoxDecoration(
+                  color: LCGlass.sheetColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: LCGlass.borderColor, width: LCGlass.borderWidth),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD4789C).withValues(alpha: 0.18),
+                      blurRadius: 20,
+                      offset: const Offset(0, -4),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '$count ausgewählt',
+                        style:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  color: LCColors.textDark,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: _exitSelectionMode,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        side: BorderSide(
+                            color: LCColors.primary.withValues(alpha: 0.5),
+                            width: 1.2),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text(
+                        'Abbrechen',
+                        style: TextStyle(
+                            color: LCColors.primary,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: count == 0 ? null : LCColors.gradientPink,
+                        color: count == 0
+                            ? const Color(0xFFE8A0BF).withValues(alpha: 0.25)
+                            : null,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: count == 0
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color:
+                                      LCColors.primary.withValues(alpha: 0.30),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                      ),
+                      child: TextButton.icon(
+                        onPressed: count == 0 ? null : () => _confirmRemove(context),
+                        icon: const Icon(Icons.remove_circle_outline_rounded,
+                            size: 17, color: Colors.white),
+                        label: const Text(
+                          'Entfernen',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13),
+                        ),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          )),
-        );
-      },
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _confirmRemove(BuildContext context) {
+    final count = _selectedIds.length;
+    final ids = List<String>.from(_selectedIds);
+    showLCDeleteConfirmDialog(
+      context: context,
+      title: count == 1
+          ? 'Outfit entfernen?'
+          : '$count Outfits entfernen?',
+      body: count == 1
+          ? 'Dieses Outfit aus der Kollektion entfernen? Das Outfit bleibt erhalten.'
+          : 'Diese $count Outfits aus der Kollektion entfernen? Die Outfits bleiben erhalten.',
+      onConfirm: () => ref
+          .read(collectionRepositoryProvider)
+          .removeOutfitsFromCollection(widget.collectionId, ids),
+      onAfterConfirm: _exitSelectionMode,
     );
   }
 

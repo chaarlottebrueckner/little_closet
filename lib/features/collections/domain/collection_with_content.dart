@@ -5,12 +5,10 @@ class CollectionWithContent {
   const CollectionWithContent({
     required this.collection,
     required this.outfits,
-    required this.clothingItems,
   });
 
   final Collection collection;
   final List<OutfitWithItems> outfits;
-  final List<ClothingItem> clothingItems;
 
-  int get totalCount => outfits.length + clothingItems.length;
+  int get totalCount => outfits.length;
 }

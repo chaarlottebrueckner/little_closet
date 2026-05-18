@@ -36,10 +36,10 @@ class OutfitCanvasPreview extends StatelessWidget {
     final fittedContent = FittedBox(
       fit: fit,
       alignment: Alignment.center,
-      child: RepaintBoundary(
-        key: repaintKey,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: RepaintBoundary(
+          key: repaintKey,
           child: SizedBox(
             width: kCanvasWidth,
             height: kCanvasHeight,

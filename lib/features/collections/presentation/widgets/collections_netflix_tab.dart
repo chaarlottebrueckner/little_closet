@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -83,10 +81,6 @@ class _CollectionRow extends StatelessWidget {
           const SizedBox(width: 16),
           for (final outfit in collection.outfits) ...[
             _OutfitCard(outfit: outfit, onTap: () => _openDetail(context)),
-            const SizedBox(width: 8),
-          ],
-          for (final item in collection.clothingItems) ...[
-            _ClothingCard(imagePath: item.imagePath, onTap: () => _openDetail(context)),
             const SizedBox(width: 8),
           ],
           const SizedBox(width: 8),
@@ -189,38 +183,6 @@ class _OutfitCard extends StatelessWidget {
               items: outfit.items,
               backgroundColor: bg,
               fit: BoxFit.cover,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ClothingCard extends StatelessWidget {
-  final String imagePath;
-  final VoidCallback onTap;
-
-  const _ClothingCard({required this.imagePath, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: SizedBox(
-          width: 110,
-          height: 150,
-          child: ColoredBox(
-            color: LCColors.surfaceWarm,
-            child: Image.file(
-              File(imagePath),
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const Icon(
-                Icons.broken_image_outlined,
-                color: LCColors.textMuted,
-              ),
             ),
           ),
         ),

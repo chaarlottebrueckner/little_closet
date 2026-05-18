@@ -67,21 +67,9 @@ class CollectionRepository {
             .whereType<OutfitWithItems>()
             .toList();
 
-    final clothingJunctions = await (_db.select(_db.collectionClothingItems)
-          ..where((t) => t.collectionId.equals(collection.id)))
-        .get();
-    List<ClothingItem> clothingItems = [];
-    if (clothingJunctions.isNotEmpty) {
-      clothingItems = await (_db.select(_db.clothingItems)
-            ..where((t) =>
-                t.id.isIn(clothingJunctions.map((r) => r.clothingItemId))))
-          .get();
-    }
-
     return CollectionWithContent(
       collection: collection,
       outfits: outfits,
-      clothingItems: clothingItems,
     );
   }
 
@@ -133,6 +121,20 @@ class CollectionRepository {
         .write(CollectionsCompanion(name: Value(name)));
   }
 
+  Future<bool> deleteCollectionIfEmpty(String id) async {
+    final outfitRows = await (_db.select(_db.collectionOutfits)
+          ..where((t) => t.collectionId.equals(id)))
+        .get();
+    final itemRows = await (_db.select(_db.collectionClothingItems)
+          ..where((t) => t.collectionId.equals(id)))
+        .get();
+    if (outfitRows.isEmpty && itemRows.isEmpty) {
+      await deleteCollection(id);
+      return true;
+    }
+    return false;
+  }
+
   Future<void> deleteCollection(String id) async {
     await _db.transaction(() async {
       await (_db.delete(_db.collectionOutfits)
@@ -173,26 +175,6 @@ class CollectionRepository {
         .go();
   }
 
-  Future<void> addClothingItemToCollection(
-      String collectionId, String clothingItemId) async {
-    await _db.into(_db.collectionClothingItems).insert(
-          CollectionClothingItemsCompanion.insert(
-            collectionId: collectionId,
-            clothingItemId: clothingItemId,
-          ),
-          mode: InsertMode.insertOrIgnore,
-        );
-  }
-
-  Future<void> removeClothingItemFromCollection(
-      String collectionId, String clothingItemId) async {
-    await (_db.delete(_db.collectionClothingItems)
-          ..where((t) =>
-              t.collectionId.equals(collectionId) &
-              t.clothingItemId.equals(clothingItemId)))
-        .go();
-  }
-
   Future<void> addOutfitsToCollection(
       String collectionId, List<String> outfitIds) async {
     await _db.transaction(() async {
@@ -202,19 +184,20 @@ class CollectionRepository {
     });
   }
 
+  Future<void> removeOutfitsFromCollection(
+      String collectionId, List<String> outfitIds) async {
+    await _db.transaction(() async {
+      for (final outfitId in outfitIds) {
+        await removeOutfitFromCollection(collectionId, outfitId);
+      }
+    });
+  }
+
   // ── Lookup helpers ─────────────────────────────────────────────────────────
 
   Future<List<String>> collectionIdsContainingOutfit(String outfitId) async {
     final rows = await (_db.select(_db.collectionOutfits)
           ..where((t) => t.outfitId.equals(outfitId)))
-        .get();
-    return rows.map((r) => r.collectionId).toList();
-  }
-
-  Future<List<String>> collectionIdsContainingItem(
-      String clothingItemId) async {
-    final rows = await (_db.select(_db.collectionClothingItems)
-          ..where((t) => t.clothingItemId.equals(clothingItemId)))
         .get();
     return rows.map((r) => r.collectionId).toList();
   }
