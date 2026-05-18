@@ -1,8 +1,8 @@
 import '../../../data/database/app_database.dart';
 import '../../../features/outfits/domain/outfit_with_items.dart';
 
-class CollectionWithContent {
-  const CollectionWithContent({
+class CollectionWithOutfits {
+  const CollectionWithOutfits({
     required this.collection,
     required this.outfits,
   });

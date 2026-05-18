@@ -7,13 +7,12 @@ import '../../../../data/repositories/collection_repository.dart';
 import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
 import 'collection_detail_page.dart';
 import '../widgets/collection_card.dart';
-import '../widgets/collection_empty_state.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/widgets/lc_gradient_fab.dart';
 import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/collections_header.dart';
 import '../widgets/create_collection_sheet.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../widgets/collections_masonry_tab.dart';
 import '../widgets/collections_netflix_tab.dart';
 import '../widgets/collections_editorial_tab.dart';
@@ -168,8 +167,6 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage>
           ),
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
-            if (collections.isEmpty) return const CollectionEmptyState();
-
             final screenWidth = MediaQuery.of(context).size.width;
             const gap = 8.0;
             const hPad = 16.0;
@@ -206,8 +203,8 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage>
         );
   }
 
-  List<List<CollectionWithContent>> _splitIntoBlocks(List<CollectionWithContent> items) {
-    final blocks = <List<CollectionWithContent>>[];
+  List<List<CollectionWithOutfits>> _splitIntoBlocks(List<CollectionWithOutfits> items) {
+    final blocks = <List<CollectionWithOutfits>>[];
     var i = 0;
     while (i < items.length) {
       final remaining = items.length - i;
@@ -227,7 +224,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage>
   }
 
   Widget _buildBlock(
-    List<CollectionWithContent> block, {
+    List<CollectionWithOutfits> block, {
     required double gap,
     required double cellH,
     required double tallH,
@@ -284,7 +281,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage>
     }
   }
 
-  Widget _card(CollectionWithContent c) {
+  Widget _card(CollectionWithOutfits c) {
     return CollectionCard(
       collection: c,
       isSelectionMode: _isSelectionMode,

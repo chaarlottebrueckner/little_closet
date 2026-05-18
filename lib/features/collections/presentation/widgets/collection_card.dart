@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import 'collection_cover_mosaic.dart';
 
 class CollectionCard extends StatelessWidget {
@@ -15,7 +15,7 @@ class CollectionCard extends StatelessWidget {
     this.isSelected = false,
   });
 
-  final CollectionWithContent collection;
+  final CollectionWithOutfits collection;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final bool isSelectionMode;

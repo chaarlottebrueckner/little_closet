@@ -68,14 +68,12 @@ class LCTheme {
   static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.light(
-        background: LCColors.background,
+      colorScheme: const ColorScheme.light(
         primary: LCColors.primary,
         secondary: LCColors.accent,
         tertiary: LCColors.deep,
         surface: LCColors.surface,
         onPrimary: Colors.white,
-        onBackground: LCColors.textDark,
         onSurface: LCColors.textDark,
       ),
       scaffoldBackgroundColor: LCColors.background,
@@ -125,7 +123,7 @@ class LCTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: LCColors.background,
-        selectedColor: LCColors.primary.withOpacity(0.15),
+        selectedColor: LCColors.primary.withValues(alpha: 0.15),
         labelStyle: GoogleFonts.dmSans(
           fontSize: 12,
           fontWeight: FontWeight.w500,

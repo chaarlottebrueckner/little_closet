@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../pages/collection_detail_page.dart';
 import 'collection_card.dart';
-import 'collection_empty_state.dart';
 
 class CollectionsEditorialTab extends ConsumerWidget {
   const CollectionsEditorialTab({super.key});
@@ -19,7 +18,6 @@ class CollectionsEditorialTab extends ConsumerWidget {
               const Center(child: CircularProgressIndicator(color: LCColors.primary)),
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
-            if (collections.isEmpty) return const CollectionEmptyState();
             return CustomScrollView(
               slivers: [
                 SliverPadding(
@@ -37,7 +35,7 @@ class CollectionsEditorialTab extends ConsumerWidget {
   }
 
   List<Widget> _buildRows(
-      List<CollectionWithContent> items, BuildContext context) {
+      List<CollectionWithOutfits> items, BuildContext context) {
     final rows = <Widget>[];
     int i = 0;
     bool isFull = true;
@@ -57,7 +55,7 @@ class CollectionsEditorialTab extends ConsumerWidget {
 }
 
 class _FullCard extends StatelessWidget {
-  final CollectionWithContent c;
+  final CollectionWithOutfits c;
   final BuildContext context;
 
   const _FullCard({required this.c, required this.context});
@@ -81,8 +79,8 @@ class _FullCard extends StatelessWidget {
 }
 
 class _PairRow extends StatelessWidget {
-  final CollectionWithContent left;
-  final CollectionWithContent? right;
+  final CollectionWithOutfits left;
+  final CollectionWithOutfits? right;
   final BuildContext context;
 
   const _PairRow({

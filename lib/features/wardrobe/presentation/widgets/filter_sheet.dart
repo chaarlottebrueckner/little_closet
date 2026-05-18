@@ -95,7 +95,7 @@ class _FilterSheetState extends State<FilterSheet> {
                       const Spacer(),
                       TextButton(
                         onPressed: _reset,
-                        child: Text(
+                        child: const Text(
                           'Zurücksetzen',
                           style: TextStyle(
                             color: LCColors.primary,

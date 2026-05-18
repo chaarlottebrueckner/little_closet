@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_theme.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../../../outfits/domain/outfit_with_items.dart';
 import '../../../outfits/presentation/widgets/outfit_canvas_preview.dart';
 
@@ -13,7 +12,7 @@ class CollectionCoverMosaic extends StatelessWidget {
     this.borderRadius = const BorderRadius.all(Radius.circular(16)),
   });
 
-  final CollectionWithContent collection;
+  final CollectionWithOutfits collection;
   final double size;
   final BorderRadius borderRadius;
 
@@ -24,9 +23,7 @@ class CollectionCoverMosaic extends StatelessWidget {
     ];
 
     Widget mosaic;
-    if (slots.isEmpty) {
-      mosaic = _emptySlot();
-    } else if (slots.length == 1) {
+    if (slots.length == 1) {
       mosaic = slots[0];
     } else if (slots.length == 2) {
       mosaic = Row(children: [
@@ -80,19 +77,6 @@ class CollectionCoverMosaic extends StatelessWidget {
   Widget _outfitSlot(OutfitWithItems outfit) {
     final bg = Color.lerp(Colors.white, outfit.dominantColor, 0.30)!;
     return OutfitCanvasPreview(items: outfit.items, backgroundColor: bg, fit: BoxFit.cover);
-  }
-
-  Widget _emptySlot() {
-    return Container(
-      decoration: const BoxDecoration(gradient: LCColors.gradientPink),
-      child: const Center(
-        child: Icon(
-          Icons.collections_bookmark_outlined,
-          size: 60,
-          color: Colors.white,
-        ),
-      ),
-    );
   }
 
   Widget _vDivider() =>

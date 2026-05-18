@@ -5,13 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
+import '../../../outfits/presentation/widgets/outfit_empty_state.dart';
 import '../../../outfits/domain/outfit_filters.dart';
 import '../../../outfits/domain/outfit_with_items.dart';
 import '../../../outfits/presentation/pages/outfit_detail_page.dart';
 import '../../../outfits/presentation/pages/outfit_editor_page.dart';
 import '../../../outfits/presentation/widgets/outfit_card.dart';
 import '../../../outfits/presentation/widgets/outfit_filter_sheet.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../../../../core/widgets/lc_active_filter_chips.dart';
 import '../../../../core/widgets/lc_filter_badge_button.dart';
 import '../../../../core/widgets/lc_gradient_fab.dart';
@@ -190,7 +191,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, CollectionWithContent? data) {
+  Widget _buildAppBar(BuildContext context, CollectionWithOutfits? data) {
     final name = data?.collection.name ?? '';
 
     return Padding(
@@ -274,17 +275,14 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
     ]);
   }
 
-  Widget _buildContent(BuildContext context, CollectionWithContent? data,
+  Widget _buildContent(BuildContext context, CollectionWithOutfits? data,
       List<OutfitWithItems> filtered) {
     if (data == null) {
       return const Center(
           child: CircularProgressIndicator(color: LCColors.primary));
     }
-    if (data.outfits.isEmpty) {
-      return _buildEmptyState(isFiltered: false);
-    }
     if (filtered.isEmpty) {
-      return _buildEmptyState(isFiltered: true);
+      return const OutfitEmptyState(reason: OutfitEmptyReason.filteredOut);
     }
 
     final itemWidth = (MediaQuery.of(context).size.width - 32 - 12) / 2;
@@ -456,39 +454,4 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
     );
   }
 
-  Widget _buildEmptyState({required bool isFiltered}) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              color: LCColors.primary.withValues(alpha: 0.10),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(Icons.style_outlined,
-                size: 32, color: LCColors.primary),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            isFiltered ? 'Keine Outfits gefunden' : 'Noch keine Outfits',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: LCColors.textDark,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            isFiltered
-                ? 'Passe die Filter an'
-                : 'Tippe auf + um Outfits hinzuzufügen',
-            style: const TextStyle(color: LCColors.textMuted, fontSize: 13),
-          ),
-        ],
-      ),
-    );
-  }
 }

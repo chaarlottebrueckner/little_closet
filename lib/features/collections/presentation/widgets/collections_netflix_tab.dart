@@ -5,11 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../../../../features/outfits/domain/outfit_with_items.dart';
 import '../../../../features/outfits/presentation/widgets/outfit_canvas_preview.dart';
 import '../pages/collection_detail_page.dart';
-import 'collection_empty_state.dart';
 
 class CollectionsNetflixTab extends ConsumerWidget {
   const CollectionsNetflixTab({super.key});
@@ -21,7 +20,6 @@ class CollectionsNetflixTab extends ConsumerWidget {
               const Center(child: CircularProgressIndicator(color: LCColors.primary)),
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
-            if (collections.isEmpty) return const CollectionEmptyState();
             return CustomScrollView(
               slivers: [
                 SliverPadding(
@@ -41,7 +39,7 @@ class CollectionsNetflixTab extends ConsumerWidget {
 }
 
 class _CollectionRow extends StatelessWidget {
-  final CollectionWithContent collection;
+  final CollectionWithOutfits collection;
 
   const _CollectionRow({required this.collection});
 
@@ -63,9 +61,7 @@ class _CollectionRow extends StatelessWidget {
           const SizedBox(height: 4),
           SizedBox(
             height: 150,
-            child: collection.totalCount == 0
-                ? _emptyRowHint(context)
-                : _itemList(context),
+            child: _itemList(context),
           ),
         ],
       ),
@@ -89,24 +85,10 @@ class _CollectionRow extends StatelessWidget {
     );
   }
 
-  Widget _emptyRowHint(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Center(
-        child: Text(
-          'Noch nichts hinzugefügt',
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: LCColors.textMuted),
-        ),
-      ),
-    );
-  }
 }
 
 class _RowHeader extends StatelessWidget {
-  final CollectionWithContent collection;
+  final CollectionWithOutfits collection;
   final VoidCallback onTap;
 
   const _RowHeader({required this.collection, required this.onTap});

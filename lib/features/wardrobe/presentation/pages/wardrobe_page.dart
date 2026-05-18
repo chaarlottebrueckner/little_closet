@@ -193,7 +193,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   List<ClothingItem> _applyFilters(List<ClothingItem> items) {
     return items.where((item) {
       if (_filters.categories.isNotEmpty &&
-          !_filters.categories.contains(item.category)) return false;
+          !_filters.categories.contains(item.category)) { return false; }
       if (_filters.colors.isNotEmpty && !_filters.colors.any(item.colors.contains)) return false;
       if (_filters.seasons.isNotEmpty && !_filters.seasons.any(item.seasons.contains)) return false;
       if (_filters.styleTags.isNotEmpty && !_filters.styleTags.any(item.styleTags.contains)) return false;

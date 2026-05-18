@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../database/app_database.dart';
-import '../../features/collections/domain/collection_with_content.dart';
+import '../../features/collections/domain/collection_with_outfits.dart';
 import '../../features/outfits/domain/outfit_with_items.dart';
 
 class CollectionRepository {
@@ -14,7 +14,7 @@ class CollectionRepository {
 
   // ── Streams ────────────────────────────────────────────────────────────────
 
-  Stream<List<CollectionWithContent>> watchAllCollections() {
+  Stream<List<CollectionWithOutfits>> watchAllCollections() {
     return _db.customSelect(
       'SELECT 1',
       readsFrom: {
@@ -27,7 +27,7 @@ class CollectionRepository {
     ).watch().asyncMap((_) => _fetchAllCollections());
   }
 
-  Stream<CollectionWithContent?> watchCollectionById(String id) {
+  Stream<CollectionWithOutfits?> watchCollectionById(String id) {
     return _db.customSelect(
       'SELECT 1',
       readsFrom: {
@@ -48,14 +48,14 @@ class CollectionRepository {
 
   // ── Private fetch helpers ──────────────────────────────────────────────────
 
-  Future<List<CollectionWithContent>> _fetchAllCollections() async {
+  Future<List<CollectionWithOutfits>> _fetchAllCollections() async {
     final collections = await (_db.select(_db.collections)
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
         .get();
     return Future.wait(collections.map(_fetchCollectionContent));
   }
 
-  Future<CollectionWithContent> _fetchCollectionContent(
+  Future<CollectionWithOutfits> _fetchCollectionContent(
       Collection collection) async {
     final outfitJunctions = await (_db.select(_db.collectionOutfits)
           ..where((t) => t.collectionId.equals(collection.id)))
@@ -65,7 +65,7 @@ class CollectionRepository {
             .whereType<OutfitWithItems>()
             .toList();
 
-    return CollectionWithContent(
+    return CollectionWithOutfits(
       collection: collection,
       outfits: outfits,
     );
@@ -202,11 +202,11 @@ final collectionRepositoryProvider = Provider<CollectionRepository>((ref) {
 });
 
 final collectionsProvider =
-    StreamProvider<List<CollectionWithContent>>((ref) {
+    StreamProvider<List<CollectionWithOutfits>>((ref) {
   return ref.watch(collectionRepositoryProvider).watchAllCollections();
 });
 
 final collectionByIdProvider =
-    StreamProvider.family<CollectionWithContent?, String>((ref, id) {
+    StreamProvider.family<CollectionWithOutfits?, String>((ref, id) {
   return ref.watch(collectionRepositoryProvider).watchCollectionById(id);
 });

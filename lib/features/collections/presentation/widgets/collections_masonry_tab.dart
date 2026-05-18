@@ -5,10 +5,9 @@ import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../data/repositories/collection_repository.dart';
 import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
-import '../../domain/collection_with_content.dart';
+import '../../domain/collection_with_outfits.dart';
 import '../pages/collection_detail_page.dart';
 import 'collection_card.dart';
-import 'collection_empty_state.dart';
 
 class CollectionsMasonryTab extends ConsumerStatefulWidget {
   const CollectionsMasonryTab({super.key});
@@ -36,17 +35,17 @@ class _CollectionsMasonryTabState
             : _selectedIds.add(id);
       });
 
-  double _cardHeight(CollectionWithContent c) {
+  double _cardHeight(CollectionWithOutfits c) {
     final n = c.totalCount;
     if (n <= 1) return 160.0;
     if (n == 2) return 200.0;
     return 240.0;
   }
 
-  List<List<CollectionWithContent>> _buildColumns(
-      List<CollectionWithContent> items) {
-    final col0 = <CollectionWithContent>[];
-    final col1 = <CollectionWithContent>[];
+  List<List<CollectionWithOutfits>> _buildColumns(
+      List<CollectionWithOutfits> items) {
+    final col0 = <CollectionWithOutfits>[];
+    final col1 = <CollectionWithOutfits>[];
     double h0 = 0, h1 = 0;
     for (final item in items) {
       final h = _cardHeight(item);
@@ -76,9 +75,6 @@ class _CollectionsMasonryTabState
                 ),
                 error: (e, _) => Center(child: Text('Fehler: $e')),
                 data: (collections) {
-                  if (collections.isEmpty) {
-                    return const CollectionEmptyState();
-                  }
                   final cols = _buildColumns(collections);
                   return SingleChildScrollView(
                     child: Padding(
@@ -112,7 +108,7 @@ class _CollectionsMasonryTabState
     );
   }
 
-  Widget _buildColumn(List<CollectionWithContent> items) {
+  Widget _buildColumn(List<CollectionWithOutfits> items) {
     return Column(
       children: items
           .map((item) => Padding(
@@ -126,7 +122,7 @@ class _CollectionsMasonryTabState
     );
   }
 
-  Widget _card(CollectionWithContent c) {
+  Widget _card(CollectionWithOutfits c) {
     return CollectionCard(
       collection: c,
       isSelectionMode: _isSelectionMode,
