@@ -446,9 +446,12 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
       body: count == 1
           ? 'Dieses Outfit aus der Kollektion entfernen? Das Outfit bleibt erhalten.'
           : 'Diese $count Outfits aus der Kollektion entfernen? Die Outfits bleiben erhalten.',
-      onConfirm: () => ref
-          .read(collectionRepositoryProvider)
-          .removeOutfitsFromCollection(widget.collectionId, ids),
+      onConfirm: () async {
+        await ref
+            .read(collectionRepositoryProvider)
+            .removeOutfitsFromCollection(widget.collectionId, ids);
+        await _deleteIfEmpty();
+      },
       onAfterConfirm: _exitSelectionMode,
     );
   }

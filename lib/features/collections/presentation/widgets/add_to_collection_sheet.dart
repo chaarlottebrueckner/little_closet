@@ -77,6 +77,7 @@ class _AddToCollectionSheetState extends ConsumerState<AddToCollectionSheet> {
     }
     for (final id in removed) {
       await repo.removeOutfitFromCollection(id, widget.outfitId);
+      await repo.deleteCollectionIfEmpty(id);
     }
     if (mounted) Navigator.pop(context);
   }
