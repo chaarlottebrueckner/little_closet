@@ -59,12 +59,7 @@ class OutfitWithItems {
 extension OutfitDominantColor on OutfitWithItems {
   Color get dominantColor {
     const fallback = Color(0xFFE8A0BF);
-    const tierOrder = [
-      ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],
-      ['Jacke / Mantel', 'Schuhe', 'Sport'],
-      ['Accessoire', 'Unterwäsche', 'Sonstiges'],
-    ];
-    for (final tier in tierOrder) {
+    for (final tier in AppConstants.categoryTiers) {
       Color? best;
       double bestSaturation = -1;
       for (final positioned in items) {

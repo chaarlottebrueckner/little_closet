@@ -11,6 +11,13 @@ class AppConstants {
   // Image Storage
   static const String imagesDirName = 'little_closet_images';
 
+  // Priority tiers for dominant color calculation in outfits
+  static const List<List<String>> categoryTiers = [
+    ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],
+    ['Jacke / Mantel', 'Schuhe', 'Sport'],
+    ['Accessoire', 'Unterwäsche', 'Sonstiges'],
+  ];
+
   // Category options
   static const List<String> categories = [
     'Oberteil',
