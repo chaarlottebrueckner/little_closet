@@ -185,14 +185,6 @@ class CollectionRepository {
     });
   }
 
-  // ── Lookup helpers ─────────────────────────────────────────────────────────
-
-  Future<List<String>> collectionIdsContainingOutfit(String outfitId) async {
-    final rows = await (_db.select(_db.collectionOutfits)
-          ..where((t) => t.outfitId.equals(outfitId)))
-        .get();
-    return rows.map((r) => r.collectionId).toList();
-  }
 }
 
 // ── Providers ──────────────────────────────────────────────────────────────
