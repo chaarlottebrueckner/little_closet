@@ -156,7 +156,6 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
       if (remaining <= 4) {
         size = remaining;
       } else if (remaining == 5) {
-        // 3 + 2 looks better than 4 + 1
         size = 3;
       } else {
         size = 4;

@@ -49,7 +49,6 @@ class ClothingDetailPage extends ConsumerWidget {
           }
           return Stack(
             children: [
-              // Hintergrund-Gradient (identisch zur WardrobePage)
               Positioned.fill(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -62,7 +61,6 @@ class ClothingDetailPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              // Pinker Blob unten (stärker, da hinter Glass-Sheet)
               Positioned(
                 bottom: -280,
                 left: -60,
@@ -82,7 +80,6 @@ class ClothingDetailPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              // Farbiger Blob hinter dem Foto (Farbe des Kleidungsstücks)
               Positioned(
                 top: 10,
                 left: -40,
@@ -107,7 +104,6 @@ class ClothingDetailPage extends ConsumerWidget {
                   );
                 }),
               ),
-              // Bild oben mit Padding
               Positioned(
                 top: MediaQuery.of(context).padding.top + 56,
                 left: 24,
@@ -125,7 +121,6 @@ class ClothingDetailPage extends ConsumerWidget {
                   ),
                 ),
               ),
-              // Zurück-Button
               Positioned(
                 top: MediaQuery.of(context).padding.top + 12,
                 left: 16,

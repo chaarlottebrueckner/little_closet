@@ -12,8 +12,6 @@ class CollectionRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
-  // ── Streams ────────────────────────────────────────────────────────────────
-
   Stream<List<CollectionWithOutfits>> watchAllCollections() {
     return _db.customSelect(
       'SELECT 1',
@@ -45,8 +43,6 @@ class CollectionRepository {
       return _fetchCollectionContent(rows.first);
     });
   }
-
-  // ── Private fetch helpers ──────────────────────────────────────────────────
 
   Future<List<CollectionWithOutfits>> _fetchAllCollections() async {
     final collections = await (_db.select(_db.collections)
@@ -103,8 +99,6 @@ class CollectionRepository {
         .toList();
     return OutfitWithItems(outfit: outfit, items: items);
   }
-
-  // ── Write operations ───────────────────────────────────────────────────────
 
   Future<String> createCollection(String name) async {
     final id = _uuid.v4();
@@ -186,8 +180,6 @@ class CollectionRepository {
   }
 
 }
-
-// ── Providers ──────────────────────────────────────────────────────────────
 
 final collectionRepositoryProvider = Provider<CollectionRepository>((ref) {
   return CollectionRepository(ref.watch(appDatabaseProvider));

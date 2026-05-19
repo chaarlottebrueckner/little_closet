@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// Full-width gradient action button used in sheets and pages.
-/// Pass null to [onPressed] to render a disabled state.
 class LCGradientButton extends StatelessWidget {
   const LCGradientButton({
     super.key,

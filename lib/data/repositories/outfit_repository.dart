@@ -11,8 +11,6 @@ class OutfitRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
-  // ── Streams ────────────────────────────────────────────────────────────────
-
   Stream<List<OutfitWithItems>> watchAllOutfits() {
     final query = _db.select(_db.outfits).join([
       leftOuterJoin(_db.outfitClothingItems,
@@ -84,7 +82,6 @@ class OutfitRepository {
     });
   }
 
-  // Reacts to both junction changes and outfit metadata changes via the join.
   Stream<List<Outfit>> watchOutfitsContainingItem(String clothingItemId) {
     final query = _db.select(_db.outfitClothingItems).join([
       innerJoin(
@@ -98,8 +95,6 @@ class OutfitRepository {
         .watch()
         .map((rows) => rows.map((r) => r.readTable(_db.outfits)).toList());
   }
-
-  // ── Write operations ───────────────────────────────────────────────────────
 
   Future<bool> isItemUsedInAnyOutfit(String clothingItemId) async {
     final result = await (_db.select(_db.outfitClothingItems)
@@ -187,15 +182,12 @@ class OutfitRepository {
     return rows.length;
   }
 
-  // Called when deleting a clothing item to clean up orphaned junction rows.
   Future<void> removeClothingItemFromAllOutfits(String clothingItemId) async {
     await (_db.delete(_db.outfitClothingItems)
           ..where((t) => t.clothingItemId.equals(clothingItemId)))
         .go();
   }
 }
-
-// ── Providers ──────────────────────────────────────────────────────────────
 
 final outfitRepositoryProvider = Provider<OutfitRepository>((ref) {
   return OutfitRepository(ref.watch(appDatabaseProvider));

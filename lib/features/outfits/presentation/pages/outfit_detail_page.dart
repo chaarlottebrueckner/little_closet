@@ -108,7 +108,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
               ),
             ),
           ),
-          // Back button
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             left: 16,
@@ -117,7 +116,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
               onTap: () => Navigator.pop(context),
             ),
           ),
-          // Download button
           Positioned(
             top: MediaQuery.of(context).padding.top + 12,
             right: 16,

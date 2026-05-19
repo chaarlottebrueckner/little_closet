@@ -1,6 +1,3 @@
-//bottom navigation and managing page transitions
-//navbar and currentIndex state management
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_theme.dart';

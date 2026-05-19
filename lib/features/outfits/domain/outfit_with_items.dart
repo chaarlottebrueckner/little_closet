@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../data/database/app_database.dart';
 
-// Logical canvas dimensions — shared between editor and preview cards
 const double kCanvasWidth = 360.0;
 const double kCanvasHeight = 640.0;
 const double kItemBaseWidth = 100.0;

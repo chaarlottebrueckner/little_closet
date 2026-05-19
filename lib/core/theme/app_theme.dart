@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 class LCColors {
   LCColors._();
 
-  // Core Palette
   static const background = Color(0xFFFAFAFA);
   static const primary = Color(0xFFD4789C);     
   static const accent = Color(0xFFE8A0BF);       
@@ -17,7 +16,6 @@ class LCColors {
   static const surfaceWarm = Color(0xFFF5EEF2);
   static const border = Color(0xFFEDE0E8);
 
-  // Gradients
   static const gradientPink = LinearGradient(
     colors: [Color(0xFFE8A0BF), Color(0xFFD4789C)],
     begin: Alignment.topLeft,
@@ -44,11 +42,9 @@ class LCGlass {
 
   static const Color sheetColor = Color.fromARGB(153, 255, 246, 250);
 
-  // Border: soft pink shimmer
-  static const Color borderColor = Color(0x73E8A0BF); // ~45% opacity
+  static const Color borderColor = Color(0x73E8A0BF);
   static const double borderWidth = 1.0;
 
-  // Shimmer divider gradient (fades to transparent white)
   static const shimmerDivider = LinearGradient(
     colors: [
       Color(0x00FFFFFF),
@@ -155,7 +151,6 @@ class LCTheme {
 
   static TextTheme _buildTextTheme() {
     return TextTheme(
-      // Display — Space Grotesk, bold futuristic headlines
       displayLarge: GoogleFonts.spaceGrotesk(
         fontSize: 57,
         fontWeight: FontWeight.w700,
@@ -174,7 +169,6 @@ class LCTheme {
         color: LCColors.textDark,
         letterSpacing: -0.5,
       ),
-      // Headlines
       headlineLarge: GoogleFonts.spaceGrotesk(
         fontSize: 32,
         fontWeight: FontWeight.w700,
@@ -192,7 +186,6 @@ class LCTheme {
         fontWeight: FontWeight.w600,
         color: LCColors.textDark,
       ),
-      // Titles — DM Sans
       titleLarge: GoogleFonts.dmSans(
         fontSize: 22,
         fontWeight: FontWeight.w600,
@@ -210,7 +203,6 @@ class LCTheme {
         color: LCColors.textDark,
         letterSpacing: 0.1,
       ),
-      // Body
       bodyLarge: GoogleFonts.dmSans(
         fontSize: 16,
         fontWeight: FontWeight.w400,
@@ -226,7 +218,6 @@ class LCTheme {
         fontWeight: FontWeight.w400,
         color: LCColors.textMuted,
       ),
-      // Labels
       labelLarge: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,

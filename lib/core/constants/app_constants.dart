@@ -5,20 +5,16 @@ class AppConstants {
 
   static const String appName = 'little closet';
 
-  // Gemini API
   static const String geminiModel = 'gemini-2.5-flash';
 
-  // Image Storage
   static const String imagesDirName = 'little_closet_images';
 
-  // Priority tiers for dominant color calculation in outfits
   static const List<List<String>> categoryTiers = [
     ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],
     ['Jacke / Mantel', 'Schuhe', 'Sport'],
     ['Accessoire', 'Unterwäsche', 'Sonstiges'],
   ];
 
-  // Category options
   static const List<String> categories = [
     'Oberteil',
     'Hose',
@@ -32,7 +28,6 @@ class AppConstants {
     'Sonstiges',
   ];
 
-  // Subcategories per category
   static const Map<String, List<String>> subcategories = {
     'Oberteil': ['T-Shirt', 'Top', 'Bluse', 'Hemd', 'Pullover', 'Sweatshirt', 'Crop Top', 'Pullunder', 'Weste'],
     'Hose': ['Jeans', 'Chino', 'Jogger', 'Shorts', 'Joggingshorts', 'Culotte', 'Leggings', 'Anzughose'],
@@ -46,7 +41,6 @@ class AppConstants {
     'Sonstiges': ['Sonstiges'],
   };
 
-  // Colors
   static const List<String> colorOptions = [
     'Weiß', 'Schwarz', 'Grau', 'Beige', 'Braun',
     'Rosa', 'Rot', 'Orange', 'Gelb', 'Grün',
@@ -74,19 +68,16 @@ class AppConstants {
     'Mehrfarbig': Color(0xFFE8A0BF),
   };
 
-  // Seasons
   static const List<String> seasons = [
     'Frühling', 'Sommer', 'Herbst', 'Winter',
   ];
 
-  // Style tags
   static const List<String> styleTags = [
     'Casual', 'Chic', 'Business', 'Sport', 'Party',
     'Romantic', 'Edgy', 'Minimalist', 'Boho', 'Y2K',
     'Streetwear', 'Preppy', 'Grunge', 'Vintage', 'Elegant',
   ];
 
-  // Weather tags
   static const List<String> weatherTags = [
     'Sonne', 'Bewölkt', 'Regen', 'Schnee', 'Wind',
   ];

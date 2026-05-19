@@ -13,11 +13,8 @@ class CreateCollectionSheet extends StatefulWidget {
     this.onCreated,
   });
 
-  /// Non-null puts the sheet into rename mode.
   final String? existingName;
 
-  /// Called with the trimmed name. The sheet closes itself after awaiting.
-  /// In create mode, should return the new collection's ID; in rename mode null is fine.
   final Future<String?> Function(String name) onSubmit;
 
   /// Called with the new collection ID after creation (create mode only).

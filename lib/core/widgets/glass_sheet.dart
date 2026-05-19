@@ -2,12 +2,6 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
-/// A frosted-glass container, designed for bottom sheets and overlays.
-///
-/// Usage in showModalBottomSheet:
-///   backgroundColor: Colors.transparent,
-///   barrierColor: Colors.transparent,
-///   builder: (_) => GlassSheet(child: ...)
 class GlassSheet extends StatelessWidget {
   final Widget child;
   final BorderRadius borderRadius;

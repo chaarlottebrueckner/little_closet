@@ -71,14 +71,12 @@ class _OutfitItemSheetState extends ConsumerState<OutfitItemSheet> {
               child: CustomScrollView(
                 controller: widget.scrollController,
                 slivers: [
-                  // Drag handle
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
                         const SizedBox(height: 12),
                         const LCSheetHandle(),
                         const SizedBox(height: 14),
-                        // Filter chips
                         SizedBox(
                           height: 34,
                           child: ListView(
@@ -113,7 +111,6 @@ class _OutfitItemSheetState extends ConsumerState<OutfitItemSheet> {
                       ],
                     ),
                   ),
-                  // Grid
                   if (filtered.isEmpty)
                     SliverToBoxAdapter(
                       child: Padding(
@@ -160,7 +157,6 @@ class _OutfitItemSheetState extends ConsumerState<OutfitItemSheet> {
                 ],
               ),
             ),
-            // Confirm button — fixed at bottom, only when pending
             if (_pendingIds.isNotEmpty)
               Padding(
                 padding: EdgeInsets.fromLTRB(

@@ -49,7 +49,6 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
         ),
       );
     } else {
-      // Peek animation to hint that the sheet is draggable
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.delayed(const Duration(milliseconds: 300));
         if (!mounted) return;
@@ -89,7 +88,6 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
         ));
       }
     });
-    // Collapse sheet so user sees items appear on canvas
     _sheetController.animateTo(
       _sheetMin,
       duration: const Duration(milliseconds: 350),
@@ -295,7 +293,6 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
                       height: canvasAreaHeight,
                       child: Stack(
                         children: [
-                          // Pink gradient fills the side gaps
                           Positioned.fill(
                             child: Container(
                               decoration: const BoxDecoration(

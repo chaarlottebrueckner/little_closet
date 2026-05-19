@@ -71,7 +71,6 @@ class _FilterSheetState extends State<FilterSheet> {
               children: [
                 const SizedBox(height: 14),
                 const LCSheetHandle(),
-                // Header
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 18, 16, 0),
                   child: Row(
@@ -108,7 +107,6 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                // Shimmer divider
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Container(
@@ -119,7 +117,6 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                // Scrollable filter sections
                 Expanded(
                   child: ListView(
                     controller: scrollController,
@@ -145,7 +142,6 @@ class _FilterSheetState extends State<FilterSheet> {
                     ],
                   ),
                 ),
-                // Apply button
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 4, 24, 32),
                   child: SizedBox(
