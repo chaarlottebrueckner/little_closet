@@ -284,7 +284,7 @@ class _SheetItemCard extends StatelessWidget {
                 ? LCColors.primary
                 : alreadyAdded
                     ? LCColors.primary.withValues(alpha: 0.4)
-                    : const Color(0xFFEDE0E8),
+                    : LCColors.border,
             width: isPending ? 2.5 : 1,
           ),
           boxShadow: isPending

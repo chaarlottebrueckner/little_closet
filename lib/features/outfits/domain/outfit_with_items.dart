@@ -54,14 +54,6 @@ class OutfitWithItems {
     required this.items,
   });
 
-  List<String> get derivedStyleTags =>
-      items.expand((i) => i.item.styleTags).toSet().toList();
-
-  List<String> get derivedWeatherTags =>
-      items.expand((i) => i.item.weatherTags).toSet().toList();
-
-  List<String> get derivedSeasons =>
-      items.expand((i) => i.item.seasons).toSet().toList();
 }
 
 extension OutfitDominantColor on OutfitWithItems {

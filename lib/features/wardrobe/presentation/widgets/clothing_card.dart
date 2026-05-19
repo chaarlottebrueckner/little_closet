@@ -35,20 +35,20 @@ class ClothingCard extends StatelessWidget {
         curve: Curves.easeOut,
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFE8A0BF).withValues(alpha: 0.30)
+              ? LCColors.accent.withValues(alpha: 0.30)
               : cardColor.withValues(alpha: 0.25),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFFD4789C).withValues(alpha: 0.85)
-                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
+                ? LCColors.primary.withValues(alpha: 0.85)
+                : LCColors.accent.withValues(alpha: 0.3),
             width: isSelected ? 2.0 : 0.8,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? const Color(0xFFD4789C).withValues(alpha: 0.22)
-                  : const Color(0xFFD4789C).withValues(alpha: 0.08),
+                  ? LCColors.primary.withValues(alpha: 0.22)
+                  : LCColors.primary.withValues(alpha: 0.08),
               blurRadius: isSelected ? 18 : 12,
               offset: const Offset(0, 4),
             ),

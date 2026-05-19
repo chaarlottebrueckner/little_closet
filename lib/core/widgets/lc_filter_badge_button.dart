@@ -25,12 +25,12 @@ class LCFilterBadgeButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: filterCount > 0
                   ? LCColors.primary.withValues(alpha: 0.12)
-                  : const Color(0xFFEDE0E8).withValues(alpha: 0.5),
+                  : LCColors.border.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: filterCount > 0
                     ? LCColors.primary.withValues(alpha: 0.4)
-                    : const Color(0xFFEDE0E8),
+                    : LCColors.border,
               ),
             ),
             child: Icon(

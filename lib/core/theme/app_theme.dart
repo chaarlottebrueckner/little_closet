@@ -15,6 +15,7 @@ class LCColors {
   static const surface = Color(0xFFFFFFFF);
   static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);
   static const surfaceWarm = Color(0xFFF5EEF2);
+  static const border = Color(0xFFEDE0E8);
 
   // Gradients
   static const gradientPink = LinearGradient(
@@ -39,12 +40,9 @@ class LCColors {
 class LCGlass {
   LCGlass._();
 
-  //maybe change here
-  // Blur strength
-  static const double blurSigma =45.0;
+  static const double blurSigma = 45.0;
 
-  // Sheet background: warm white-pink tint
-  static const Color sheetColor = Color.fromARGB(153, 255, 246, 250); // and change here
+  static const Color sheetColor = Color.fromARGB(153, 255, 246, 250);
 
   // Border: soft pink shimmer
   static const Color borderColor = Color(0x73E8A0BF); // ~45% opacity
@@ -118,7 +116,7 @@ class LCTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFFEDE0E8), width: 1),
+          side: const BorderSide(color: LCColors.border, width: 1),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -129,7 +127,7 @@ class LCTheme {
           fontWeight: FontWeight.w500,
           color: LCColors.textDark,
         ),
-        side: const BorderSide(color: Color(0xFFEDE0E8)),
+        side: const BorderSide(color: LCColors.border),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
@@ -139,11 +137,11 @@ class LCTheme {
         fillColor: LCColors.surface,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFEDE0E8)),
+          borderSide: const BorderSide(color: LCColors.border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFFEDE0E8)),
+          borderSide: const BorderSide(color: LCColors.border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),

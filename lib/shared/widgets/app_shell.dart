@@ -54,7 +54,7 @@ class _LCBottomNav extends StatelessWidget {
       decoration: BoxDecoration(
         color: LCColors.surface,
         border: const Border(
-          top: BorderSide(color: Color(0xFFEDE0E8), width: 1),
+          top: BorderSide(color: LCColors.border, width: 1),
         ),
         boxShadow: [
           BoxShadow(

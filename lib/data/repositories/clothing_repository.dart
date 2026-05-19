@@ -1,9 +1,3 @@
-//ui doesn't ask database directly, it goes through this repository layer 
-//which abstracts away the database details and provides a clean API for 
-//the rest of the app to interact with clothing items. This way, if we want to change 
-//our database implementation in the future, we only need to update this repository without
-// affecting the rest of the codebase.
-
 import 'dart:io';
 
 import 'package:drift/drift.dart';
@@ -20,23 +14,24 @@ class ClothingRepository {
   final AppDatabase _db;
   static const _uuid = Uuid();
 
-  Future<String> saveImage(XFile file) async {
+  Future<Directory> _imagesDir() async {
     final dir = await getApplicationDocumentsDirectory();
     final imagesDir = Directory('${dir.path}/little_closet_images');
     if (!await imagesDir.exists()) {
       await imagesDir.create(recursive: true);
     }
+    return imagesDir;
+  }
+
+  Future<String> saveImage(XFile file) async {
+    final imagesDir = await _imagesDir();
     final destPath = '${imagesDir.path}/${_uuid.v4()}.jpg';
     await File(file.path).copy(destPath);
     return destPath;
   }
 
   Future<String> saveImageBytes(Uint8List bytes, {String extension = 'png'}) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final imagesDir = Directory('${dir.path}/little_closet_images');
-    if (!await imagesDir.exists()) {
-      await imagesDir.create(recursive: true);
-    }
+    final imagesDir = await _imagesDir();
     final destPath = '${imagesDir.path}/${_uuid.v4()}.$extension';
     await File(destPath).writeAsBytes(bytes);
     return destPath;
