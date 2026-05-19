@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
@@ -10,6 +11,7 @@ import '../../../outfits/domain/outfit_with_items.dart';
 import '../widgets/outfit_editor_canvas.dart';
 import '../widgets/outfit_item_tray.dart';
 import '../widgets/outfit_save_sheet.dart';
+import '../widgets/outfit_tutorial_overlay.dart';
 
 class OutfitEditorPage extends ConsumerStatefulWidget {
   final OutfitWithItems? initialOutfit;
@@ -24,6 +26,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
   final List<EditableItem> _items = [];
   String? _selectedItemId;
   bool _isSaving = false;
+  bool _showTutorial = false;
   final _sheetController = DraggableScrollableController();
 
   static const double _sheetMin = 0.35;
@@ -73,6 +76,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
   }
 
   void _addItems(List<ClothingItem> items) {
+    final wasEmpty = _items.isEmpty;
     setState(() {
       for (final item in items) {
         final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
@@ -91,6 +95,16 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeOut,
     );
+    if (wasEmpty && widget.initialOutfit == null) _maybeShowTutorial();
+  }
+
+  Future<void> _maybeShowTutorial() async {
+    final prefs = await SharedPreferences.getInstance();
+    final shown = prefs.getBool('outfit_editor_tutorial_shown') ?? false;
+    if (!shown && mounted) {
+      await prefs.setBool('outfit_editor_tutorial_shown', true);
+      setState(() => _showTutorial = true);
+    }
   }
 
   void _bringToFront(String id) {
@@ -329,6 +343,12 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
               ),
             ),
           ),
+          if (_showTutorial)
+            Positioned.fill(
+              child: OutfitTutorialOverlay(
+                onDismiss: () => setState(() => _showTutorial = false),
+              ),
+            ),
         ],
       ),
     );
