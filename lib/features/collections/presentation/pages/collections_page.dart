@@ -112,7 +112,7 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
             final screenWidth = MediaQuery.of(context).size.width;
-            const gap = 8.0;
+            const gap = 14.0;
             const hPad = 16.0;
             final cellW = (screenWidth - hPad * 2 - gap) / 2;
             final cellH = cellW * 0.9 + 44;

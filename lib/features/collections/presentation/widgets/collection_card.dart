@@ -50,8 +50,8 @@ class CollectionCard extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? const Color(0xFFD4789C).withValues(alpha: 0.85)
-                : const Color(0xFFE8A0BF).withValues(alpha: 0.3),
-            width: isSelected ? 2.0 : 0.8,
+                : const Color(0xFFE8A0BF).withValues(alpha: 0.31),
+            width: isSelected ? 2.0 : 1.0,
           ),
         ),
         child: Stack(
