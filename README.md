@@ -63,9 +63,9 @@ flutter run
 
 ## Screenshots
 
-![Garderobe](screenshots/garderobe.png)
-![Outfit-Editor](screenshots/outfit_editor.png)
-![Kollektionen](screenshots/kollektionen.png)
+![Startseite](screenshots/startseite.jpeg)
+![Outfits](screenshots/outfitsSeite.jpeg)
+![Kollektionen](screenshots/kollektionenSeite.jpeg)
 
 ---
 
