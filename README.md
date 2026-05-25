@@ -1,127 +1,132 @@
-# 💗 little closet
+# little closet
 
 Ein Garderobe-Management-App für Android.  
 Studienprojekt — Flutter + Gemini AI + Drift DB.
 
 ---
 
-## 🚀 Setup-Anleitung (Schritt für Schritt)
+## Setup
 
 ### Voraussetzungen
-- Flutter SDK installiert (https://docs.flutter.dev/get-started/install)
+- Flutter SDK (https://docs.flutter.dev/get-started/install)
 - Android Studio oder VS Code mit Flutter-Plugin
-- Ein Android-Gerät (Samsung S24) oder Emulator
+- Android-Gerät oder Emulator
 
-### 1. Projekt öffnen
-```bash
-# Diesen Ordner in VS Code oder Android Studio öffnen
-cd little_closet
-```
-
-### 2. Dependencies installieren
+### 1. Dependencies installieren
 ```bash
 flutter pub get
 ```
 
-### 3. Google Fonts — Schriften herunterladen
-Die App verwendet **Cormorant Garamond** und **DM Sans**.  
-Da `google_fonts` diese automatisch aus dem Internet lädt, brauchst du für den ersten Start eine Internetverbindung.
-
-Optional: Schriften lokal einbetten  
-→ Download von https://fonts.google.com  
-→ `.ttf`-Dateien in `assets/fonts/` legen
-
-### 4. Gemini API Key eintragen
-```dart
-// lib/core/constants/app_constants.dart
-static const String geminiApiKey = 'DEIN_KEY_HIER';
+### 2. Gemini API Key eintragen
+Datei `assets/.env` anlegen:
 ```
-→ Key holen unter: https://aistudio.google.com/app/apikey
+GEMINI_API_KEY=dein_key_hier
+```
+Key holen unter: https://aistudio.google.com/app/apikey
 
-### 5. App starten
+### 3. Code generieren (Drift + Riverpod)
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+### 4. App starten
 ```bash
 flutter run
 ```
 
 ---
 
-## 📁 Projektstruktur
+## Features
+
+**Garderobe**
+- Kleidungsstücke per Kamera oder Galerie hinzufügen
+- Automatische KI-Klassifizierung via Gemini 2.5 Flash (Kategorie, Farbe, Stil, Saison)
+- Filter nach Kategorie, Farbe, Saison, Stil
+- Detail-Ansicht, Bearbeiten, Löschen
+- Mehrfachauswahl zum Löschen
+
+**Outfits**
+- Drag & Drop Canvas-Editor (Position, Größe, Rotation)
+- Automatische Tag-Vorschläge aus den verwendeten Items
+- Filter nach Stil, Wetter, Saison
+- Export als PNG (weiß oder transparent)
+- Mehrfachauswahl zum Löschen
+
+**Kollektionen**
+- Kollektionen erstellen und umbenennen
+- Outfits per Picker hinzufügen/entfernen
+- Automatisch generiertes Mosaic-Cover
+- Filter nach Stil, Wetter, Saison
+- Mehrfachauswahl zum Löschen
+
+---
+
+## Screenshots
+
+<!-- Screenshot Garderobe hier einfügen -->
+<!-- Screenshot Outfit-Editor hier einfügen -->
+<!-- Screenshot Kollektionen hier einfügen -->
+
+---
+
+## Architektur
+
+Feature-basierte Clean Architecture:
 
 ```
 lib/
-├── main.dart                          # App-Einstiegspunkt
 ├── core/
-│   ├── theme/
-│   │   └── app_theme.dart             # Farben, Typografie, Theme
-│   └── constants/
-│       └── app_constants.dart         # Kategorien, Tags, API-Key
+│   ├── constants/      # Kategorien, Farben, Saison- und Style-Tags (Deutsch)
+│   ├── models/         # ClothingClassification (Gemini-Response)
+│   ├── navigation/     # App-Routen
+│   ├── services/       # GeminiService, RemoveBgService
+│   ├── theme/          # LCColors, LCGlass, LCTheme
+│   └── widgets/        # Wiederverwendbare UI-Komponenten (LCChip, LCGradientFab …)
+├── data/
+│   ├── database/       # Drift-Datenbank (Schema v7, Migrationen)
+│   └── repositories/   # ClothingRepository, OutfitRepository, CollectionRepository
 ├── features/
-│   ├── wardrobe/                      # 🧥 Seite 1: Garderobe
-│   │   └── presentation/pages/
-│   │       └── wardrobe_page.dart
-│   ├── outfits/                       # 👗 Seite 2: Outfits
-│   │   └── presentation/pages/
-│   │       └── outfits_page.dart
-│   └── collections/                   # 📚 Seite 3: Kollektionen
-│       └── presentation/pages/
-│           └── collections_page.dart
+│   ├── wardrobe/       # Garderobe-Feature (vollständig)
+│   ├── outfits/        # Outfit-Feature (in Arbeit)
+│   └── collections/    # Kollektionen-Feature (in Arbeit)
 └── shared/
-    └── widgets/
-        └── app_shell.dart             # Bottom Navigation
+    └── widgets/        # AppShell (Bottom Navigation)
 ```
 
----
+**State Management:** Riverpod — Provider entweder neben dem Repository oder via `@riverpod`-Annotation generiert. Widgets nutzen `ConsumerWidget` / `ConsumerStatefulWidget`.
 
-## 🗺️ Roadmap
+**Datenbank:** Drift (SQLite). Tabellen in `lib/data/database/tables/`. `List<String>`-Felder (Farben, Saisons, Tags) werden als JSON gespeichert. Bei Tabellenänderungen Schema-Version erhöhen und Migration in `app_database.dart` ergänzen.
 
-### ✅ Phase 0 — Grundgerüst (JETZT FERTIG)
-- [x] Projektstruktur
-- [x] Design-System (Farben, Schriften, Theme)
-- [x] 3 Hauptseiten als Platzhalter
-- [x] Bottom Navigation
-- [x] Android Permissions
-
-### 🔜 Phase 1 — Bild-Upload & KI-Klassifizierung
-- [ ] image_picker einbinden (Kamera + Galerie)
-- [ ] Bild anzeigen nach Auswahl
-- [ ] Gemini API aufrufen → Kategorie, Farbe, Style vorschlagen
-- [ ] KI-Ergebnis anzeigen und bearbeitbar machen
-
-### 🔜 Phase 2 — Drift Datenbank
-- [ ] ClothingItem-Modell erstellen
-- [ ] Isar einrichten und initialisieren
-- [ ] Kleidungsstück speichern
-- [ ] Kleidungsstücke als Grid anzeigen
-
-### 🔜 Phase 3 — Garderobe vervollständigen
-- [ ] Filter-Funktion (Kategorie, Farbe, Saison, Style)
-- [ ] Detail-Ansicht für Kleidungsstück
-- [ ] Kleidungsstück bearbeiten & löschen
-- [ ] Kleidungsstück-Karte mit freigestelltem Bild
-
-### 🔜 Phase 4 — Outfit-Editor
-- [ ] Canvas mit Drag-and-Drop
-- [ ] Outfit speichern
-- [ ] Outfit-Filter
-
-### 🔜 Phase 5 — Kollektionen
-- [ ] Kollektion erstellen
-- [ ] Outfits zuweisen
-- [ ] Cover-Bild generieren
+**Navigation:** `AppShell` verwaltet die Bottom Navigation per `IndexedStack`. Modale Sheets (`showModalBottomSheet`) für Detail, Upload, Filter und Hinzufügen.
 
 ---
 
-## 🎨 Design-System
+## Design System
 
-| Token | Farbe | Verwendung |
-|-------|-------|------------|
-| `primary` | `#D4789C` | Haupt-Akzentfarbe, Buttons |
-| `accent` | `#E8A0BF` | Highlights, helle Elemente |
-| `deep` | `#9B4F72` | Kontraste, dunkle Akzente |
-| `chrome` | `#C0C0C0` | Silber, futuristische Details |
-| `background` | `#FAFAFA` | App-Hintergrund |
-| `surface` | `#FFFFFF` | Karten, Böden |
-| `textDark` | `#1A1A1A` | Primärer Text |
-| `textMuted` | `#8A8A8A` | Sekundärer Text |
+Y2k-Girly-Ästhetik: Frosted-Glass-Sheets, Pink-Gradienten, animierte Chips.
 
-**Schriften:** Cormorant Garamond (Headlines) + DM Sans (Body)
+**Schriften:** Space Grotesk (Headlines) + DM Sans (Body) via `google_fonts`
+
+| Token | Verwendung |
+|-------|------------|
+| `LCColors.primary` | Haupt-Akzent, Buttons |
+| `LCColors.accent` | Highlights |
+| `LCColors.deep` | Kontraste |
+| `LCColors.chrome` | Silber, futuristische Details |
+| `LCGlass` | Glasmorphismus-Konstanten (Blur, Sheet-Farbe, Border) |
+
+Alle Styling-Token in `lib/core/theme/app_theme.dart`.
+
+---
+
+## Tech Stack
+
+| Bereich | Library |
+|---------|---------|
+| Framework | Flutter |
+| State Management | Riverpod + riverpod_generator |
+| Datenbank | Drift (SQLite) |
+| KI | Gemini 2.5 Flash (via HTTP) |
+| Fonts | google_fonts |
+| Bildauswahl | image_picker |
+| Animationen | flutter_animate |

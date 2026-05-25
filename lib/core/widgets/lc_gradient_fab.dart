@@ -20,6 +20,10 @@ class LCGradientFAB extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LCColors.gradientPink,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.35),
+          width: 1.0,
+        ),
         boxShadow: [
           BoxShadow(
             color: LCColors.primary.withValues(alpha: 0.4),

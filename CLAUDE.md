@@ -35,13 +35,13 @@ lib/
 
 **State management**: Riverpod. All providers live either next to the repository (`clothing_repository.dart`) or are generated via `@riverpod` annotations. Widgets use `ConsumerWidget` / `ConsumerStatefulWidget`.
 
-**Database**: Drift (SQLite). Tables are in `lib/data/database/tables/`. The database class and providers are in `app_database.dart`. `List<String>` fields (colors, seasons, tags) are stored as JSON via `StringListConverter`. Schema version is currently 2 — increment it and add a migration step in `app_database.dart` when changing tables.
+**Database**: Drift (SQLite). Tables are in `lib/data/database/tables/`. The database class and providers are in `app_database.dart`. `List<String>` fields (colors, seasons, tags) are stored as JSON via `StringListConverter`. Schema version is currently 7 — increment it and add a migration step in `app_database.dart` when changing tables.
 
 **Navigation**: `AppShell` manages bottom navigation between the three main pages via `IndexedStack`. Modal sheets (`showModalBottomSheet`) are used for detail, upload, filter, and add-clothing flows — not go_router.
 
-## Wardrobe Feature Structure
+## Feature Structure
 
-The wardrobe feature is the only fully implemented feature. Outfits and Collections are placeholder pages.
+All three features are fully implemented.
 
 ```
 wardrobe/
@@ -59,6 +59,42 @@ wardrobe/
       wardrobe_header.dart       # Title + filter button
       selection_bar.dart         # Multi-select delete bar (ConsumerWidget, calls repo directly)
       wardrobe_empty_state.dart  # Empty grid state
+
+outfits/
+  domain/
+    outfit_filters.dart          # Pure Dart filter state class
+    outfit_with_items.dart       # Outfit + positioned items aggregate
+    editable_item.dart           # Item state on canvas (pos, scale, rotation, zIndex)
+  presentation/
+    pages/
+      outfits_page.dart          # Main grid, filter chips, FAB
+      outfit_editor_page.dart    # Drag & drop canvas editor
+      outfit_detail_page.dart    # Read-only preview, export as PNG
+    widgets/
+      outfit_editor_canvas.dart  # GestureDetector canvas with item handles
+      outfit_item_handle.dart    # Per-item drag/scale/rotate handle
+      outfit_item_tray.dart      # Bottom tray to pick clothing items
+      outfit_canvas_preview.dart # Read-only canvas render (used in detail + card)
+      outfit_card.dart           # Grid item card
+      outfit_filter_sheet.dart   # Bottom sheet filter UI
+      outfit_save_sheet.dart     # Tag confirmation before saving
+      outfit_tutorial_overlay.dart # First-use tutorial
+      outfit_empty_state.dart    # Empty grid state
+      outfits_header.dart        # Title + filter button
+
+collections/
+  domain/
+    collection_with_outfits.dart # Collection + outfit list aggregate
+  presentation/
+    pages/
+      collections_page.dart      # Main grid, FAB
+      collection_detail_page.dart # Outfit grid within collection, rename, delete
+    widgets/
+      collection_card.dart        # Grid item card with mosaic cover
+      collection_cover_mosaic.dart # Auto-generated cover from outfit previews
+      collections_header.dart     # Title + filter button
+      create_collection_sheet.dart # Name input on creation
+      outfit_picker_sheet.dart    # Toggle outfits in/out of collection
 ```
 
 ## Design System
