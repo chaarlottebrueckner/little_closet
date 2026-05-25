@@ -68,24 +68,19 @@ class SelectionBar extends ConsumerWidget {
                             ),
                       ),
                     ),
-                    OutlinedButton(
+                    IconButton(
                       onPressed: onCancel,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      icon: const Icon(Icons.close_rounded),
+                      tooltip: 'Abbrechen',
+                      style: IconButton.styleFrom(
+                        foregroundColor: LCColors.primary,
                         side: BorderSide(
                           color: LCColors.primary.withValues(alpha: 0.5),
                           width: 1.2,
                         ),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
-                      ),
-                      child: const Text(
-                        'Abbrechen',
-                        style: TextStyle(
-                          color: LCColors.primary,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13,
-                        ),
+                        padding: const EdgeInsets.all(10),
                       ),
                     ),
                     const SizedBox(width: 10),
