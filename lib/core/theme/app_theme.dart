@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class LCColors {
   LCColors._();
 
   static const background = Color(0xFFFAFAFA);
-  static const primary = Color(0xFFD4789C);     
-  static const accent = Color(0xFFE8A0BF);       
-  static const deep = Color(0xFF9B4F72);          
-  static const chrome = Color(0xFFC0C0C0);       
-  static const textDark = Color(0xFF1A1A1A);     
-  static const textMuted = Color(0xFF8A8A8A);     
+  static const primary = Color(0xFFD4789C);
+  static const accent = Color(0xFFE8A0BF);
+  static const deep = Color(0xFF9B4F72);
+  static const chrome = Color(0xFFC0C0C0);
+  static const textDark = Color(0xFF1A1A1A);
+  static const textMuted = Color(0xFF8A8A8A);
   static const surface = Color(0xFFFFFFFF);
   static const surfaceGlass = Color.fromARGB(153, 255, 255, 255);
   static const surfaceWarm = Color(0xFFF5EEF2);
@@ -72,17 +71,18 @@ class LCTheme {
       ),
       scaffoldBackgroundColor: LCColors.background,
       textTheme: _buildTextTheme(),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: LCColors.background,
         elevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.spaceGrotesk(
+        titleTextStyle: TextStyle(
+          fontFamily: 'SpaceGrotesk',
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: LCColors.textDark,
           letterSpacing: 1.5,
         ),
-        iconTheme: const IconThemeData(color: LCColors.textDark),
+        iconTheme: IconThemeData(color: LCColors.textDark),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: LCColors.surface,
@@ -100,7 +100,8 @@ class LCTheme {
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          textStyle: GoogleFonts.dmSans(
+          textStyle: const TextStyle(
+            fontFamily: 'DMSans',
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -118,7 +119,8 @@ class LCTheme {
       chipTheme: ChipThemeData(
         backgroundColor: LCColors.background,
         selectedColor: LCColors.primary.withValues(alpha: 0.15),
-        labelStyle: GoogleFonts.dmSans(
+        labelStyle: const TextStyle(
+          fontFamily: 'DMSans',
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: LCColors.textDark,
@@ -143,92 +145,107 @@ class LCTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: LCColors.primary, width: 1.5),
         ),
-        labelStyle: GoogleFonts.dmSans(color: LCColors.textMuted),
-        hintStyle: GoogleFonts.dmSans(color: LCColors.textMuted),
+        labelStyle: const TextStyle(fontFamily: 'DMSans', color: LCColors.textMuted),
+        hintStyle: const TextStyle(fontFamily: 'DMSans', color: LCColors.textMuted),
       ),
     );
   }
 
   static TextTheme _buildTextTheme() {
-    return TextTheme(
-      displayLarge: GoogleFonts.spaceGrotesk(
+    return const TextTheme(
+      displayLarge: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 57,
         fontWeight: FontWeight.w700,
         color: LCColors.textDark,
         letterSpacing: -1.0,
       ),
-      displayMedium: GoogleFonts.spaceGrotesk(
+      displayMedium: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 45,
         fontWeight: FontWeight.w700,
         color: LCColors.textDark,
         letterSpacing: -0.5,
       ),
-      displaySmall: GoogleFonts.spaceGrotesk(
+      displaySmall: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 36,
         fontWeight: FontWeight.w700,
         color: LCColors.textDark,
         letterSpacing: -0.5,
       ),
-      headlineLarge: GoogleFonts.spaceGrotesk(
+      headlineLarge: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 32,
         fontWeight: FontWeight.w700,
         color: LCColors.textDark,
         letterSpacing: -0.25,
       ),
-      headlineMedium: GoogleFonts.spaceGrotesk(
+      headlineMedium: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 28,
         fontWeight: FontWeight.w600,
         color: LCColors.textDark,
         letterSpacing: -0.25,
       ),
-      headlineSmall: GoogleFonts.spaceGrotesk(
+      headlineSmall: TextStyle(
+        fontFamily: 'SpaceGrotesk',
         fontSize: 24,
         fontWeight: FontWeight.w600,
         color: LCColors.textDark,
       ),
-      titleLarge: GoogleFonts.dmSans(
+      titleLarge: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 22,
         fontWeight: FontWeight.w600,
         color: LCColors.textDark,
       ),
-      titleMedium: GoogleFonts.dmSans(
+      titleMedium: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: LCColors.textDark,
         letterSpacing: 0.15,
       ),
-      titleSmall: GoogleFonts.dmSans(
+      titleSmall: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: LCColors.textDark,
         letterSpacing: 0.1,
       ),
-      bodyLarge: GoogleFonts.dmSans(
+      bodyLarge: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: LCColors.textDark,
       ),
-      bodyMedium: GoogleFonts.dmSans(
+      bodyMedium: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: LCColors.textDark,
       ),
-      bodySmall: GoogleFonts.dmSans(
+      bodySmall: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 12,
         fontWeight: FontWeight.w400,
         color: LCColors.textMuted,
       ),
-      labelLarge: GoogleFonts.dmSans(
+      labelLarge: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 14,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.5,
       ),
-      labelMedium: GoogleFonts.dmSans(
+      labelMedium: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 12,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.5,
       ),
-      labelSmall: GoogleFonts.dmSans(
+      labelSmall: TextStyle(
+        fontFamily: 'DMSans',
         fontSize: 10,
         fontWeight: FontWeight.w500,
         letterSpacing: 1.0,

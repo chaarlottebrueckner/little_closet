@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 
@@ -114,9 +113,10 @@ class _TutorialCard extends StatelessWidget {
                   shaderCallback: (bounds) => const LinearGradient(
                     colors: [Color(0xFFD4789C), Color(0xFFE8A0BF)],
                   ).createShader(bounds),
-                  child: Text(
+                  child: const Text(
                     'SO GEHT\'S',
-                    style: GoogleFonts.spaceGrotesk(
+                    style: TextStyle(
+                      fontFamily: 'SpaceGrotesk',
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2.5,
@@ -125,9 +125,10 @@ class _TutorialCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(
+                const Text(
                   'Gestalte deinen Look',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(
+                    fontFamily: 'DMSans',
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: LCColors.textDark,
@@ -189,9 +190,10 @@ class _DragHint extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Verschieben',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(
+            fontFamily: 'DMSans',
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: LCColors.textMuted,
@@ -248,9 +250,10 @@ class _PinchHint extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Skalieren',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(
+            fontFamily: 'DMSans',
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: LCColors.textMuted,
@@ -305,9 +308,10 @@ class _RotateHint extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(
+        const Text(
           'Drehen',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(
+            fontFamily: 'DMSans',
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: LCColors.textMuted,

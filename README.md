@@ -105,7 +105,7 @@ lib/
 
 Y2k-Girly-Ästhetik: Frosted-Glass-Sheets, Pink-Gradienten, animierte Chips.
 
-**Schriften:** Space Grotesk (Headlines) + DM Sans (Body) via `google_fonts`
+**Schriften:** Space Grotesk (Headlines) + DM Sans (Body) — lokal eingebunden (`assets/fonts/`)
 
 | Token | Verwendung |
 |-------|------------|
@@ -127,6 +127,6 @@ Alle Styling-Token in `lib/core/theme/app_theme.dart`.
 | State Management | Riverpod + riverpod_generator |
 | Datenbank | Drift (SQLite) |
 | KI | Gemini 2.5 Flash (via HTTP) |
-| Fonts | google_fonts |
+| Fonts | lokal (assets/fonts/) |
 | Bildauswahl | image_picker |
 | Animationen | flutter_animate |

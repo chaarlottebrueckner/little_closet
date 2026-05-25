@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../domain/collection_with_outfits.dart';
@@ -117,7 +116,8 @@ class CollectionCard extends StatelessWidget {
           Expanded(
             child: Text(
               collection.collection.name,
-              style: GoogleFonts.spaceGrotesk(
+              style: const TextStyle(
+                fontFamily: 'SpaceGrotesk',
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
               ),
