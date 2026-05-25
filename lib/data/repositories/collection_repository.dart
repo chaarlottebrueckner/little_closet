@@ -161,15 +161,6 @@ class CollectionRepository {
         .go();
   }
 
-  Future<void> addOutfitsToCollection(
-      String collectionId, List<String> outfitIds) async {
-    await _db.transaction(() async {
-      for (final outfitId in outfitIds) {
-        await addOutfitToCollection(collectionId, outfitId);
-      }
-    });
-  }
-
   Future<void> removeOutfitsFromCollection(
       String collectionId, List<String> outfitIds) async {
     await _db.transaction(() async {

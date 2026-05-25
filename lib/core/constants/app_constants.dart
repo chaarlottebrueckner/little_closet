@@ -3,11 +3,7 @@ import 'package:flutter/material.dart';
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'little closet';
-
   static const String geminiModel = 'gemini-2.5-flash';
-
-  static const String imagesDirName = 'little_closet_images';
 
   static const List<List<String>> categoryTiers = [
     ['Ganzkörper', 'Oberteil', 'Hose', 'Rock'],

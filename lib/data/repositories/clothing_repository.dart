@@ -39,10 +39,7 @@ class ClothingRepository {
 
   Stream<List<ClothingItem>> watchAllItems() {
     return (_db.select(_db.clothingItems)
-          ..orderBy([
-            (t) => OrderingTerm.asc(t.sortOrder),
-            (t) => OrderingTerm.desc(t.createdAt),
-          ]))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
         .watch();
   }
 
@@ -174,8 +171,6 @@ class ClothingRepository {
         );
   }
 
-  Future<void> deleteUserTag(String id) =>
-      (_db.delete(_db.userTags)..where((t) => t.id.equals(id))).go();
 }
 
 final clothingRepositoryProvider = Provider<ClothingRepository>((ref) {

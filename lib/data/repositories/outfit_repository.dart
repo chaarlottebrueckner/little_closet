@@ -19,10 +19,7 @@ class OutfitRepository {
           _db.clothingItems.id
               .equalsExp(_db.outfitClothingItems.clothingItemId)),
     ])
-      ..orderBy([
-        OrderingTerm.asc(_db.outfits.sortOrder),
-        OrderingTerm.desc(_db.outfits.createdAt),
-      ]);
+      ..orderBy([OrderingTerm.desc(_db.outfits.createdAt)]);
 
     return query.watch().map((rows) {
       final outfitMap = <String, (Outfit, List<PositionedItem>)>{};
@@ -94,14 +91,6 @@ class OutfitRepository {
     return query
         .watch()
         .map((rows) => rows.map((r) => r.readTable(_db.outfits)).toList());
-  }
-
-  Future<bool> isItemUsedInAnyOutfit(String clothingItemId) async {
-    final result = await (_db.select(_db.outfitClothingItems)
-          ..where((t) => t.clothingItemId.equals(clothingItemId))
-          ..limit(1))
-        .getSingleOrNull();
-    return result != null;
   }
 
   Future<String> createOutfit() async {
@@ -182,11 +171,6 @@ class OutfitRepository {
     return rows.length;
   }
 
-  Future<void> removeClothingItemFromAllOutfits(String clothingItemId) async {
-    await (_db.delete(_db.outfitClothingItems)
-          ..where((t) => t.clothingItemId.equals(clothingItemId)))
-        .go();
-  }
 }
 
 final outfitRepositoryProvider = Provider<OutfitRepository>((ref) {
