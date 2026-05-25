@@ -1,5 +1,5 @@
 name: little_closet
-description: "A futuristic, y2k-girly wardrobe management app."
+description: "A wardrobe management app with AI-based clothing classification and outfit editor."
 publish_to: 'none'
 version: 1.0.0+1
 

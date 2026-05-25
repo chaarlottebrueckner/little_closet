@@ -63,9 +63,9 @@ flutter run
 
 ## Screenshots
 
-<!-- Screenshot Garderobe hier einfügen -->
-<!-- Screenshot Outfit-Editor hier einfügen -->
-<!-- Screenshot Kollektionen hier einfügen -->
+![Garderobe](screenshots/garderobe.png)
+![Outfit-Editor](screenshots/outfit_editor.png)
+![Kollektionen](screenshots/kollektionen.png)
 
 ---
 
@@ -103,7 +103,7 @@ lib/
 
 ## Design System
 
-Y2k-Girly-Ästhetik: Frosted-Glass-Sheets, Pink-Gradienten, animierte Chips.
+Glasmorphismus mit Frosted-Glass-Sheets, Rosa-Gradienten und futuristischem Y2K-Designstil; animierte Chips für interaktives Feedback.
 
 **Schriften:** Space Grotesk (Headlines) + DM Sans (Body) — lokal eingebunden (`assets/fonts/`)
 

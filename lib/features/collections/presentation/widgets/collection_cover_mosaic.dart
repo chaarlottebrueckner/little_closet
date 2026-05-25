@@ -26,42 +26,54 @@ class CollectionCoverMosaic extends StatelessWidget {
     if (slots.length == 1) {
       mosaic = slots[0];
     } else if (slots.length == 2) {
-      mosaic = Row(children: [
-        Expanded(child: slots[0]),
-        _vDivider(),
-        Expanded(child: slots[1]),
-      ]);
+      mosaic = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: slots[0]),
+          _vDivider(),
+          Expanded(child: slots[1]),
+        ],
+      );
     } else if (slots.length == 3) {
-      mosaic = Row(children: [
-        Expanded(child: slots[0]),
-        _vDivider(),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(child: slots[1]),
-              _hDivider(),
-              Expanded(child: slots[2]),
-            ],
+      mosaic = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(child: slots[0]),
+          _vDivider(),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: slots[1]),
+                _hDivider(),
+                Expanded(child: slots[2]),
+              ],
+            ),
           ),
-        ),
-      ]);
+        ],
+      );
     } else {
       mosaic = Column(children: [
         Expanded(
-          child: Row(children: [
-            Expanded(child: slots[0]),
-            _vDivider(),
-            Expanded(child: slots[1]),
-          ]),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: slots[0]),
+              _vDivider(),
+              Expanded(child: slots[1]),
+            ],
+          ),
         ),
         _hDivider(),
         Expanded(
-          child: Row(children: [
-            Expanded(child: slots[2]),
-            _vDivider(),
-            Expanded(child: slots[3]),
-          ]),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: slots[2]),
+              _vDivider(),
+              Expanded(child: slots[3]),
+            ],
+          ),
         ),
       ]);
     }
