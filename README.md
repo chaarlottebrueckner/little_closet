@@ -63,9 +63,11 @@ flutter run
 
 ## Screenshots
 
-![Startseite](screenshots/startseite.jpeg)
-![Outfits](screenshots/outfitsSeite.jpeg)
-![Kollektionen](screenshots/kollektionenSeite.jpeg)
+<p align="center">
+  <img src="screenshots/startseite.jpeg" width="250" alt="Startseite">
+  <img src="screenshots/outfitsSeite.jpeg" width="250" alt="Outfits">
+  <img src="screenshots/kollektionenSeite.jpeg" width="250" alt="Kollektionen">
+</p>
 
 ---
 
