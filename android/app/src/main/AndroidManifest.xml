@@ -47,11 +47,4 @@
         </provider>
     </application>
 
-    <queries>
-        <package android:name="com.google.android.apps.photos" />
-        <package android:name="com.sec.android.gallery3d" />
-        <package android:name="com.miui.gallery" />
-        <package android:name="com.coloros.gallery3d" />
-        <package android:name="com.android.gallery3d" />
-    </queries>
 </manifest>
