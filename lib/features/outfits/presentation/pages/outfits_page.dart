@@ -112,7 +112,11 @@ class _OutfitsPageState extends ConsumerState<OutfitsPage> {
                   children: [
                     OutfitsHeader(
                       filters: _filters,
-                      onFilterTap: _showFilterSheet,
+                      onFilterTap:
+                          ref.watch(outfitsProvider).valueOrNull?.isNotEmpty ==
+                                  true
+                              ? _showFilterSheet
+                              : null,
                     ),
                     if (_filters.hasAny && !_isSelectionMode) _buildActiveFilterChips(),
                     Expanded(child: _buildContent()),

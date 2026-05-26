@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../data/repositories/clothing_repository.dart';
 import '../../../../data/repositories/collection_repository.dart';
+import '../../../../data/repositories/outfit_repository.dart';
 import '../../../../features/wardrobe/presentation/widgets/selection_bar.dart';
 import 'collection_detail_page.dart';
 import '../widgets/collection_card.dart';
@@ -10,6 +12,7 @@ import '../../../../core/navigation/app_routes.dart';
 import '../../../../core/widgets/lc_gradient_fab.dart';
 import '../../../../core/widgets/lc_page_background.dart';
 import '../widgets/collections_header.dart';
+import '../widgets/collections_empty_state.dart';
 import '../widgets/create_collection_sheet.dart';
 import '../../domain/collection_with_outfits.dart';
 
@@ -96,10 +99,12 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
         ),
         floatingActionButton: _isSelectionMode
             ? null
-            : LCGradientFAB(
-                onPressed: _showCreateSheet,
-                label: 'Kollektion erstellen',
-              ),
+            : ref.watch(outfitsProvider).valueOrNull?.isNotEmpty == true
+                ? LCGradientFAB(
+                    onPressed: _showCreateSheet,
+                    label: 'Kollektion erstellen',
+                  )
+                : null,
       ),
     );
   }
@@ -111,6 +116,22 @@ class _CollectionsPageState extends ConsumerState<CollectionsPage> {
           ),
           error: (e, _) => Center(child: Text('Fehler: $e')),
           data: (collections) {
+            final clothing = ref.watch(clothingItemsProvider).valueOrNull ?? [];
+            final outfits = ref.watch(outfitsProvider).valueOrNull ?? [];
+
+            if (clothing.isEmpty) {
+              return const CollectionsEmptyState(
+                  reason: CollectionsEmptyReason.noClothing);
+            }
+            if (outfits.isEmpty) {
+              return const CollectionsEmptyState(
+                  reason: CollectionsEmptyReason.noOutfits);
+            }
+            if (collections.isEmpty) {
+              return const CollectionsEmptyState(
+                  reason: CollectionsEmptyReason.noCollections);
+            }
+
             final screenWidth = MediaQuery.of(context).size.width;
             const gap = 14.0;
             const hPad = 16.0;

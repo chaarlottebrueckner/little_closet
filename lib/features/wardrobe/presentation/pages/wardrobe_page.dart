@@ -83,7 +83,11 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
                   children: [
                     WardrobeHeader(
                       filters: _filters,
-                      onFilterTap: _showFilterSheet,
+                      onFilterTap:
+                          ref.watch(clothingItemsProvider).valueOrNull?.isNotEmpty ==
+                                  true
+                              ? _showFilterSheet
+                              : null,
                     ),
                     if (_filters.hasAny && !_isSelectionMode)
                       _buildActiveFilterChips(),

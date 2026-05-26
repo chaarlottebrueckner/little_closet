@@ -6,12 +6,12 @@ import '../../domain/outfit_filters.dart';
 
 class OutfitsHeader extends StatelessWidget {
   final OutfitActiveFilters filters;
-  final VoidCallback onFilterTap;
+  final VoidCallback? onFilterTap;
 
   const OutfitsHeader({
     super.key,
     required this.filters,
-    required this.onFilterTap,
+    this.onFilterTap,
   });
 
   @override
@@ -65,10 +65,11 @@ class OutfitsHeader extends StatelessWidget {
               ],
             ),
           ),
-          LCFilterBadgeButton(
-            filterCount: filters.count,
-            onTap: onFilterTap,
-          ),
+          if (onFilterTap != null)
+            LCFilterBadgeButton(
+              filterCount: filters.count,
+              onTap: onFilterTap!,
+            ),
         ],
       ),
     );
