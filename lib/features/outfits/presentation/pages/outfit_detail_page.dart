@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gal/gal.dart';
@@ -13,6 +12,7 @@ import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../core/widgets/lc_circle_icon_button.dart';
+import '../../../../core/widgets/lc_snackbar.dart';
 import '../../../../core/widgets/lc_sheet_handle.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/outfit_repository.dart';
@@ -244,20 +244,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
 
       await Gal.putImageBytes(byteData.buffer.asUint8List());
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('In der Galerie gespeichert!'),
-            backgroundColor: LCColors.primary,
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            action: SnackBarAction(
-              label: 'Öffnen',
-              textColor: Colors.white,
-              onPressed: () => const MethodChannel('com.example.little_closet/gallery')
-                  .invokeMethod('openGallery'),
-            ),
-          ),
-        );
+        LCSnackBar.show(context, 'In der Galerie gespeichert!');
       }
     } catch (_) {
     } finally {

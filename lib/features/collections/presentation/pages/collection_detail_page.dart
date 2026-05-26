@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/widgets/lc_snackbar.dart';
 import '../../../../data/repositories/collection_repository.dart';
 import '../../../outfits/presentation/widgets/outfit_empty_state.dart';
 import '../../../outfits/domain/outfit_filters.dart';
@@ -98,12 +99,7 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
         .read(collectionRepositoryProvider)
         .deleteCollectionIfEmpty(widget.collectionId);
     if (deleted && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Kollektion gelöscht – keine Outfits hinzugefügt'),
-          duration: Duration(seconds: 3),
-        ),
-      );
+      LCSnackBar.show(context, 'Kollektion gelöscht – keine Outfits hinzugefügt');
     }
   }
 

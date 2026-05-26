@@ -8,11 +8,11 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/services/gemini_service.dart';
 import '../../../../core/services/remove_bg_service.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../core/widgets/lc_sheet_handle.dart';
+import '../../../../core/widgets/lc_snackbar.dart';
 import '../../../../data/database/app_database.dart';
 import '../../../../data/repositories/clothing_repository.dart';
 import '../widgets/image_source_sheet.dart';
@@ -147,14 +147,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
 
   void _showRemoveBgFailureSnackbar() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Hintergrund konnte nicht entfernt werden.'),
-        backgroundColor: LCColors.primary.withValues(alpha: 0.9),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+    LCSnackBar.show(context, 'Hintergrund konnte nicht entfernt werden.');
   }
 
   void _markUserTouched(String field) {
@@ -199,10 +192,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       }
       if (mounted) {
         Navigator.pop(context, _isEditing ? true : null);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(_isEditing ? 'Gespeichert! ✨' : 'Gespeichert! 🎀')),
-        );
+        LCSnackBar.show(context, _isEditing ? 'Gespeichert! ✨' : 'Gespeichert! 🎀');
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);
