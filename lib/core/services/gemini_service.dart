@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -79,10 +79,10 @@ Respond with this exact JSON structure:
     Uint8List bytes,
     String mimeType,
   ) async {
-    try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
-      if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY_HERE') return null;
+    final apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
+    if (apiKey.isEmpty || apiKey == 'YOUR_GEMINI_API_KEY_HERE') return null;
 
+    try {
       final base64Image = base64Encode(bytes);
 
       final response = await _dio.post(
@@ -118,10 +118,29 @@ Respond with this exact JSON structure:
       final text = response.data['candidates'][0]['content']['parts'][0]['text'] as String;
       final json = jsonDecode(text) as Map<String, dynamic>;
       return ClothingClassification.fromJson(json);
-    } catch (_) {
-      return null;
+    } on DioException catch (e) {
+      debugPrint('GeminiService error: ${e.type} ${e.response?.statusCode} ${e.message}');
+      final status = e.response?.statusCode;
+      if (status == 429) {
+        throw GeminiException('KI-Limit erreicht – bitte manuell ausfüllen.');
+      } else if (status == 401 || status == 403) {
+        throw GeminiException('API-Schlüssel ungültig.');
+      } else if (e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionTimeout) {
+        throw GeminiException('KI-Zeitüberschreitung – bitte manuell ausfüllen.');
+      }
+      throw GeminiException('KI nicht verfügbar – bitte manuell ausfüllen.');
+    } catch (e) {
+      debugPrint('GeminiService unexpected error: $e');
+      throw GeminiException('KI nicht verfügbar – bitte manuell ausfüllen.');
     }
   }
+}
+
+class GeminiException implements Exception {
+  final String userMessage;
+  GeminiException(this.userMessage);
 }
 
 final geminiServiceProvider = Provider<GeminiService>((ref) {

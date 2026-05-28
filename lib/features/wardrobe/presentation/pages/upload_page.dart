@@ -6,6 +6,7 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/models/clothing_classification.dart';
 import '../../../../core/services/gemini_service.dart';
 import '../../../../core/services/remove_bg_service.dart';
 import '../../../../core/widgets/glass_sheet.dart';
@@ -96,41 +97,47 @@ class _UploadPageState extends ConsumerState<UploadPage> {
     });
 
     final geminiService = ref.read(geminiServiceProvider);
-    final result = await geminiService.classifyClothingFromBytes(
-      imageBytes,
-      mimeType: processedBytes != null ? 'image/png' : 'image/jpeg',
-    );
+    ClothingClassification? result;
+    try {
+      result = await geminiService.classifyClothingFromBytes(
+        imageBytes,
+        mimeType: processedBytes != null ? 'image/png' : 'image/jpeg',
+      );
+    } on GeminiException catch (e) {
+      if (mounted) LCSnackBar.show(context, e.userMessage, icon: Icons.info_outline);
+    }
 
     if (!mounted) return;
     if (result != null && result.hasAnyValue) {
+      final r = result;
       setState(() {
-        if (result.category != null && !_userTouchedFields.contains('category')) {
-          _category = result.category;
+        if (r.category != null && !_userTouchedFields.contains('category')) {
+          _category = r.category;
           _subcategory = null;
           _aiFilledFields.add('category');
         }
-        if (result.subcategory != null &&
+        if (r.subcategory != null &&
             !_userTouchedFields.contains('subcategory')) {
-          _subcategory = result.subcategory;
+          _subcategory = r.subcategory;
           _aiFilledFields.add('subcategory');
         }
-        if (result.colors.isNotEmpty && !_userTouchedFields.contains('color')) {
-          _colors..clear()..addAll(result.colors);
+        if (r.colors.isNotEmpty && !_userTouchedFields.contains('color')) {
+          _colors..clear()..addAll(r.colors);
           _aiFilledFields.add('color');
         }
-        if (result.seasons.isNotEmpty &&
+        if (r.seasons.isNotEmpty &&
             !_userTouchedFields.contains('seasons')) {
-          _seasons..clear()..addAll(result.seasons);
+          _seasons..clear()..addAll(r.seasons);
           _aiFilledFields.add('seasons');
         }
-        if (result.styleTags.isNotEmpty &&
+        if (r.styleTags.isNotEmpty &&
             !_userTouchedFields.contains('styleTags')) {
-          _styleTags..clear()..addAll(result.styleTags);
+          _styleTags..clear()..addAll(r.styleTags);
           _aiFilledFields.add('styleTags');
         }
-        if (result.weatherTags.isNotEmpty &&
+        if (r.weatherTags.isNotEmpty &&
             !_userTouchedFields.contains('weatherTags')) {
-          _weatherTags..clear()..addAll(result.weatherTags);
+          _weatherTags..clear()..addAll(r.weatherTags);
           _aiFilledFields.add('weatherTags');
         }
       });
@@ -192,7 +199,7 @@ class _UploadPageState extends ConsumerState<UploadPage> {
       }
       if (mounted) {
         Navigator.pop(context, _isEditing ? true : null);
-        LCSnackBar.show(context, _isEditing ? 'Gespeichert! ✨' : 'Gespeichert! 🎀');
+        LCSnackBar.show(context, 'Gespeichert!', icon: _isEditing ? Icons.auto_awesome : Icons.favorite);
       }
     } finally {
       if (mounted) setState(() => _isSaving = false);

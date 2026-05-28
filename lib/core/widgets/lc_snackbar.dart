@@ -11,10 +11,17 @@ class LCSnackBar {
     Duration duration = const Duration(seconds: 3),
     String? actionLabel,
     VoidCallback? onAction,
+    IconData? icon,
   }) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message, style: const TextStyle(color: Colors.white)),
+        content: icon != null
+            ? Row(children: [
+                Icon(icon, color: Colors.white, size: 18),
+                const SizedBox(width: 8),
+                Expanded(child: Text(message, style: const TextStyle(color: Colors.white))),
+              ])
+            : Text(message, style: const TextStyle(color: Colors.white)),
         backgroundColor: LCColors.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
