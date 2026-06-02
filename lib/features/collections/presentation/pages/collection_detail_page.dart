@@ -252,6 +252,12 @@ class _CollectionDetailPageState extends ConsumerState<CollectionDetailPage> {
                 onConfirm: () => ref
                     .read(collectionRepositoryProvider)
                     .deleteCollection(data.collection.id),
+                onAfterConfirm: () {
+                  if (context.mounted) {
+                    LCSnackBar.show(context, 'Kollektion gelöscht',
+                        icon: Icons.delete_outline_rounded);
+                  }
+                },
               ),
             ),
           ],

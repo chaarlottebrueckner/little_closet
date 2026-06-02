@@ -21,4 +21,26 @@ class EditableItem {
     this.zIndex = 0,
     this.isSelected = false,
   }) : id = const Uuid().v4();
+
+  EditableItem._copy({
+    required this.id,
+    required this.item,
+    required this.posX,
+    required this.posY,
+    required this.scale,
+    required this.rotation,
+    required this.zIndex,
+    required this.isSelected,
+  });
+
+  EditableItem copy() => EditableItem._copy(
+        id: id,
+        item: item,
+        posX: posX,
+        posY: posY,
+        scale: scale,
+        rotation: rotation,
+        zIndex: zIndex,
+        isSelected: isSelected,
+      );
 }

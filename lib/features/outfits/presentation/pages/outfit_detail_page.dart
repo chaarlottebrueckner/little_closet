@@ -258,8 +258,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
   }
 
   Widget _buildInfo(BuildContext context, Outfit outfit) {
-    final hasInfo = outfit.name.isNotEmpty ||
-        outfit.styleTags.isNotEmpty ||
+    final hasInfo = outfit.styleTags.isNotEmpty ||
         outfit.weatherTags.isNotEmpty ||
         outfit.seasons.isNotEmpty;
 
@@ -292,15 +291,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (outfit.name.isNotEmpty) ...[
-          Text(
-            outfit.name,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          const SizedBox(height: 20),
-        ],
         if (outfit.styleTags.isNotEmpty)
           _ChipRow(label: 'STYLE', values: outfit.styleTags),
         if (outfit.weatherTags.isNotEmpty)
@@ -385,14 +375,19 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
   }
 
   void _confirmDelete(BuildContext context, OutfitWithItems current) {
-    final name = current.outfit.name.isNotEmpty ? current.outfit.name : 'Dieses Outfit';
     showLCDeleteConfirmDialog(
       context: context,
       title: 'Outfit löschen',
-      body: 'Möchtest du "$name" wirklich löschen?',
+      body: 'Möchtest du dieses Outfit wirklich löschen?',
       onConfirm: () => ref
           .read(outfitRepositoryProvider)
           .deleteOutfit(widget.outfitWithItems.outfit.id),
+      onAfterConfirm: () {
+        if (context.mounted) {
+          LCSnackBar.show(context, 'Outfit gelöscht',
+              icon: Icons.delete_outline_rounded);
+        }
+      },
     );
   }
 }

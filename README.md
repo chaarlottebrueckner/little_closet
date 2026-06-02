@@ -26,7 +26,7 @@ flutter pub get
 Datei `assets/.env` anlegen:
 ```
 GEMINI_API_KEY=dein_key_hier
-```
+``
 Key holen unter: https://aistudio.google.com/app/apikey
 
 ### 3. Code generieren (Drift + Riverpod)

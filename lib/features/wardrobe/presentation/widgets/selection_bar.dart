@@ -1,6 +1,7 @@
 import 'dart:ui' show ImageFilter;
 
 import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
+import '../../../../core/widgets/lc_snackbar.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -154,7 +155,16 @@ class SelectionBar extends ConsumerWidget {
               ? 'Dieses $itemSingular wirklich löschen?'
               : 'Diese $count $itemPlural wirklich löschen?',
       onConfirm: () => onDeleteConfirmed(idsToDelete),
-      onAfterConfirm: onDeleted,
+      onAfterConfirm: () {
+        if (context.mounted) {
+          LCSnackBar.show(
+            context,
+            '$count ${count == 1 ? itemSingular : itemPlural} gelöscht',
+            icon: Icons.delete_outline_rounded,
+          );
+        }
+        onDeleted();
+      },
     );
   }
 }

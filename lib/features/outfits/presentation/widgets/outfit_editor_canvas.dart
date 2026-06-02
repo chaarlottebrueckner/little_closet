@@ -14,6 +14,7 @@ class OutfitEditorCanvas extends StatelessWidget {
   final void Function(String id) onItemRemove;
   final void Function(String id, double dx, double dy) onItemPan;
   final void Function(String id, double newScale, double newRotation) onItemPinch;
+  final void Function(String id) onItemGestureStart;
 
   const OutfitEditorCanvas({
     super.key,
@@ -23,6 +24,7 @@ class OutfitEditorCanvas extends StatelessWidget {
     required this.onItemRemove,
     required this.onItemPan,
     required this.onItemPinch,
+    required this.onItemGestureStart,
   });
 
   @override
@@ -47,6 +49,7 @@ class OutfitEditorCanvas extends StatelessWidget {
                 editableItem: item,
                 isSelected: item.id == selectedItemId,
                 onSelect: () => onItemSelect(item.id),
+                onGestureStart: () => onItemGestureStart(item.id),
                 onPan: (dx, dy) => onItemPan(item.id, dx, dy),
                 onPinch: (s, r) => onItemPinch(item.id, s, r),
               ),

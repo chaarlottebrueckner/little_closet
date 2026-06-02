@@ -11,6 +11,7 @@ class OutfitItemHandle extends StatefulWidget {
   final EditableItem editableItem;
   final bool isSelected;
   final VoidCallback onSelect;
+  final VoidCallback onGestureStart;
   final void Function(double dx, double dy) onPan;
   final void Function(double scaleDelta, double rotationDelta) onPinch;
 
@@ -19,6 +20,7 @@ class OutfitItemHandle extends StatefulWidget {
     required this.editableItem,
     required this.isSelected,
     required this.onSelect,
+    required this.onGestureStart,
     required this.onPan,
     required this.onPinch,
   });
@@ -32,6 +34,7 @@ class _OutfitItemHandleState extends State<OutfitItemHandle> {
   double _baseRotation = 0.0;
 
   void _onScaleStart(ScaleStartDetails details) {
+    widget.onGestureStart();
     _baseScale = widget.editableItem.scale;
     _baseRotation = widget.editableItem.rotation;
   }

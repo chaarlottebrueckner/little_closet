@@ -24,6 +24,8 @@ class OutfitEditorPage extends ConsumerStatefulWidget {
 
 class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
   final List<EditableItem> _items = [];
+  final List<List<EditableItem>> _history = [];
+  static const int _maxHistory = 20;
   String? _selectedItemId;
   bool _isSaving = false;
   bool _showTutorial = false;
@@ -76,6 +78,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
 
   void _addItems(List<ClothingItem> items) {
     final wasEmpty = _items.isEmpty;
+    _saveSnapshot();
     setState(() {
       for (final item in items) {
         final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
@@ -105,6 +108,22 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
     }
   }
 
+  void _saveSnapshot() {
+    _history.add(_items.map((e) => e.copy()).toList());
+    if (_history.length > _maxHistory) _history.removeAt(0);
+  }
+
+  void _undo() {
+    if (_history.isEmpty) return;
+    setState(() {
+      final prev = _history.removeLast();
+      _items
+        ..clear()
+        ..addAll(prev);
+      _selectedItemId = null;
+    });
+  }
+
   void _bringToFront(String id) {
     final maxZ = _items.fold(0, (max, i) => i.zIndex > max ? i.zIndex : max);
     final item = _items.firstWhere((i) => i.id == id);
@@ -119,12 +138,22 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
   }
 
   void _removeItem(String id) {
+    _saveSnapshot();
     setState(() {
       _items.removeWhere((e) => e.id == id);
       if (_selectedItemId == id) _selectedItemId = null;
       for (var i = 0; i < _items.length; i++) {
         _items[i].zIndex = i;
       }
+    });
+  }
+
+  void _resetRotation() {
+    if (_selectedItemId == null) return;
+    _saveSnapshot();
+    setState(() {
+      final item = _items.firstWhere((e) => e.id == _selectedItemId);
+      item.rotation = 0.0;
     });
   }
 
@@ -218,7 +247,6 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
 
     await ref.read(outfitRepositoryProvider).saveOutfitWithItems(
           outfitId: outfitId,
-          name: '',
           items: positionedItems,
           styleTags: styleTags,
           weatherTags: weatherTags,
@@ -317,6 +345,7 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
                               onItemRemove: _removeItem,
                               onItemPan: _panItem,
                               onItemPinch: _pinchItem,
+                              onItemGestureStart: (_) => _saveSnapshot(),
                             ),
                           ),
                         ],
@@ -340,6 +369,28 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
               ),
             ),
           ),
+          Positioned(
+            right: 8,
+            top: 16,
+            child: Column(
+              spacing: 8,
+              children: [
+                _CanvasActionButton(
+                  icon: Icons.undo_rounded,
+                  enabled: _history.isNotEmpty,
+                  onPressed: _undo,
+                ),
+                _CanvasActionButton(
+                  icon: Icons.straighten_rounded,
+                  enabled: _selectedItemId != null &&
+                      _items.any((e) =>
+                          e.id == _selectedItemId &&
+                          e.rotation != 0.0),
+                  onPressed: _resetRotation,
+                ),
+              ],
+            ),
+          ),
           if (_showTutorial)
             Positioned.fill(
               child: OutfitTutorialOverlay(
@@ -347,6 +398,46 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _CanvasActionButton extends StatelessWidget {
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onPressed;
+
+  const _CanvasActionButton({
+    required this.icon,
+    required this.enabled,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      opacity: enabled ? 1.0 : 0.3,
+      duration: const Duration(milliseconds: 200),
+      child: GestureDetector(
+        onTap: enabled ? onPressed : null,
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: LCGlass.sheetColor,
+            border: Border.all(color: LCGlass.borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: LCColors.primary.withValues(alpha: 0.25),
+                blurRadius: 12,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: Icon(icon, color: LCColors.primary, size: 20),
+        ),
       ),
     );
   }

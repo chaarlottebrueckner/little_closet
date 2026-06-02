@@ -7,6 +7,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/glass_sheet.dart';
 import '../../../../core/widgets/lc_delete_confirm_dialog.dart';
+import '../../../../core/widgets/lc_snackbar.dart';
 import '../../../../core/widgets/lc_chip.dart';
 import '../../../../core/widgets/lc_section_label.dart';
 import '../../../../core/navigation/app_routes.dart';
@@ -277,6 +278,12 @@ class ClothingDetailPage extends ConsumerWidget {
       confirmLabel: outfitCount > 0 ? 'Trotzdem löschen' : 'Löschen',
       onConfirm: () =>
           ref.read(clothingRepositoryProvider).deleteClothingItem(item.id),
+      onAfterConfirm: () {
+        if (context.mounted) {
+          LCSnackBar.show(context, 'Kleidungsstück gelöscht',
+              icon: Icons.delete_outline_rounded);
+        }
+      },
     );
   }
 }

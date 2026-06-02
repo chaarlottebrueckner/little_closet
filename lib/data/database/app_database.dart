@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -62,6 +62,9 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         await customStatement('ALTER TABLE clothing_items DROP COLUMN sort_order');
         await customStatement('ALTER TABLE outfits DROP COLUMN sort_order');
+      }
+      if (from < 8) {
+        await customStatement('ALTER TABLE outfits DROP COLUMN name');
       }
     },
   );

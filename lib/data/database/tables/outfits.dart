@@ -3,7 +3,6 @@ import '../converters.dart';
 
 class Outfits extends Table {
   TextColumn get id => text()();
-  TextColumn get name => text()();
   TextColumn get styleTags =>
       text().map(const StringListConverter()).withDefault(const Constant('[]'))();
   TextColumn get weatherTags =>

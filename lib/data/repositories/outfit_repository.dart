@@ -96,14 +96,13 @@ class OutfitRepository {
   Future<String> createOutfit() async {
     final id = _uuid.v4();
     await _db.into(_db.outfits).insert(
-          OutfitsCompanion.insert(id: id, name: ''),
+          OutfitsCompanion.insert(id: id),
         );
     return id;
   }
 
   Future<void> saveOutfitWithItems({
     required String outfitId,
-    required String name,
     required List<PositionedItem> items,
     List<String>? styleTags,
     List<String>? weatherTags,
@@ -119,7 +118,6 @@ class OutfitRepository {
     await _db.transaction(() async {
       await (_db.update(_db.outfits)..where((t) => t.id.equals(outfitId)))
           .write(OutfitsCompanion(
-        name: Value(name),
         styleTags: Value(resolvedStyleTags),
         weatherTags: Value(resolvedWeatherTags),
         seasons: Value(resolvedSeasons),
