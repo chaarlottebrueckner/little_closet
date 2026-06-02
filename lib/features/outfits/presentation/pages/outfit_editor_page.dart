@@ -278,35 +278,25 @@ class _OutfitEditorPageState extends ConsumerState<OutfitEditorPage> {
           ),
         ),
         actions: [
-          if (_isSaving)
-            const Padding(
-              padding: EdgeInsets.only(right: 16),
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            )
-          else
-            TextButton(
-              onPressed: _items.isEmpty ? null : _startSave,
-              child: ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: _items.isEmpty
-                      ? [LCColors.textMuted, LCColors.textMuted]
-                      : [const Color(0xFFD4789C), const Color(0xFFE8A0BF)],
-                ).createShader(bounds),
-                child: Text(
-                  'Speichern',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 15,
-                    letterSpacing: 0.3,
-                  ),
+          TextButton(
+            onPressed: (_items.isEmpty || _isSaving) ? null : _startSave,
+            child: ShaderMask(
+              shaderCallback: (bounds) => LinearGradient(
+                colors: (_items.isEmpty || _isSaving)
+                    ? [LCColors.textMuted, LCColors.textMuted]
+                    : [const Color(0xFFD4789C), const Color(0xFFE8A0BF)],
+              ).createShader(bounds),
+              child: Text(
+                'Speichern',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
+          ),
         ],
       ),
       body: Stack(
