@@ -35,7 +35,7 @@ lib/
 
 **State management**: Riverpod. All providers live either next to the repository (`clothing_repository.dart`) or are generated via `@riverpod` annotations. Widgets use `ConsumerWidget` / `ConsumerStatefulWidget`.
 
-**Database**: Drift (SQLite). Tables are in `lib/data/database/tables/`. The database class and providers are in `app_database.dart`. `List<String>` fields (colors, seasons, tags) are stored as JSON via `StringListConverter`. Schema version is currently 7 — increment it and add a migration step in `app_database.dart` when changing tables.
+**Database**: Drift (SQLite). Tables are in `lib/data/database/tables/`. The database class and providers are in `app_database.dart`. `List<String>` fields (colors, seasons, tags) are stored as JSON via `StringListConverter`. Schema version is currently 8 — increment it and add a migration step in `app_database.dart` when changing tables.
 
 **Navigation**: `AppShell` manages bottom navigation between the three main pages via `IndexedStack`. Modal sheets (`showModalBottomSheet`) are used for detail, upload, filter, and add-clothing flows — not go_router.
 

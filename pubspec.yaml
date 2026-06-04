@@ -10,9 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Navigation
-  go_router: ^13.2.0
-
   # State Management
   flutter_riverpod: ^2.5.1
   riverpod_annotation: ^2.3.5
