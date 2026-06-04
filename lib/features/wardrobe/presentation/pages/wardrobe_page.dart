@@ -69,7 +69,7 @@ class _WardrobePageState extends ConsumerState<WardrobePage> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: !_isSelectionMode,
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvokedWithResult: (didPop, _) {
         if (!didPop && _isSelectionMode) _exitSelectionMode();
       },
       child: Scaffold(

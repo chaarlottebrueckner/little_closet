@@ -10,7 +10,6 @@ class EditableItem {
   double scale;
   double rotation;
   int zIndex;
-  bool isSelected;
 
   EditableItem({
     required this.item,
@@ -19,7 +18,6 @@ class EditableItem {
     this.scale = 1.0,
     this.rotation = 0.0,
     this.zIndex = 0,
-    this.isSelected = false,
   }) : id = const Uuid().v4();
 
   EditableItem._copy({
@@ -30,7 +28,6 @@ class EditableItem {
     required this.scale,
     required this.rotation,
     required this.zIndex,
-    required this.isSelected,
   });
 
   EditableItem copy() => EditableItem._copy(
@@ -41,6 +38,5 @@ class EditableItem {
         scale: scale,
         rotation: rotation,
         zIndex: zIndex,
-        isSelected: isSelected,
       );
 }

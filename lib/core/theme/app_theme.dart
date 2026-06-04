@@ -7,7 +7,6 @@ class LCColors {
   static const primary = Color(0xFFD4789C);
   static const accent = Color(0xFFE8A0BF);
   static const deep = Color(0xFF9B4F72);
-  static const chrome = Color(0xFFC0C0C0);
   static const textDark = Color(0xFF1A1A1A);
   static const textMuted = Color(0xFF8A8A8A);
   static const surface = Color(0xFFFFFFFF);
@@ -21,17 +20,6 @@ class LCColors {
     end: Alignment.bottomRight,
   );
 
-  static const gradientChrome = LinearGradient(
-    colors: [Color(0xFFE8E8E8), Color(0xFFC0C0C0), Color(0xFFD8D8D8)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  static const gradientSurface = LinearGradient(
-    colors: [Color(0xFFFFFFFF), Color(0xFFF5F0F3)],
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-  );
 }
 
 class LCGlass {
