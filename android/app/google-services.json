@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "862969862856",
+    "project_id": "little-closet",
+    "storage_bucket": "little-closet.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:862969862856:android:b152bff0c2c602184fa3fd",
+        "android_client_info": {
+          "package_name": "com.example.little_closet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBc4SEM1OPTJcMDt2zFpaZjiTuX6zeCT7M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

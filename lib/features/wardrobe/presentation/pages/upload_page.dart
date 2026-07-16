@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/models/clothing_classification.dart';
+import '../../../../core/services/ai_kill_switch_service.dart';
 import '../../../../core/services/gemini_service.dart';
 import '../../../../core/services/remove_bg_service.dart';
 import '../../../../core/widgets/glass_sheet.dart';
@@ -73,6 +74,19 @@ class _UploadPageState extends ConsumerState<UploadPage> {
 
   Future<void> _processImage(XFile imageFile) async {
     if (!mounted) return;
+
+    final killSwitch = ref.read(aiKillSwitchServiceProvider);
+    await killSwitch.refresh();
+    if (!killSwitch.isAiEnabled) {
+      if (mounted) {
+        LCSnackBar.show(
+          context,
+          'KI-Funktionen sind vorübergehend deaktiviert – bitte Felder manuell ausfüllen.',
+          icon: Icons.info_outline,
+        );
+      }
+      return;
+    }
 
     final sourceBytes = await imageFile.readAsBytes();
     Uint8List imageBytes = sourceBytes;
